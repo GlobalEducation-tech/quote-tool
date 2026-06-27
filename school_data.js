@@ -391,6 +391,158 @@ const SCHOOLS = {
         airports: { "LaGuardia / JFK (one way)":225, "Newark NJ (one way)":275 }
       }
     }
+  },
+
+// ──────────────────────────────────────────────────────────
+// ELC Malaysia
+// 通貨: USD / 授業料にSST 6%別途（2025年9月以降）
+// bracketsは4週単位。extraPerWeekは最終ブラケット以降の週単価。
+// ──────────────────────────────────────────────────────────
+  elc_malaysia: {
+    name: "ELC (English Language Company) Malaysia",
+    currency: "USD",
+    campuses: {
+      "kuala-lumpur": {
+        name: "Kuala Lumpur", country: "Malaysia", regFee: 106, peakSupp: 0,
+        courses: {
+          // 授業料（税抜き）。SSTは別途。
+          // 4週=720.80, 8週=1441.60 → 週180.20
+          // 13週目以降は単価が低下するため段階ブラケットで近似
+          "ge": {
+            name: "General English (グループ)",
+            type: "group",
+            prices:   [180.20, 174.90, 162.45],
+            brackets: [1,      13,     25],
+            extraPerWeek: 162.45,
+            commission: 0.20,
+            note: "授業料にSST 6%が別途加算されます（2025年9月〜）。"
+          },
+        },
+        accom: {
+          "none": { name:"なし", low:0, peak:0 },
+        },
+        airports: { "KLIA/KLIA2 (片道・ビザ申請者必須)": 100 }
+      }
+    }
+  },
+
+// ──────────────────────────────────────────────────────────
+// Languages International — Auckland, New Zealand
+// 通貨: NZD / peakSupp なし（全週同一価格）
+// ──────────────────────────────────────────────────────────
+  languages_international: {
+    name: "Languages International",
+    currency: "NZD",
+    campuses: {
+      "auckland": {
+        name: "Auckland", country: "New Zealand", regFee: 275, peakSupp: 0,
+        courses: {
+          "ge-ft":        { name:"General English Full-time (23h/週)",          type:"group", prices:[495], brackets:[1], extraPerWeek:495, commission:0.20 },
+          "ge-pt":        { name:"General English Part-time (13h/週)",          type:"group", prices:[395], brackets:[1], extraPerWeek:395, commission:0.20 },
+          "eb-ft":        { name:"English for Business Full-time (23h/週)",     type:"group", prices:[495], brackets:[1], extraPerWeek:495, commission:0.20 },
+          "eb-pt":        { name:"English for Business Part-time (13h/週)",     type:"group", prices:[395], brackets:[1], extraPerWeek:395, commission:0.20 },
+          "eu-ft":        { name:"English for University Full-time (23h/週)",   type:"group", prices:[495], brackets:[1], extraPerWeek:495, commission:0.20 },
+          "ielts-ft":     { name:"IELTS Preparation Full-time (23h/週)",        type:"group", prices:[495], brackets:[1], extraPerWeek:495, commission:0.20 },
+          "ielts-pt":     { name:"IELTS Preparation Part-time (13h/週)",        type:"group", prices:[395], brackets:[1], extraPerWeek:395, commission:0.20 },
+          "cambridge-ft": { name:"Cambridge English Qualifications Full-time",  type:"group", prices:[495], brackets:[1], extraPerWeek:495, commission:0.20 },
+          "executive-ft": { name:"Executive Course Full-time (午前G＋午後個人)", type:"group", prices:[1750], brackets:[1], extraPerWeek:1750, commission:0.20 },
+          "celta":        { name:"Cambridge CELTA (4週固定)",                   type:"group", prices:[3900], brackets:[1], fixedWeeks:4, commission:0.20 },
+        },
+        accom: {
+          "none":                  { name:"なし",                                            low:0,    peak:0 },
+          "homestay-std":          { name:"Homestay Standard（朝夕食付）",                  low:400,  peak:400,  placementFee:385 },
+          "homestay-pvt":          { name:"Homestay Private Bathroom（朝夕食付）",           low:425,  peak:425,  placementFee:385 },
+          "homestay-u18":          { name:"Homestay 18歳未満",                              low:440,  peak:440,  placementFee:485 },
+          "serviced-apt":          { name:"Serviced Apartment（目安・要確認）",              low:1200, peak:1200, placementFee:385 },
+        },
+        airports: { "Auckland Airport (片道)": 145 }
+      }
+    }
+  },
+
+// ──────────────────────────────────────────────────────────
+// CISL (Converse International School of Languages) San Diego
+// 通貨: USD / 平均7名クラス（最大10名）、プレミア最大4名
+// ──────────────────────────────────────────────────────────
+  cisl: {
+    name: "CISL (Converse International School of Languages)",
+    currency: "USD",
+    campuses: {
+      "san-diego": {
+        name: "San Diego", country: "USA", regFee: 160, peakSupp: 0,
+        courses: {
+          // 価格帯: 1-2週/3週/4-7週/8-12週/13-24週/25週+
+          "standard":        { name:"Standard English (20L/週)",              type:"group", prices:[390,380,375,370,350,335], brackets:[1,3,4,8,13,25], extraPerWeek:335, commission:0.20 },
+          "business":        { name:"Business English (20L/週)",              type:"group", prices:[390,380,375,370,350,335], brackets:[1,3,4,8,13,25], extraPerWeek:335, commission:0.20 },
+          "standard-f1":     { name:"Standard/Business Plus F-1 (22L/週)",   type:"group", prices:[380,375,355,340],         brackets:[4,8,13,25],     extraPerWeek:340, commission:0.20 },
+          "intensive-f1":    { name:"Intensive English F-1 (28L/週)",        type:"group", prices:[450,445,425,410],         brackets:[4,8,13,25],     extraPerWeek:410, commission:0.20 },
+          "afternoon-only":  { name:"Afternoon Elective Only (8L/週)",       type:"group", prices:[190],                    brackets:[1],             extraPerWeek:190, commission:0.20 },
+          "executive":       { name:"Executive English Premier (20L/週)",    type:"group", prices:[875,870,865,860,855,840], brackets:[1,3,4,8,13,25], extraPerWeek:840, commission:0.20 },
+          "executive-f1":    { name:"Executive Intensive F-1 Premier (28L/週)",type:"group",prices:[940,935,910,895],       brackets:[4,8,13,25],     extraPerWeek:895, commission:0.20 },
+          "ielts-4wk":       { name:"IELTS Preparation (4週固定)",            type:"group", prices:[1500], brackets:[1], fixedWeeks:4, commission:0.20 },
+          "ielts-8wk":       { name:"IELTS Preparation (8週固定)",            type:"group", prices:[2960], brackets:[1], fixedWeeks:8, commission:0.20 },
+          "ielts-12wk":      { name:"IELTS Preparation (12週固定)",           type:"group", prices:[4440], brackets:[1], fixedWeeks:12, commission:0.20 },
+          "ge-golf":         { name:"General English + Golf (22L/週)",       type:"group", prices:[475,465,460,455,435,420], brackets:[1,3,4,8,13,25], extraPerWeek:420, commission:0.20 },
+          "ge-tennis":       { name:"General English + Tennis (22L/週)",     type:"group", prices:[465,455,450,445,425,410], brackets:[1,3,4,8,13,25], extraPerWeek:410, commission:0.20 },
+          "ge-surfing":      { name:"General English + Surfing (22L/週)",    type:"group", prices:[665,655,650,645,625,610], brackets:[1,3,4,8,13,25], extraPerWeek:610, commission:0.20 },
+          "1to1":            { name:"One-to-One Private Lessons",             type:"1to1",  pricePerHour:95, commission:0.20 },
+        },
+        accom: {
+          "none":                       { name:"なし",                                                      low:0,   peak:0 },
+          "homestay-hb":                { name:"Homestay Standard・朝夕食付 (shared bath)",                 low:410, peak:435, placementFee:160, halfBoard:true },
+          "homestay-bo":                { name:"Homestay Standard・朝食のみ (shared bath)",                 low:350, peak:375, placementFee:160 },
+          "homestay-exec":              { name:"Homestay Executive・朝夕食付 (private bath, Premier専用)",  low:440, peak:465, placementFee:160, halfBoard:true },
+          "state-street-single":        { name:"State Street Residence・Single private bath (4週〜)",      low:499, peak:499, placementFee:160 },
+          "state-street-double":        { name:"State Street Residence・Double private bath (2名同時)",    low:299, peak:299, placementFee:160 },
+          "usd-summer-single":          { name:"USD Summer Residence・Single (6/28〜8/9限定)",             low:585, peak:585, placementFee:160 },
+          "usd-summer-double":          { name:"USD Summer Residence・Double (6/28〜8/9限定, 2名同時)",    low:440, peak:440, placementFee:160 },
+        },
+        airports: { "San Diego SAN (片道)":160, "LAX (片道)":495, "ホームステイ送迎 (片道)":120 }
+      }
+    }
+  },
+
+// ──────────────────────────────────────────────────────────
+// inlingua Singapore
+// 通貨: SGD（GST込み）/ 登録料 SGD 30 別途
+// ──────────────────────────────────────────────────────────
+  inlingua_sg: {
+    name: "inlingua School of Languages Singapore",
+    currency: "SGD",
+    campuses: {
+      "singapore": {
+        name: "Singapore", country: "Singapore", regFee: 30, peakSupp: 0,
+        courses: {
+          // ── 非SSG登録コース（グループ・週2/4/6/10コマ）────
+          "gen-beginner":    { name:"General Skills Beginner A0 (20時間)",              type:"group", prices:[380], brackets:[1], fixedWeeks:null, commission:0.20, note:"教材費SGD20〜85別途。" },
+          "gen-standard":    { name:"General Skills Elementary〜Mastery (20時間)",      type:"group", prices:[420], brackets:[1], fixedWeeks:null, commission:0.20, note:"教材費SGD20〜85別途。" },
+          "exam-20h":        { name:"Exam Skills IELTS/Goethe/HSK (20時間)",            type:"group", prices:[600], brackets:[1], fixedWeeks:null, commission:0.20, note:"教材費SGD70〜120別途。" },
+          "exam-40h":        { name:"Exam Skills IELTS/Goethe/HSK (40時間)",            type:"group", prices:[1200], brackets:[1], fixedWeeks:null, commission:0.20 },
+          "jlpt-n4":         { name:"JLPT N4 Japanese (12時間・教材費込み)",             type:"group", prices:[280], brackets:[1], fixedWeeks:null, commission:0.20 },
+          "korean-holiday":  { name:"Korean Step into Korean Holiday Programme (20時間)", type:"group", prices:[670], brackets:[1], fixedWeeks:null, commission:0.20, note:"教材費・Visang Master K込み。" },
+          // ── 個人レッスン（1:1）────────────────────────────
+          "1to1":            { name:"Private Lessons Individual 1:1", type:"1to1", pricePerHour:108, commission:0.20, note:"最低2コマ/セッション。予約から6ヶ月以内に消化。" },
+          // ── SSGコース・集中25（週25コマ・グループ20＋自習5）
+          "intensive25-1wk": { name:"Intensive 25 General/Business 1週",  type:"group", prices:[830],   brackets:[1], fixedWeeks:1,  commission:0.20 },
+          "intensive25-2wk": { name:"Intensive 25 General/Business 2週",  type:"group", prices:[1500],  brackets:[1], fixedWeeks:2,  commission:0.20 },
+          "intensive25-4wk": { name:"Intensive 25 General/Business 4週",  type:"group", prices:[2500],  brackets:[1], fixedWeeks:4,  commission:0.20 },
+          "intensive25-8wk": { name:"Intensive 25 General/Business 8週",  type:"group", prices:[4899],  brackets:[1], fixedWeeks:8,  commission:0.20 },
+          "intensive25-12wk":{ name:"Intensive 25 General/Business 12週", type:"group", prices:[7329],  brackets:[1], fixedWeeks:12, commission:0.20 },
+          "intensive25-16wk":{ name:"Intensive 25 General/Business 16週", type:"group", prices:[9738],  brackets:[1], fixedWeeks:16, commission:0.20 },
+          "intensive25-20wk":{ name:"Intensive 25 General/Business 20週", type:"group", prices:[12157], brackets:[1], fixedWeeks:20, commission:0.20 },
+          "intensive25-24wk":{ name:"Intensive 25 General/Business 24週", type:"group", prices:[14555], brackets:[1], fixedWeeks:24, commission:0.20 },
+          "intensive25-26wk":{ name:"Intensive 25 General/Business 26週", type:"group", prices:[15734], brackets:[1], fixedWeeks:26, commission:0.20 },
+          // ── SSGコース・IELTS準備────────────────────────────
+          "ielts-prep-4wk":  { name:"IELTS Preparatory Course 4週",       type:"group", prices:[2600],  brackets:[1], fixedWeeks:4,  commission:0.20 },
+          "ielts-prep-8wk":  { name:"IELTS Preparatory Course 8週",       type:"group", prices:[5228],  brackets:[1], fixedWeeks:8,  commission:0.20 },
+          "ielts-prep-12wk": { name:"IELTS Preparatory Course 12週",      type:"group", prices:[7688],  brackets:[1], fixedWeeks:12, commission:0.20 },
+        },
+        accom: {
+          "none": { name:"なし", low:0, peak:0 },
+        },
+        airports: {}
+      }
+    }
   }
 };
 
@@ -406,21 +558,9 @@ const PRIVATE_LESSON_PRICES = {
   "manhattan":      { "new-york":90 },
   "nese":           { "boston":null },
   "rennert":        { "new-york":85 },
+  // 2026年追加
+  "elc_malaysia":            { "kuala-lumpur": null },        // 個人レッスン料金はPDFに記載なし
+  "languages_international": { "auckland": null },            // 個人レッスン料金はPDFに記載なし（Executive内に含む）
+  "cisl":                    { "san-diego": 95 },             // USD/1レッスン(50分)
+  "inlingua_sg":             { "singapore": 108 },            // SGD/1時間(50分)・1:1
 };
-
-// ここに新しい学校を追加してください ↓
-// 追加方法の例：
-// mynewschool: {
-//   name: "My New School",
-//   currency: "GBP",
-//   campuses: {
-//     "london": {
-//       name: "London", country: "UK", regFee: 85, peakSupp: 30,
-//       courses: {
-//         "ge": { name:"General English", type:"group", prices:[400,370,350], brackets:[1,4,12], commission:0.25 },
-//       },
-//       accom: { "none": { name:"なし", low:0, peak:0 } },
-//       airports: { "Heathrow":150 }
-//     }
-//   }
-// },
