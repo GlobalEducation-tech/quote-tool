@@ -419,11 +419,24 @@ function getPrice(prices, brackets, weeks) {
   return prices[idx];
 }
 
-// 開始日 + 週数 → 終了日（YYYY-MM-DD）
+// 日付を直近の月曜日に補正（すでに月曜なら変更なし）
+function snapToMonday(dateStr) {
+  if (!dateStr) return dateStr;
+  const d = new Date(dateStr);
+  const day = d.getDay(); // 0=日, 1=月, ..., 6=土
+  if (day === 1) return dateStr; // すでに月曜
+  const diff = day === 0 ? 1 : (8 - day); // 日曜なら+1、それ以外は次の月曜まで
+  d.setDate(d.getDate() + diff);
+  return d.toISOString().split("T")[0];
+}
+
+// 開始日（月曜）+ 週数 → 終了日（金曜）
 function addWeeks(startStr, weeks) {
   if (!startStr || !weeks) return "";
-  const d = new Date(startStr);
-  d.setDate(d.getDate() + Math.round(weeks) * 7);
+  const monday = snapToMonday(startStr);
+  const d = new Date(monday);
+  // 週数分進めて金曜（-3日）
+  d.setDate(d.getDate() + Math.round(weeks) * 7 - 3);
   return d.toISOString().split("T")[0];
 }
 
@@ -529,6 +542,7 @@ function updateCourse(id, field, val) {
     }
   } else if (field==="campus") { b.campus=val; b.course=""; }
   else b[field]=val;
+  if (field==="start") b.start = snapToMonday(val);
   if (b.start && b.weeks) b.end = addWeeks(b.start, b.weeks);
   renderCourses(); calcAll();
 }
@@ -588,6 +602,7 @@ function updateAccom(id, field, val) {
     }
   } else if (field==="campus") { b.campus=val; b.accom=""; }
   else b[field]=val;
+  if (field==="start") b.start = snapToMonday(val);
   if (b.start && b.weeks) b.end = addWeeks(b.start, b.weeks);
   renderAccoms(); calcAll();
 }
