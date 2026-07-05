@@ -1041,7 +1041,7 @@ function calcAll() {
   const jpyOtherTotal=allJpyAddons.filter(a=>a.type==="jpy-other").reduce((s,a)=>s+a.jpy,0);
   const actionLearningTotal=allJpyAddons.filter(a=>a.type==="action-learning").reduce((s,a)=>s+a.jpy,0);
   const glOptTotal=allJpyAddons.filter(a=>a.type&&a.type.startsWith("gl-")).reduce((s,a)=>s+a.jpy,0);
-  const grossProfit=totalCommJPY+totalCoord+jpyOtherTotal+actionLearningTotal+glOptTotal;
+  const grossProfit=totalCommJPY+totalCoord+jpyOtherTotal+actionLearningTotal+glOptTotal+totalTTSMarkupJPY+totalProgMarkupJPY;
 
   if(freeeLines.length===0){document.getElementById("result-section").style.display="none";return;}
 
@@ -1083,7 +1083,8 @@ function calcAll() {
     freeeLines,coord:totalCoord,visa:totalVisa,total:totalAll,grossProfit,
     coordSchools:schoolSections.filter(s=>s.coord>0).length,
     visaNote:visaHasExtra,totalCommJPY,totalProgMarkupJPY,totalTTSMarkupJPY,
-    progMarkupPct:0,ttsMarkupPct:0,
+    progMarkupPct: schoolSections.map(s=>parseFloat(s.progMarkup)||0).join("/"),
+    ttsMarkupPct:  schoolSections.map(s=>parseFloat(s.ttsMarkup??10)).join("/"),
     client:document.getElementById("client-name").value,
     project:document.getElementById("project-name").value,
     quoteDate:document.getElementById("quote-date").value,
@@ -1269,14 +1270,16 @@ function _exportToExcel(targets, filename) {
       const cur = l.currency || "GBP";
       const tts = l.tts || 1;
       const effRate = l.effectiveFX || tts;
+      const lTtsPct = l.ttsMarkupPct ?? 0;
+      const lProgPct = l.progMarkupPct ?? 0;
 
       // 学校ヘッダー
       rows.push([`▼ ${l.label}`]);
-      rows.push(["　項目", "外貨金額", "通貨", "TTS", `計算レート(TTS+${q.ttsMarkupPct||0}%)`, "円換算（原価）", "円換算（計算レート）"]);
+      rows.push([`　TTS上乗せ: ${lTtsPct}%　プログラム上乗せ: ${lProgPct}%　計算レート: ${Math.round(effRate*100)/100}`]);
+      rows.push(["　項目", "外貨金額", "通貨", "TTS", `計算レート(TTS+${lTtsPct}%)`, "円換算（原価）", "円換算（計算レート適用）"]);
 
       // 明細行
       l.items && l.items.forEach(item => {
-        // セクション見出し（コース名・宿泊名など）
         rows.push([`　【${item.section}】`]);
         item.lines && item.lines.forEach(ln => {
           const localAmt = ln.local || 0;
@@ -1294,9 +1297,12 @@ function _exportToExcel(targets, filename) {
         });
       });
 
-      // プログラム上乗せ
-      if ((q.progMarkupPct||0) > 0 && l.progGainJPY) {
-        rows.push([`　プログラム上乗せ +${q.progMarkupPct}%`, "", "", "", "", "", Math.round(l.progGainJPY)]);
+      // TTS差益・プログラム上乗せ
+      if (l.ttsGainJPY > 0) {
+        rows.push([`　TTS上乗せ差益 (+${lTtsPct}%)`, "", "", "", "", "", Math.round(l.ttsGainJPY)]);
+      }
+      if (l.progGainJPY > 0) {
+        rows.push([`　プログラム上乗せ (+${lProgPct}%)`, "", "", "", "", "", Math.round(l.progGainJPY)]);
       }
 
       // 学校小計
@@ -1321,6 +1327,8 @@ function _exportToExcel(targets, filename) {
     // ── 合計・粗利 ────────────────────────────────────────
     rows.push(["★ 見積合計", "", "", "", "", "", Math.round(q.total)]);
     rows.push(["　うちコミッション（授業料×コミッション率）", "", "", "", "", "", Math.round(q.totalCommJPY||0)]);
+    rows.push(["　うちTTS上乗せ差益", "", "", "", "", "", Math.round(q.totalTTSMarkupJPY||0)]);
+    rows.push(["　うちプログラム上乗せ益", "", "", "", "", "", Math.round(q.totalProgMarkupJPY||0)]);
     if ((q.coord||0) > 0) rows.push(["　うちコーディネーション", "", "", "", "", "", q.coord]);
     rows.push(["★ 粗利合計", "", "", "", "", "", Math.round(q.grossProfit)]);
     rows.push([]);
