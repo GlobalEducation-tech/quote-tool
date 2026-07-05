@@ -1010,7 +1010,7 @@ function calcAll() {
       if(glPrices[b.type]){const amtJPY=glPrices[b.type]*qty;const el=document.getElementById("d"+b.id+"-sub");if(el)el.textContent=fmtJPY(amtJPY);b._jpyTotal=amtJPY;b._label=`GrandLine ${glLabels[b.type]} × ${qty}`;allJpyAddons.push({label:b._label,jpy:amtJPY,type:b.type});return;}
       if(b.type==="jpy-other"){const amtJPY=(parseFloat(b.amountJPY)||0)*qty;const el=document.getElementById("d"+b.id+"-sub");if(el)el.textContent=fmtJPY(amtJPY);b._jpyTotal=amtJPY;b._label=b.desc||"その他費用";allJpyAddons.push({label:b._label,jpy:amtJPY,type:b.type});return;}
       if(b.type==="transfer"){const cd=getCampData(s.school,s.campus);const price=cd&&b.airport?(cd.airports[b.airport]||0):0;subLocal=price*qty;subItems.push({label:`${b.airport||"空港"}`,local:subLocal});if(s.school&&s.campus){const grp=getGroup(s.school,s.campus);grp.items.push({section:`空港送迎 ${i+1}`,lines:subItems,subtotal:subLocal});grp.totalLocal+=subLocal;}}
-      else{currency=b.currency||"GBP";subLocal=(parseFloat(b.amount)||0)*qty;subItems.push({label:b.desc||b.type,local:subLocal});const gKey="__addons_"+s.id+"__";if(!schoolGroups[gKey])schoolGroups[gKey]={label:`Add-ons (学校 ${si+1})`,yrLabel:"",currency,totalLocal:0,commissionLocal:0,items:[]};schoolGroups[gKey].items.push({section:`Add-on: ${b.desc||b.type}`,lines:subItems,subtotal:subLocal});schoolGroups[gKey].totalLocal+=subLocal;}
+      else{currency=b.currency||getSchoolCurrency(s.school)||"GBP";subLocal=(parseFloat(b.amount)||0)*qty;subItems.push({label:b.desc||b.type,local:subLocal});if(s.school&&s.campus){const grp=getGroup(s.school,s.campus);grp.items.push({section:`Add-on: ${b.desc||b.type}`,lines:subItems,subtotal:subLocal});grp.totalLocal+=subLocal;}}
       const el=document.getElementById("d"+b.id+"-sub");if(el)el.textContent=fmtC(subLocal,currency);
     });
 
@@ -1050,15 +1050,15 @@ function calcAll() {
   freeeLines.forEach(l => {
     if(!l.isJPY){
       tbodyHtml+=`<tr style="background:#f0f5ff"><td colspan="4" style="padding:10px 8px;font-size:13px;font-weight:600;color:#1565c0">🏫 ${l.label}</td></tr>`;
-      l.items&&l.items.forEach(item=>{item.lines&&item.lines.forEach(ln=>{tbodyHtml+=`<tr><td style="padding:6px 8px 6px 20px;font-size:12px;color:#444">${ln.label}</td><td style="text-align:center;font-size:12px">1名</td><td style="text-align:right;font-size:12px">${fmtJPY(Math.round(ln.local*(l.tts||1)))}</td><td style="text-align:right;font-size:12px">${fmtJPY(Math.round(ln.local*(l.tts||1)))}</td></tr>`;});});
-      tbodyHtml+=`<tr style="background:#e8f0fe"><td colspan="2" style="padding:8px 8px 8px 20px;font-size:13px;font-weight:600">小計（${l.label}）</td><td></td><td style="text-align:right;font-size:13px;font-weight:600">${fmtJPY(l.jpy)}</td></tr>`;
+      l.items&&l.items.forEach(item=>{item.lines&&item.lines.forEach(ln=>{tbodyHtml+=`<tr><td style="padding:6px 8px 6px 20px;font-size:12px;color:#444">${ln.label}</td><td style="text-align:center;font-size:12px">1名</td><td style="text-align:right;font-size:12px">${fmt(Math.round(ln.local*(l.tts||1)))}</td><td style="text-align:right;font-size:12px">${fmt(Math.round(ln.local*(l.tts||1)))}</td></tr>`;});});
+      tbodyHtml+=`<tr style="background:#e8f0fe"><td colspan="2" style="padding:8px 8px 8px 20px;font-size:13px;font-weight:600">小計（${l.label}）</td><td></td><td style="text-align:right;font-size:13px;font-weight:600">${fmt(l.jpy)}</td></tr>`;
     } else {
-      tbodyHtml+=`<tr><td style="padding:8px">${l.label}</td><td style="text-align:center">1名</td><td style="text-align:right">${fmtJPY(l.jpy)}</td><td style="text-align:right">${fmtJPY(l.jpy)}</td></tr>`;
+      tbodyHtml+=`<tr><td style="padding:8px">${l.label}</td><td style="text-align:center">1名</td><td style="text-align:right">${fmt(l.jpy)}</td><td style="text-align:right">${fmt(l.jpy)}</td></tr>`;
     }
   });
-  tbodyHtml+=`<tr class="total-row" style="background:#1a1a18"><td colspan="2" style="padding:14px 8px;font-size:16px;font-weight:700;color:#fff">合計</td><td></td><td style="text-align:right;font-size:18px;font-weight:700;color:#fff">${fmtJPY(totalAll)}</td></tr>`;
+  tbodyHtml+=`<tr class="total-row" style="background:#1a1a18"><td colspan="2" style="padding:14px 8px;font-size:16px;font-weight:700;color:#fff">合計</td><td></td><td style="text-align:right;font-size:18px;font-weight:700;color:#fff">${fmt(totalAll)}</td></tr>`;
   document.getElementById("freee-tbody").innerHTML=tbodyHtml;
-  document.getElementById("r-profit").textContent=fmtJPY(grossProfit);
+  document.getElementById("r-profit").textContent=fmt(grossProfit);
 
   // 内訳
   let html="";
