@@ -26,6 +26,7 @@ const SCHOOLS = {
     campuses: {
       "london-central": {
         name: "London Central", country: "UK", regFee: 85, peakSupp: 30,
+        materialsFee: { type:"bracket", brackets:[{maxWeeks:6, fee:40},{maxWeeks:999, fee:60}] },
         courses: {
           "ge-intensive":       { name:"General English Intensive (28 L/W)",            type:"group",    prices:[537,484,455,428,365], brackets:[1,4,8,12,24], commission:0.25 },
           "ge-morning":         { name:"General English Peak Morning (20 L/W)",          type:"group",    prices:[424,384,362,340,299], brackets:[1,4,8,12,24], commission:0.25 },
@@ -57,6 +58,7 @@ const SCHOOLS = {
       },
       "brighton": {
         name: "Brighton", country: "UK", regFee: 85, peakSupp: 30,
+        materialsFee: { type:"bracket", brackets:[{maxWeeks:6, fee:40},{maxWeeks:999, fee:60}] },
         courses: {
           "ge-intensive":        { name:"General English Intensive (28 L/W)",            type:"group",    prices:[520,470,442,416,353], brackets:[1,4,8,12,24], commission:0.25 },
           "ge-morning":          { name:"General English Peak Morning (20 L/W)",          type:"group",    prices:[412,373,350,330,290], brackets:[1,4,8,12,24], commission:0.25 },
@@ -79,6 +81,7 @@ const SCHOOLS = {
       },
       "cambridge": {
         name: "Cambridge", country: "UK", regFee: 85, peakSupp: 30,
+        materialsFee: { type:"bracket", brackets:[{maxWeeks:6, fee:40},{maxWeeks:999, fee:60}] },
         courses: {
           "ge-intensive":        { name:"General English Intensive (28 L/W)",          type:"group", prices:[483,436,410,385,329], brackets:[1,4,8,12,24], commission:0.25 },
           "ge-morning":          { name:"General English Peak Morning (20 L/W)",        type:"group", prices:[382,346,325,306,269], brackets:[1,4,8,12,24], commission:0.25 },
@@ -97,6 +100,7 @@ const SCHOOLS = {
       },
       "eastbourne": {
         name: "Eastbourne", country: "UK", regFee: 85, peakSupp: 30,
+        materialsFee: { type:"bracket", brackets:[{maxWeeks:6, fee:40},{maxWeeks:999, fee:60}] },
         courses: {
           "ge-intensive":        { name:"General English Intensive (28 L/W)",          type:"group", prices:[478,431,406,381,325], brackets:[1,4,8,12,24], commission:0.25 },
           "ge-morning":          { name:"General English Peak Morning (20 L/W)",        type:"group", prices:[378,343,322,303,266], brackets:[1,4,8,12,24], commission:0.25 },
@@ -115,6 +119,7 @@ const SCHOOLS = {
       },
       "london-highgate": {
         name: "London Highgate", country: "UK", regFee: 85, peakSupp: 30,
+        materialsFee: { type:"bracket", brackets:[{maxWeeks:6, fee:40},{maxWeeks:999, fee:60}] },
         courses: {
           "ge-intensive":  { name:"General English Intensive (28 L/W)",          type:"group", prices:[493,445,419,394,336], brackets:[1,4,8,12,24], commission:0.25 },
           "ge-morning":    { name:"General English Peak Morning (20 L/W)",        type:"group", prices:[390,353,333,313,275], brackets:[1,4,8,12,24], commission:0.25 },
@@ -400,6 +405,7 @@ const SCHOOLS = {
     campuses: {
       "kuala-lumpur": {
         name: "Kuala Lumpur", country: "Malaysia", regFee: 106, peakSupp: 0,
+        materialsFee: { type:"bracket", brackets:[{maxWeeks:4,fee:50},{maxWeeks:8,fee:100},{maxWeeks:12,fee:150},{maxWeeks:16,fee:200},{maxWeeks:20,fee:250},{maxWeeks:999,fee:270}] },
         courses: {
           "ge": { name:"General English (グループ)", type:"elc",
             prices:[180.20,174.90,162.45], brackets:[1,13,25], extraPerWeek:162.45, commission:0.20,
@@ -418,6 +424,7 @@ const SCHOOLS = {
     campuses: {
       "auckland": {
         name: "Auckland", country: "New Zealand", regFee: 275, peakSupp: 0,
+        materialsFee: { type:"fixed", fee:140 },
         courses: {
           "ge-ft":        { name:"General English Full-time (23h/週)",         type:"group", prices:[495], brackets:[1], extraPerWeek:495, commission:0.20 },
           "ge-pt":        { name:"General English Part-time (13h/週)",         type:"group", prices:[395], brackets:[1], extraPerWeek:395, commission:0.20 },
@@ -553,6 +560,7 @@ const SCHOOLS = {
     campuses: {
       "portsmouth": {
         name: "Portsmouth", country: "UK", regFee: 80, peakSupp: 20,
+        materialsFee: { type:"bracket", brackets:[{maxWeeks:6, fee:40},{maxWeeks:999, fee:60}] },
         peakStart: "06-01", peakEnd: "08-29",
         courses: {
           "ge-ft":        { name:"Full-time General English",                    type:"group", prices:[335,325,315,305], brackets:[1,5,12,22], extraPerWeek:305, commission:0.20 },
@@ -585,6 +593,141 @@ const SCHOOLS = {
       }
     }
   },
+
+  // ── UCI Division of Continuing Education ────────────────
+  uci_dce: {
+    name: "UCI Division of Continuing Education",
+    currency: "USD",
+    campuses: {
+      "irvine": {
+        name: "Irvine", country: "USA", regFee: 200, peakSupp: 0,
+        courses: {
+          // ACP（Accelerated Certificate Programs）12週間固定
+          "acp-business":    { name:"ACP Business Administration",                  type:"group", prices:[7900],  brackets:[1], fixedWeeks:12, commission:0.20 },
+          "acp-creativity":  { name:"ACP Creativity & Product Development",         type:"group", prices:[7900],  brackets:[1], fixedWeeks:12, commission:0.20 },
+          "acp-data-biz":    { name:"ACP Data Analytics for Business",              type:"group", prices:[7900],  brackets:[1], fixedWeeks:12, commission:0.20 },
+          "acp-data-sci":    { name:"ACP Data Science",                             type:"group", prices:[7900],  brackets:[1], fixedWeeks:12, commission:0.20 },
+          "acp-digital-mkt": { name:"ACP Digital Marketing & Communications",       type:"group", prices:[7900],  brackets:[1], fixedWeeks:12, commission:0.20 },
+          "acp-innovation":  { name:"ACP Innovation Management & Entrepreneurship", type:"group", prices:[7900],  brackets:[1], fixedWeeks:12, commission:0.20 },
+          "acp-intl-biz":    { name:"ACP International Business Operations",        type:"group", prices:[7900],  brackets:[1], fixedWeeks:12, commission:0.20 },
+          "acp-intl-finance":{ name:"ACP International Finance",                    type:"group", prices:[7900],  brackets:[1], fixedWeeks:12, commission:0.20 },
+          "acp-pm":          { name:"ACP Project Management",                       type:"group", prices:[7900],  brackets:[1], fixedWeeks:12, commission:0.20 },
+          "acp-internship":  { name:"ACP Internship Experience",                    type:"group", prices:[2900],  brackets:[1], fixedWeeks:12, commission:0.20 },
+          // ASAP（Academic Study Abroad Program）
+          "asap-gen-3m":     { name:"ASAP General Track 3ヶ月",                     type:"group", prices:[8200],  brackets:[1], fixedWeeks:13, commission:0.20 },
+          "asap-gen-6m":     { name:"ASAP General Track 6ヶ月",                     type:"group", prices:[16400], brackets:[1], fixedWeeks:26, commission:0.20 },
+          "asap-gen-9m":     { name:"ASAP General Track 9ヶ月",                     type:"group", prices:[24600], brackets:[1], fixedWeeks:39, commission:0.20 },
+          "asap-csl-6m":     { name:"ASAP CSL Track 6ヶ月",                         type:"group", prices:[15500], brackets:[1], fixedWeeks:26, commission:0.20 },
+          "asap-csl-9m":     { name:"ASAP CSL Track 9ヶ月",                         type:"group", prices:[22500], brackets:[1], fixedWeeks:39, commission:0.20 },
+          "asap-spec-3m":    { name:"ASAP Specialized Track 3ヶ月",                 type:"group", prices:[11000], brackets:[1], fixedWeeks:13, commission:0.20 },
+          "asap-spec-6m":    { name:"ASAP Specialized Track 6ヶ月",                 type:"group", prices:[22000], brackets:[1], fixedWeeks:26, commission:0.20 },
+          "asap-spec-9m":    { name:"ASAP Specialized Track 9ヶ月",                 type:"group", prices:[33000], brackets:[1], fixedWeeks:39, commission:0.20 },
+          // STAR Programs
+          "star-ug-9m":      { name:"Undergrad STAR Program 9ヶ月",                 type:"group", prices:[35000], brackets:[1], fixedWeeks:39, commission:0.20 },
+          "star-grad-6m":    { name:"Grad STAR General Track 6ヶ月",                type:"group", prices:[24000], brackets:[1], fixedWeeks:26, commission:0.20 },
+          "star-grad-9m":    { name:"Grad STAR General Track 9ヶ月",                type:"group", prices:[29800], brackets:[1], fixedWeeks:39, commission:0.20 },
+          "star-grad-31-9m": { name:"Grad STAR 3+1 Access Track 9ヶ月",             type:"group", prices:[32050], brackets:[1], fixedWeeks:39, commission:0.20 },
+          // ISP（Individualized Study Program）
+          "isp-2wk":         { name:"ISP 2週間セッション",                          type:"group", prices:[1095],  brackets:[1], fixedWeeks:2,  commission:0.20 },
+          "isp-4wk":         { name:"ISP 4週間セッション",                          type:"group", prices:[2190],  brackets:[1], fixedWeeks:4,  commission:0.20 },
+          "isp-6wk":         { name:"ISP 6週間セッション",                          type:"group", prices:[3285],  brackets:[1], fixedWeeks:6,  commission:0.20 },
+        },
+        accom: {
+          "none":     { name:"なし",                                               low:0,   peak:0 },
+          // USH Homestay（$57/日×7日）
+          "ush-bd":   { name:"USH Homestay 朝夕食付 ($57/日)",                     low:399, peak:399, placementFee:300 },
+          "ush-cb":   { name:"USH Homestay 朝食のみ ($47/日)",                     low:329, peak:329, placementFee:300 },
+          "ush-room": { name:"USH Homestay Room Only ($43/日)",                   low:301, peak:301, placementFee:300 },
+        },
+        airports: {
+          "LAX（片道）": 75,
+          "John Wayne SNA（片道）": 45,
+        }
+      }
+    }
+  },
+
+  // ── USH (Universal Student Housing) ─────────────────────
+  // 宿泊専用エントリ（コースなし・地域ごとにキャンパスを設定）
+  // 日額×7日で週単価に換算
+  ush: {
+    name: "USH (Universal Student Housing)",
+    currency: "USD",
+    campuses: {
+      "socal-la": {
+        name: "Southern CA - LA/Irvine/Orange County", country: "USA",
+        regFee: 300, peakSupp: 0,
+        courses: {},
+        accom: {
+          "none":      { name:"なし", low:0, peak:0 },
+          "2meals":    { name:"2 Meals/Day 朝夕食付 ($57/日 = $399/週)", low:399, peak:399 },
+          "breakfast": { name:"Continental Breakfast 朝食付 ($47/日 = $329/週)", low:329, peak:329 },
+          "room":      { name:"Room Only ($43/日 = $301/週)", low:301, peak:301 },
+        },
+        airports: {}
+      },
+      "socal-sd": {
+        name: "Southern CA - San Diego", country: "USA",
+        regFee: 300, peakSupp: 0,
+        courses: {},
+        accom: {
+          "none":      { name:"なし", low:0, peak:0 },
+          "2meals":    { name:"2 Meals/Day 朝夕食付 ($48/日 = $336/週)", low:336, peak:336 },
+          "breakfast": { name:"Continental Breakfast 朝食付 ($43/日 = $301/週)", low:301, peak:301 },
+          "room":      { name:"Room Only ($41/日 = $287/週)", low:287, peak:287 },
+        },
+        airports: {}
+      },
+      "norcal": {
+        name: "Northern CA - SF/San Jose/Bay Area", country: "USA",
+        regFee: 300, peakSupp: 0,
+        courses: {},
+        accom: {
+          "none":      { name:"なし", low:0, peak:0 },
+          "2meals":    { name:"2 Meals/Day 朝夕食付 ($56/日 = $392/週)", low:392, peak:392 },
+          "breakfast": { name:"Continental Breakfast 朝食付 ($50/日 = $350/週)", low:350, peak:350 },
+          "room":      { name:"Room Only ($45/日 = $315/週)", low:315, peak:315 },
+        },
+        airports: {}
+      },
+      "arizona": {
+        name: "Arizona - Phoenix/Tempe (ASU周辺)", country: "USA",
+        regFee: 230, peakSupp: 0,
+        courses: {},
+        accom: {
+          "none":      { name:"なし", low:0, peak:0 },
+          "2meals":    { name:"2 Meals/Day 朝夕食付 ($37/日 = $259/週)", low:259, peak:259 },
+          "breakfast": { name:"Continental Breakfast 朝食付 ($33/日 = $231/週)", low:231, peak:231 },
+          "room":      { name:"Room Only ($29/日 = $203/週)", low:203, peak:203 },
+        },
+        airports: {}
+      },
+      "florida": {
+        name: "Florida - Miami/Coral Gables", country: "USA",
+        regFee: 300, peakSupp: 0,
+        courses: {},
+        accom: {
+          "none":      { name:"なし", low:0, peak:0 },
+          "2meals":    { name:"2 Meals/Day 朝夕食付 ($46/日 = $322/週)", low:322, peak:322 },
+          "breakfast": { name:"Continental Breakfast 朝食付 ($42/日 = $294/週)", low:294, peak:294 },
+          "room":      { name:"Room Only ($36/日 = $252/週)", low:252, peak:252 },
+        },
+        airports: {}
+      },
+      "new-york": {
+        name: "New York - NYC Metro Area", country: "USA",
+        regFee: 300, peakSupp: 0,
+        courses: {},
+        accom: {
+          "none":      { name:"なし", low:0, peak:0 },
+          "2meals":    { name:"2 Meals/Day 朝夕食付 ($68/日 = $476/週)", low:476, peak:476 },
+          "breakfast": { name:"Continental Breakfast 朝食付 ($61/日 = $427/週)", low:427, peak:427 },
+          "room":      { name:"Room Only ($58/日 = $406/週)", low:406, peak:406 },
+        },
+        airports: {}
+      },
+    }
+  },
 };
 
 // 個人レッスン単価（1レッスンあたり、現地通貨）
@@ -606,6 +749,8 @@ const PRIVATE_LESSON_PRICES = {
   "grandline":               { "philippines": null },
   "ih_bangkok":              { "bangkok": 1350 },
   "lsi_portsmouth":          { "portsmouth": 78 },
+  "uci_dce":                 { "irvine": null },
+  "ush":                     { "socal-la": null, "socal-sd": null, "norcal": null, "arizona": null, "florida": null, "new-york": null },
 };
 
 // ここに新しい学校を追加してください ↓

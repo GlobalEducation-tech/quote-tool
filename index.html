@@ -812,11 +812,14 @@ function addAddon() {}  // ダミー
 function renderAddonBlock(b, i, sid) {
   const s = schoolSections.find(x=>x.id===sid);
   const hasGrandline = s && s.school === "grandline";
-  const typeBase = ["transfer","materials","exam","action-learning","jpy-other","other"];
+  const typeBase = ["transfer","materials","exam","action-learning","nyu-sps","ama-3day","ama-5day","jpy-other","other"];
   const typeGrandline = hasGrandline ? ["gl-fieldwork","gl-dinner","gl-lunch","gl-speaking","gl-lesson","gl-night"] : [];
   const typeLabels = {
     transfer:"空港送迎", materials:"教材費", exam:"試験料",
     "action-learning":"アクションラーニングプロジェクト（¥150,000）",
+    "nyu-sps":  "NYU SPS（$1,500）",
+    "ama-3day": "AMA 3 Day（$3,200）",
+    "ama-5day": "AMA 5 Day（$4,400）",
     "jpy-other":"その他（円建て）", other:"その他（外貨建て）",
     "gl-fieldwork":"GL フィールドワーク（¥18,000/回）",
     "gl-dinner":"GL ディナーセッション（¥15,000/回）",
@@ -844,6 +847,14 @@ function renderAddonBlock(b, i, sid) {
     extraHtml=`<div class="field-grid g2">
       <div class="field"><label>単価</label><input type="text" value="¥150,000（固定）" readonly style="background:#f5f5f3;color:#888"></div>
       <div class="field"><label>小計</label><input type="text" value="¥${(150000*(parseFloat(b.qty)||1)).toLocaleString()}" readonly style="background:#f5f5f3;color:#888"></div></div>`;
+  } else if (["nyu-sps","ama-3day","ama-5day"].includes(b.type)) {
+    const usdPrices = {"nyu-sps":1500,"ama-3day":3200,"ama-5day":4400};
+    const baseUSD = usdPrices[b.type];
+    const qty = parseFloat(b.qty)||1;
+    extraHtml=`<div class="field-grid g3">
+      <div class="field"><label>単価（USD）</label><input type="text" value="$${baseUSD.toLocaleString()}" readonly style="background:#f5f5f3;color:#888"></div>
+      <div class="field"><label>上乗せ率（%）</label><input type="number" value="${b.markupPct||0}" min="0" max="100" oninput="updateAddon(${b.id},'markupPct',this.value)"></div>
+      <div class="field"><label>小計（USD）</label><input type="text" value="$${(baseUSD*qty*(1+(parseFloat(b.markupPct)||0)/100)).toLocaleString(undefined,{maximumFractionDigits:0})}" readonly style="background:#f5f5f3;color:#888"></div></div>`;
   } else if (b.type==="jpy-other") {
     extraHtml=`<div class="field-grid g2">
       <div class="field"><label>説明</label><input type="text" id="addon-desc-${b.id}" value="${(b.desc||'').replace(/"/g,'&quot;')}" placeholder="例：上乗せ、サポート費など" onchange="updateAddon(${b.id},'desc',this.value)"></div>
@@ -959,6 +970,23 @@ function calcAll() {
       if(useRegFee>0){subItems.push({label:`登録費`,local:useRegFee});subLocal+=useRegFee;}
       if(b.school==="manhattan"){subLocal+=75;subItems.push({label:`マテリアルフィー`,local:75});}
       if(b.school==="rennert"&&course.type!=="rennert-fixed"){subLocal+=69;subItems.push({label:`スタディマテリアル`,local:69});}
+
+      // 教材費の自動計算（school_data.jsのmaterialsFeeを使用）
+      if (cd.materialsFee && course.type!=="1to1" && course.type!=="wse-1to1") {
+        const mf = cd.materialsFee;
+        let matAmt = 0;
+        if (mf.type === "fixed") {
+          matAmt = mf.fee;
+        } else if (mf.type === "bracket") {
+          for (const br of mf.brackets) {
+            if (weeks <= br.maxWeeks) { matAmt = br.fee; break; }
+          }
+        }
+        if (matAmt > 0) {
+          subLocal += matAmt;
+          subItems.push({ label:`教材費（自動）`, local:matAmt });
+        }
+      }
       const grp=getGroup(b.school,b.campus,b.start);
       grp.items.push({section:`コース ${i+1}: ${course.name}`,lines:subItems,subtotal:subLocal});
       grp.totalLocal+=subLocal;grp.commissionLocal+=commLocal;
@@ -1013,6 +1041,21 @@ function calcAll() {
       const glPrices={"gl-fieldwork":18000,"gl-dinner":15000,"gl-lunch":15000,"gl-speaking":12000,"gl-lesson":3000,"gl-night":7000};
       const glLabels={"gl-fieldwork":"フィールドワーク","gl-dinner":"ディナーセッション","gl-lunch":"ランチセッション","gl-speaking":"パブリックスピーキング","gl-lesson":"追加レッスン","gl-night":"延泊"};
       if(b.type==="action-learning"){const amtJPY=150000*qty;const el=document.getElementById("d"+b.id+"-sub");if(el)el.textContent=fmtJPY(amtJPY);b._jpyTotal=amtJPY;b._label=`アクションラーニングプロジェクト × ${qty}`;allJpyAddons.push({label:b._label,jpy:amtJPY,type:b.type});return;}
+
+      // NYU SPS・AMA（USD建て・上乗せ可）
+      const usdFixed = {"nyu-sps":1500,"ama-3day":3200,"ama-5day":4400};
+      const usdLabels = {"nyu-sps":"NYU SPS","ama-3day":"AMA 3 Day","ama-5day":"AMA 5 Day"};
+      if(usdFixed[b.type]){
+        const baseUSD = usdFixed[b.type] * qty * (1+(parseFloat(b.markupPct)||0)/100);
+        const label = `${usdLabels[b.type]}${b.markupPct>0?` (+${b.markupPct}%)`:""}`;
+        const el=document.getElementById("d"+b.id+"-sub");if(el)el.textContent=fmtC(baseUSD,"USD");
+        // USD建てグループに追加（TTS・上乗せ適用）
+        const gKey="__usd_addon_"+s.id+"__";
+        if(!schoolGroups[gKey]) schoolGroups[gKey]={label:`オプション費用（学校 ${si+1}）`,yrLabel:"",currency:"USD",totalLocal:0,commissionLocal:0,items:[]};
+        schoolGroups[gKey].items.push({section:`Add-on: ${usdLabels[b.type]}`,lines:[{label,local:baseUSD}],subtotal:baseUSD});
+        schoolGroups[gKey].totalLocal+=baseUSD;
+        return;
+      }
       if(glPrices[b.type]){const amtJPY=glPrices[b.type]*qty;const el=document.getElementById("d"+b.id+"-sub");if(el)el.textContent=fmtJPY(amtJPY);b._jpyTotal=amtJPY;b._label=`GrandLine ${glLabels[b.type]} × ${qty}`;allJpyAddons.push({label:b._label,jpy:amtJPY,type:b.type});return;}
       if(b.type==="jpy-other"){const amtJPY=(parseFloat(b.amountJPY)||0)*qty;const el=document.getElementById("d"+b.id+"-sub");if(el)el.textContent=fmtJPY(amtJPY);b._jpyTotal=amtJPY;b._label=b.desc||"その他費用";allJpyAddons.push({label:b._label,jpy:amtJPY,type:b.type});return;}
       if(b.type==="transfer"){const cd=getCampData(s.school,s.campus);const price=cd&&b.airport?(cd.airports[b.airport]||0):0;subLocal=price*qty;subItems.push({label:`${b.airport||"空港"}`,local:subLocal});if(s.school&&s.campus){const grp=getGroup(s.school,s.campus);grp.items.push({section:`空港送迎 ${i+1}`,lines:subItems,subtotal:subLocal});grp.totalLocal+=subLocal;}}
