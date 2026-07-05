@@ -687,7 +687,24 @@ function renderAddons() {
 }
 
 function renderAddonBlock(b, i) {
-  const typeOpts=["transfer","materials","exam","jpy-other","other"].map(t=>`<option value="${t}" ${b.type===t?"selected":""}>${{transfer:"空港送迎",materials:"教材費",exam:"試験料","jpy-other":"その他（円建て）",other:"その他（外貨建て）"}[t]}</option>`).join("");
+  // GrandLineが選択されているコースがあるか確認
+  const hasGrandline = courseBlocks.some(c => c.school === "grandline");
+
+  const typeBase = ["transfer","materials","exam","action-learning","jpy-other","other"];
+  const typeGrandline = hasGrandline ? ["gl-fieldwork","gl-dinner","gl-lunch","gl-speaking","gl-lesson","gl-night"] : [];
+  const typeLabels = {
+    transfer:"空港送迎", materials:"教材費", exam:"試験料",
+    "action-learning":"アクションラーニングプロジェクト（¥150,000）",
+    "jpy-other":"その他（円建て）", other:"その他（外貨建て）",
+    "gl-fieldwork":"GL フィールドワーク（¥18,000/回）",
+    "gl-dinner":   "GL ディナーセッション（¥15,000/回）",
+    "gl-lunch":    "GL ランチセッション（¥15,000/回）",
+    "gl-speaking": "GL パブリックスピーキング（¥12,000/回）",
+    "gl-lesson":   "GL 追加レッスン（¥3,000/時間）",
+    "gl-night":    "GL 延泊（¥7,000/日）",
+  };
+  const allTypes = [...typeBase, ...typeGrandline];
+  const typeOpts = allTypes.map(t=>`<option value="${t}" ${b.type===t?"selected":""}>${typeLabels[t]}</option>`).join("");
   let extraHtml="";
   if (b.type==="transfer") {
     const schoolOpts=`<option value="">選択</option>`+Object.entries(SCHOOLS).map(([k,v])=>`<option value="${k}" ${b.school===k?"selected":""}>${v.name}</option>`).join("");
@@ -710,11 +727,25 @@ function renderAddonBlock(b, i) {
           <option value="return" ${b.dir==="return"?"selected":""}>往復</option>
         </select></div>
       </div>`;
+  } else if (b.type==="action-learning") {
+    extraHtml=`
+      <div class="field-grid g2">
+        <div class="field"><label>単価</label><input type="text" value="¥150,000（固定）" readonly style="background:#f5f5f3;color:#888"></div>
+        <div class="field"><label>小計</label><input type="text" value="¥${(150000*(parseFloat(b.qty)||1)).toLocaleString()}" readonly style="background:#f5f5f3;color:#888"></div>
+      </div>`;
   } else if (b.type==="jpy-other") {
     extraHtml=`
       <div class="field-grid g2">
         <div class="field"><label>説明</label><input type="text" id="addon-desc-${b.id}" value="${(b.desc||'').replace(/"/g,'&quot;')}" placeholder="例：上乗せ、サポート費など" onchange="updateAddon(${b.id},'desc',this.value)"></div>
         <div class="field"><label>金額（円）</label><input type="number" value="${b.amountJPY||''}" min="0" placeholder="0" oninput="updateAddon(${b.id},'amountJPY',this.value)"></div>
+      </div>`;
+  } else if (["gl-fieldwork","gl-dinner","gl-lunch","gl-speaking","gl-lesson","gl-night"].includes(b.type)) {
+    const glUnitLabels = { "gl-fieldwork":"回", "gl-dinner":"回", "gl-lunch":"回", "gl-speaking":"回", "gl-lesson":"時間", "gl-night":"泊" };
+    const glPriceMap = { "gl-fieldwork":18000, "gl-dinner":15000, "gl-lunch":15000, "gl-speaking":12000, "gl-lesson":3000, "gl-night":7000 };
+    extraHtml=`
+      <div class="field-grid g2">
+        <div class="field"><label>単価</label><input type="text" value="¥${glPriceMap[b.type].toLocaleString()} / ${glUnitLabels[b.type]}" readonly style="background:#f5f5f3;color:#888"></div>
+        <div class="field"><label>小計</label><input type="text" value="¥${(glPriceMap[b.type]*(parseFloat(b.qty)||1)).toLocaleString()}" readonly style="background:#f5f5f3;color:#888"></div>
       </div>`;
   } else {
     const currOpts=["GBP","CAD","USD","EUR"].map(c=>`<option value="${c}" ${b.currency===c?"selected":""}>${c}</option>`).join("");
@@ -809,6 +840,26 @@ function calcAll() {
       const t = (course.priceTable && course.priceTable[weeks]) || (weeks * (course.priceTable?.[1]||0));
       subLocal+=t; commLocal+=t*course.commission;
       subItems.push({ label:`${course.name}（${weeks}週）`, local:t });
+
+      // SSP費用: 24週ごとに¥20,000
+      const sspCount = Math.floor(weeks / 24);
+      if (sspCount > 0) {
+        const ssp = sspCount * 20000;
+        subLocal += ssp;
+        subItems.push({ label:`SSP費用 ¥20,000 × ${sspCount}回（24週ごと）`, local:ssp });
+      }
+      // ACR-I: 60日（≒8.57週）以上の滞在で¥20,000
+      if (weeks >= 9) {
+        subLocal += 20000;
+        subItems.push({ label:`ACR-I ¥20,000（60日以上滞在）`, local:20000 });
+      }
+      // ビザ延長: 60日ごとに¥20,000（最初の60日は不要、2回目以降）
+      const visaExtCount = Math.floor(weeks / 8.57) - 1;
+      if (visaExtCount > 0) {
+        const visaExt = visaExtCount * 20000;
+        subLocal += visaExt;
+        subItems.push({ label:`ビザ延長費用 ¥20,000 × ${visaExtCount}回（60日ごと）`, local:visaExt });
+      }
     } else if (course.type==="rennert-fixed") {
       const t = course.fixedPrice;
       subLocal+=t; commLocal+=t*course.commission;
@@ -1003,6 +1054,30 @@ function calcAll() {
     let subLocal=0, currency="GBP";
     let subItems=[];
     const qty=parseFloat(b.qty||1);
+
+    // アクションラーニングプロジェクト（¥150,000・そのまま利益）
+    if (b.type==="action-learning") {
+      const amtJPY = 150000 * qty;
+      const el=document.getElementById("d"+b.id+"-sub");
+      if(el) el.textContent=fmtJPY(amtJPY);
+      b._jpyTotal = amtJPY;
+      b._label = `アクションラーニングプロジェクト × ${qty}`;
+      return;
+    }
+
+    // GrandLineオプション（円建て）
+    const glPrices = { "gl-fieldwork":18000, "gl-dinner":15000, "gl-lunch":15000, "gl-speaking":12000, "gl-lesson":3000, "gl-night":7000 };
+    const glLabels = { "gl-fieldwork":"フィールドワーク", "gl-dinner":"ディナーセッション", "gl-lunch":"ランチセッション", "gl-speaking":"パブリックスピーキング", "gl-lesson":"追加レッスン", "gl-night":"延泊" };
+    if (glPrices[b.type]) {
+      const amtJPY = glPrices[b.type] * qty;
+      const label = `GrandLine ${glLabels[b.type]} × ${qty}`;
+      const el=document.getElementById("d"+b.id+"-sub");
+      if(el) el.textContent=fmtJPY(amtJPY);
+      b._jpyTotal = amtJPY;
+      b._label = label;
+      return;
+    }
+
     if (b.type==="transfer") {
       const cd=getCampData(b.school,b.campus);
       currency=b.school?getSchoolCurrency(b.school):"GBP";
