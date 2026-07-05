@@ -423,12 +423,12 @@ function updateSection(sid, field, val) {
     // 各アイテムにも学校を反映
     s.courses.forEach(b=>{b.country=s.country;b.school=val;b.campus=s.campus;b.course="";});
     s.accoms.forEach(b=>{b.country=s.country;b.school=val;b.campus=s.campus;b.accom="";});
-    s.privLessons.forEach(b=>{b.school=val;b.campus=s.campus;b.pricePerLesson=null;});
+    s.privLessons.forEach(b=>{b.school=val;b.campus=s.campus;b.pricePerLesson=PRIVATE_LESSON_PRICES[val]?.[s.campus]||null;});
   } else if (field==="campus") {
     s.campus=val;
     s.courses.forEach(b=>{b.campus=val;b.course="";});
     s.accoms.forEach(b=>{b.campus=val;b.accom="";});
-    s.privLessons.forEach(b=>{b.campus=val;b.pricePerLesson=PRIVATE_LESSON_PRICES[b.school]?.[val]||null;});
+    s.privLessons.forEach(b=>{b.campus=val;b.pricePerLesson=PRIVATE_LESSON_PRICES[s.school]?.[val]||null;});
   } else if (field==="coord"||field==="visaType") {
     s[field] = field==="coord" ? parseInt(val) : val;
     s.visa = field==="visaType" ? (val==="300000b"?300000:parseInt(val)||0) : s.visa;
@@ -466,7 +466,7 @@ function removeAccom(id) {
 function addPrivLessonToSection(sid) {
   const s=schoolSections.find(x=>x.id===sid);
   if(!s) return;
-  s.privLessons.push({id:++plIdx, school:s.school, campus:s.campus});
+  s.privLessons.push({id:++plIdx, school:s.school, campus:s.campus, pricePerLesson: PRIVATE_LESSON_PRICES[s.school]?.[s.campus]||null});
   renderSchoolSections(); calcAll();
 }
 function removePrivLesson(id) {
@@ -642,11 +642,13 @@ function renderPrivLessons() {}  // ダミー（後方互換性）
 function addPrivLesson() {}      // ダミー
 
 function renderPrivLessonBlock(b, i, sid) {
-  const currency = b.school ? getSchoolCurrency(b.school) : "GBP";
+  const s = schoolSections.find(x=>x.id===sid);
+  const currency = getSchoolCurrency(b.school||s?.school||"");
   const sym = {GBP:"£",USD:"$",CAD:"C$",EUR:"€",THB:"฿",NZD:"NZ$",SGD:"S$",JPY:"¥"}[currency]||"";
-  const defaultPrice = (b.school&&b.campus) ? (PRIVATE_LESSON_PRICES[b.school]?.[b.campus]||null) : null;
+  const defaultPrice = (PRIVATE_LESSON_PRICES[b.school]?.[b.campus]) || (PRIVATE_LESSON_PRICES[b.school]?.[s?.campus]) || null;
+  if (defaultPrice && !b.pricePerLesson) b.pricePerLesson = defaultPrice;
   const priceVal = b.pricePerLesson || defaultPrice || "";
-  const priceNote = defaultPrice ? `（参考: ${sym}${defaultPrice}/回）` : "";
+  const priceNote = defaultPrice ? `（Price list: ${sym}${defaultPrice}/回）` : "";
   let lessonsOpts=`<option value="">選択</option>`;
   for(let n=1;n<=100;n++) lessonsOpts+=`<option value="${n}" ${parseInt(b.lessons)===n?"selected":""}>${n}回</option>`;
   return `<div class="course-block">
