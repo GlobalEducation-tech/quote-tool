@@ -284,7 +284,7 @@ function addSchoolSection() {
     country: "", school: "", campus: "",
     progMarkup: 0, ttsMarkup: 10,
     coord: 150000, visa: 0, visaType: "0",
-    priceListUrl: "",
+    priceListUrls: [],
     courses: [], accoms: [], privLessons: [], addons: [],
   });
   renderSchoolSections();
@@ -342,13 +342,20 @@ function renderSchoolSection(s, si) {
       <div class="field"><label>学校</label><select onchange="updateSection(${s.id},'school',this.value)">${schoolOpts}</select></div>
       ${campKeys.length>1 ? `<div class="field"><label>キャンパス</label><select onchange="updateSection(${s.id},'campus',this.value)">${campOpts}</select></div>` : `<div class="field"><label>キャンパス</label><select onchange="updateSection(${s.id},'campus',this.value)">${campOpts}</select></div>`}
     </div>
-    <!-- Price List URL -->
-    <div class="field" style="margin-bottom:10px">
-      <label>Price List URL（ダブルチェック用）</label>
-      <div style="display:flex;gap:8px;align-items:center">
-        <input type="url" value="${s.priceListUrl||""}" placeholder="https://..." style="flex:1" oninput="updateSection(${s.id},'priceListUrl',this.value)">
-        ${s.priceListUrl ? `<a href="${s.priceListUrl}" target="_blank" style="white-space:nowrap;padding:6px 12px;background:#1565c0;color:#fff;border-radius:6px;font-size:12px;text-decoration:none">Price List ↗</a>` : ""}
+    <!-- Price List URL（複数追加可） -->
+    <div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <label style="font-size:11px;font-weight:500;color:#666;text-transform:uppercase">Price List URL（ダブルチェック用）</label>
+        ${(s.priceListUrls||[]).length < 10 ? `<button class="btn btn-sm" onclick="addPriceListUrl(${s.id})" style="font-size:11px;padding:3px 10px">＋ 追加</button>` : ""}
       </div>
+      ${(s.priceListUrls||[]).length === 0 ? `<div style="font-size:12px;color:#aaa">「＋ 追加」でURLを追加できます</div>` :
+        (s.priceListUrls||[]).map((url, ui) => `
+        <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">
+          <input type="url" value="${url.replace(/"/g,'&quot;')}" placeholder="https://..." style="flex:1;font-size:12px" oninput="updatePriceListUrl(${s.id},${ui},this.value)">
+          ${url ? `<a href="${url}" target="_blank" style="white-space:nowrap;padding:4px 10px;background:#1565c0;color:#fff;border-radius:6px;font-size:11px;text-decoration:none">開く ↗</a>` : ""}
+          <button class="btn btn-sm btn-danger" onclick="removePriceListUrl(${s.id},${ui})" style="font-size:11px;padding:3px 8px">✕</button>
+        </div>`).join("")
+      }
     </div>
 
     <!-- 上乗せ・コーディネーション・ビザ -->
@@ -447,9 +454,30 @@ function updateSection(sid, field, val) {
     s.visa = field==="visaType" ? (val==="300000b"?300000:parseInt(val)||0) : s.visa;
   } else {
     s[field] = parseFloat(val)||0;
-    if (field === "priceListUrl") s[field] = val;  // URLはそのまま文字列で保存
   }
   renderSchoolSections(); calcAll();
+}
+
+// Price List URL 操作
+function addPriceListUrl(sid) {
+  const s = schoolSections.find(x=>x.id===sid);
+  if (!s) return;
+  if (!s.priceListUrls) s.priceListUrls = [];
+  if (s.priceListUrls.length >= 10) return;
+  s.priceListUrls.push("");
+  renderSchoolSections();
+}
+function removePriceListUrl(sid, idx) {
+  const s = schoolSections.find(x=>x.id===sid);
+  if (!s||!s.priceListUrls) return;
+  s.priceListUrls.splice(idx, 1);
+  renderSchoolSections();
+}
+function updatePriceListUrl(sid, idx, val) {
+  const s = schoolSections.find(x=>x.id===sid);
+  if (!s||!s.priceListUrls) return;
+  s.priceListUrls[idx] = val;
+  // 入力中はre-renderしない（フォーカスが外れるため）
 }
 
 // コース追加
