@@ -992,11 +992,15 @@ function calcAll() {
 
     // PRIVATE LESSONS（このセクション内）
     s.privLessons.forEach((b, i) => {
-      if(!b.school||!b.campus||!b.lessons||!b.pricePerLesson){const el=document.getElementById("pl"+b.id+"-sub");if(el)el.textContent="—";return;}
-      const currency=getSchoolCurrency(b.school);const total=b.pricePerLesson*b.lessons;
-      const grp=getGroup(b.school,b.campus);
+      if(!b.lessons||!b.pricePerLesson){const el=document.getElementById("pl"+b.id+"-sub");if(el)el.textContent="—";return;}
+      // 学校はセクション側の設定を使う
+      const schoolKey = b.school || s.school;
+      const campusKey = b.campus || s.campus;
+      const currency=getSchoolCurrency(schoolKey);
+      const total=parseFloat(b.pricePerLesson)*parseInt(b.lessons);
+      const grp=getGroup(schoolKey, campusKey, null);
       grp.items.push({section:`個人レッスン ${i+1}: ${b.lessons}回`,lines:[{label:`${b.lessons}回 × ${fmtC(b.pricePerLesson,currency)}`,local:total}],subtotal:total});
-      grp.totalLocal+=total;grp.commissionLocal+=total*0.25;
+      grp.totalLocal+=total; grp.commissionLocal+=total*0.25;
       const el=document.getElementById("pl"+b.id+"-sub");if(el)el.textContent=fmtC(total,currency);
     });
 
