@@ -134,6 +134,9 @@ h1 { font-size: 20px; font-weight: 500; margin-bottom: 24px; color: #1a1a18; }
         <div class="field"><label>CAD / JPY（TTS）</label><input type="number" id="fx-cad" value="110" min="50" max="300" oninput="calcAll()"></div>
         <div class="field"><label>USD / JPY（TTS）</label><input type="number" id="fx-usd" value="155" min="50" max="300" oninput="calcAll()"></div>
         <div class="field"><label>EUR / JPY（TTS）</label><input type="number" id="fx-eur" value="165" min="50" max="300" oninput="calcAll()"></div>
+        <div class="field"><label>NZD / JPY（TTS）</label><input type="number" id="fx-nzd" value="88" min="30" max="200" step="0.1" oninput="calcAll()"></div>
+        <div class="field"><label>THB / JPY（TTS）</label><input type="number" id="fx-thb" value="4.3" min="1" max="20" step="0.01" oninput="calcAll()"></div>
+        <div class="field"><label>SGD / JPY（TTS）</label><input type="number" id="fx-sgd" value="115" min="50" max="300" oninput="calcAll()"></div>
       </div>
     </div>
   </div>
@@ -371,6 +374,20 @@ function getSchoolCurrency(schoolKey) {
   return SCHOOLS[schoolKey]?.currency || "GBP";
 }
 
+function getFxRate(currency) {
+  const rates = {
+    GBP: parseFloat(document.getElementById("fx-gbp").value)||200,
+    USD: parseFloat(document.getElementById("fx-usd").value)||155,
+    CAD: parseFloat(document.getElementById("fx-cad")?.value)||115,
+    EUR: parseFloat(document.getElementById("fx-eur")?.value)||165,
+    NZD: parseFloat(document.getElementById("fx-nzd")?.value)||90,
+    THB: parseFloat(document.getElementById("fx-thb")?.value)||4.3,
+    SGD: parseFloat(document.getElementById("fx-sgd")?.value)||115,
+    JPY: 1,
+  };
+  return rates[currency] || 1;
+}
+
 function calcWeeks(s, e) {
   if (!s||!e) return null;
   const start=new Date(s), end=new Date(e);
@@ -419,7 +436,7 @@ function getPrice(prices, brackets, weeks) {
   return prices[idx];
 }
 
-// 日付を直近の月曜日に補正（すでに月曜なら変更なし）
+// 日付を直近の月曜日に補正
 function snapToMonday(dateStr) {
   if (!dateStr) return dateStr;
   const d = new Date(dateStr);
@@ -439,7 +456,23 @@ function addWeeks(startStr, weeks) {
   return d.toISOString().split("T")[0];
 }
 
-// 週数セレクトのオプション生成（1〜52週）
+function updateCourse(id, field, val) {
+  const b=courseBlocks.find(x=>x.id===id);
+  if (!b) return;
+  if (field==="country") {
+    b.country=val; b.school=""; b.campus=""; b.course="";
+  } else if (field==="school") {
+    b.school=val; b.campus=""; b.course="";
+    if (val && SCHOOLS[val]) {
+      const campKeys = Object.keys(SCHOOLS[val].campuses);
+      if (campKeys.length===1) b.campus = campKeys[0];
+    }
+  } else if (field==="campus") { b.campus=val; b.course=""; }
+  else b[field]=val;
+  if (field==="start") b.start = snapToMonday(val);
+  if (b.start && b.weeks) b.end = addWeeks(b.start, b.weeks);
+  renderCourses(); calcAll();
+}
 function weeksOpts(selected) {
   let html = `<option value="">選択</option>`;
   for (let w=1; w<=52; w++) {
@@ -451,7 +484,8 @@ function weeksOpts(selected) {
 function fmt(n) { return Math.round(Math.round(n)/10000)+"万円"; }
 function fmtJPY(n) { return Math.round(n).toLocaleString("ja-JP")+"円"; }
 function fmtC(n, currency) {
-  const syms={GBP:"£",CAD:"C$",USD:"$",EUR:"€"};
+  const syms={GBP:"£",CAD:"C$",USD:"$",EUR:"€",THB:"฿",NZD:"NZ$",SGD:"S$",JPY:"¥"};
+  if (currency==="JPY") return "¥"+(Math.round(n)).toLocaleString("ja-JP");
   return (syms[currency]||"")+(Math.round(n*100)/100).toLocaleString("en",{minimumFractionDigits:2,maximumFractionDigits:2});
 }
 function getCampData(school, campus) {
@@ -481,8 +515,30 @@ function renderCourses() {
   document.getElementById("courses-container").innerHTML = courseBlocks.map((b,i)=>renderCourseBlock(b,i)).join("");
 }
 
+// 国リストを動的生成（SCHOOLSから）
+function getCountryList() {
+  const countries = {};
+  Object.entries(SCHOOLS).forEach(([sk, sv]) => {
+    Object.values(sv.campuses).forEach(cv => {
+      if (cv.country) countries[cv.country] = true;
+    });
+  });
+  return Object.keys(countries).sort();
+}
+
 function renderCourseBlock(b, i) {
-  const schoolOpts = `<option value="">選択</option>`+Object.entries(SCHOOLS).map(([k,v])=>`<option value="${k}" ${b.school===k?"selected":""}>${v.name}</option>`).join("");
+  // 国プルダウン
+  const countryList = getCountryList();
+  const countryOpts = `<option value="">国を選択</option>` +
+    countryList.map(c => `<option value="${c}" ${b.country===c?"selected":""}>${c}</option>`).join("");
+
+  // 国でフィルタした学校リスト
+  const filteredSchools = b.country
+    ? Object.entries(SCHOOLS).filter(([k,v]) => Object.values(v.campuses).some(c=>c.country===b.country))
+    : [];
+  const schoolOpts = `<option value="">学校を選択</option>` +
+    filteredSchools.map(([k,v]) => `<option value="${k}" ${b.school===k?"selected":""}>${v.name}</option>`).join("");
+
   let campOpts = `<option value="">選択</option>`;
   if (b.school&&SCHOOLS[b.school]) campOpts=`<option value="">選択</option>`+Object.entries(SCHOOLS[b.school].campuses).map(([k,v])=>`<option value="${k}" ${b.campus===k?"selected":""}>${v.name}</option>`).join("");
   let courseOpts=`<option value="">選択</option>`;
@@ -490,7 +546,6 @@ function renderCourseBlock(b, i) {
   if (cd) courseOpts=`<option value="">選択</option>`+Object.entries(cd.courses).map(([k,v])=>`<option value="${k}" ${b.course===k?"selected":""}>${v.name}</option>`).join("");
   const w=b.start&&b.end?calcWeeks(b.start,b.end):null;
   let info="";
-  // 年度ラベル
   if (b.school&&b.campus) {
     const yrLabel = getPriceYearLabel(b.school, b.campus, b.start);
     const isWarning = yrLabel.includes("⚠️");
@@ -506,11 +561,19 @@ function renderCourseBlock(b, i) {
   const isWse1to1 = courseType==="wse-1to1";
   const hoursField = is1to1 ? `<div class="field"><label>時間数/週</label><input type="number" value="${b.hours||20}" min="5" max="40" oninput="updateCourse(${b.id},'hours',this.value)"></div>` :
     isWse1to1 ? `<div class="field"><label>レッスン数/週</label><input type="number" value="${b.lessons||10}" min="1" max="21" oninput="updateCourse(${b.id},'lessons',this.value)"></div>` : "";
+
+  // campusが1つしかない場合は非表示
+  const campusCount = b.school&&SCHOOLS[b.school] ? Object.keys(SCHOOLS[b.school].campuses).length : 0;
+  const campusRow = campusCount > 1
+    ? `<div class="field"><label>キャンパス</label><select onchange="updateCourse(${b.id},'campus',this.value)">${campOpts}</select></div>`
+    : ``;
+
   return `<div class="course-block">
     <div class="block-header"><span class="block-label">Course ${i+1}</span><button class="btn btn-sm btn-danger" onclick="removeCourse(${b.id})">削除</button></div>
-    <div class="field-grid g2">
+    <div class="field-grid g3">
+      <div class="field"><label>国</label><select onchange="updateCourse(${b.id},'country',this.value)">${countryOpts}</select></div>
       <div class="field"><label>学校</label><select onchange="updateCourse(${b.id},'school',this.value)">${schoolOpts}</select></div>
-      <div class="field"><label>キャンパス</label><select onchange="updateCourse(${b.id},'campus',this.value)">${campOpts}</select></div>
+      ${campusCount > 1 ? campusRow : `<div class="field"><label>キャンパス</label><select onchange="updateCourse(${b.id},'campus',this.value)">${campOpts}</select></div>`}
     </div>
     <div class="field-grid g2">
       <div class="field"><label>コース</label><select onchange="updateCourse(${b.id},'course',this.value)">${courseOpts}</select></div>
@@ -541,7 +604,6 @@ function updateCourse(id, field, val) {
     }
   } else if (field==="campus") { b.campus=val; b.course=""; }
   else b[field]=val;
-  if (field==="start") b.start = snapToMonday(val);
   if (b.start && b.weeks) b.end = addWeeks(b.start, b.weeks);
   renderCourses(); calcAll();
 }
@@ -555,7 +617,13 @@ function renderAccoms() {
 }
 
 function renderAccomBlock(b, i) {
-  const schoolOpts=`<option value="">選択</option>`+Object.entries(SCHOOLS).map(([k,v])=>`<option value="${k}" ${b.school===k?"selected":""}>${v.name}</option>`).join("");
+  const countryList = getCountryList();
+  const countryOpts = `<option value="">国を選択</option>` +
+    countryList.map(c => `<option value="${c}" ${b.country===c?"selected":""}>${c}</option>`).join("");
+  const filteredSchools = b.country
+    ? Object.entries(SCHOOLS).filter(([k,v]) => Object.values(v.campuses).some(c=>c.country===b.country))
+    : [];
+  const schoolOpts=`<option value="">学校を選択</option>`+filteredSchools.map(([k,v])=>`<option value="${k}" ${b.school===k?"selected":""}>${v.name}</option>`).join("");
   let campOpts=`<option value="">選択</option>`;
   if (b.school&&SCHOOLS[b.school]) campOpts=`<option value="">選択</option>`+Object.entries(SCHOOLS[b.school].campuses).map(([k,v])=>`<option value="${k}" ${b.campus===k?"selected":""}>${v.name}</option>`).join("");
   let accomOpts=`<option value="">選択</option>`;
@@ -570,9 +638,11 @@ function renderAccomBlock(b, i) {
   }
   const accomData = cd&&b.accom?cd.accom[b.accom]:null;
   const dietField = accomData?.halfBoard ? `<div class="field"><label>特別食（週）</label><input type="number" value="${b.dietWeeks||0}" min="0" oninput="updateAccom(${b.id},'dietWeeks',this.value)"></div>` : "";
+  const campusCount = b.school&&SCHOOLS[b.school] ? Object.keys(SCHOOLS[b.school].campuses).length : 0;
   return `<div class="course-block">
     <div class="block-header"><span class="block-label">Accommodation ${i+1}</span><button class="btn btn-sm btn-danger" onclick="removeAccom(${b.id})">削除</button></div>
-    <div class="field-grid g2">
+    <div class="field-grid g3">
+      <div class="field"><label>国</label><select onchange="updateAccom(${b.id},'country',this.value)">${countryOpts}</select></div>
       <div class="field"><label>学校</label><select onchange="updateAccom(${b.id},'school',this.value)">${schoolOpts}</select></div>
       <div class="field"><label>キャンパス</label><select onchange="updateAccom(${b.id},'campus',this.value)">${campOpts}</select></div>
     </div>
@@ -593,7 +663,9 @@ function renderAccomBlock(b, i) {
 function updateAccom(id, field, val) {
   const b=accomBlocks.find(x=>x.id===id);
   if (!b) return;
-  if (field==="school") {
+  if (field==="country") {
+    b.country=val; b.school=""; b.campus=""; b.accom="";
+  } else if (field==="school") {
     b.school=val; b.campus=""; b.accom="";
     if (val && SCHOOLS[val]) {
       const campKeys = Object.keys(SCHOOLS[val].campuses);
@@ -732,7 +804,12 @@ function calcAll() {
     let subLocal=0, commLocal=0;
     let subItems=[];
 
-    if (course.type==="rennert-fixed") {
+    if (course.type==="grandline-fixed") {
+      // GrandLine: 円建て週ごと価格テーブル
+      const t = (course.priceTable && course.priceTable[weeks]) || (weeks * (course.priceTable?.[1]||0));
+      subLocal+=t; commLocal+=t*course.commission;
+      subItems.push({ label:`${course.name}（${weeks}週）`, local:t });
+    } else if (course.type==="rennert-fixed") {
       const t = course.fixedPrice;
       subLocal+=t; commLocal+=t*course.commission;
       subItems.push({ label:`プライベートレッスン（パッケージ）`, local:t });
@@ -1009,20 +1086,46 @@ function calcAll() {
   const jpyOtherTotal = addonBlocks.filter(b=>b.type==="jpy-other").reduce((s,b)=>s+(b._jpyTotal||0),0);
   const grossProfit=totalCommJPY+coord+jpyOtherTotal;
 
-  // freeeテーブル更新
+  // freeeテーブル更新（学校ごとにセクション分け）
   let tbodyHtml="";
   freeeLines.forEach(l => {
-    tbodyHtml+=`<tr>
-      <td>${l.label}</td>
-      <td style="text-align:center">1名</td>
-      <td style="text-align:right">${fmtJPY(l.jpy)}</td>
-      <td style="text-align:right">${fmtJPY(l.jpy)}</td>
-    </tr>`;
+    if (!l.isJPY) {
+      // 学校ヘッダー行
+      tbodyHtml+=`<tr style="background:#f0f5ff">
+        <td colspan="4" style="padding:10px 8px;font-size:13px;font-weight:600;color:#1565c0;letter-spacing:0.02em">
+          🏫 ${l.label}
+        </td>
+      </tr>`;
+      // 明細行
+      l.items && l.items.forEach(item => {
+        item.lines && item.lines.forEach(ln => {
+          tbodyHtml+=`<tr>
+            <td style="padding:6px 8px 6px 20px;font-size:12px;color:#444">${ln.label}</td>
+            <td style="text-align:center;font-size:12px">1名</td>
+            <td style="text-align:right;font-size:12px">${fmtJPY(Math.round(ln.local * (l.tts||1)))}</td>
+            <td style="text-align:right;font-size:12px">${fmtJPY(Math.round(ln.local * (l.tts||1)))}</td>
+          </tr>`;
+        });
+      });
+      // 学校小計行
+      tbodyHtml+=`<tr style="background:#e8f0fe">
+        <td colspan="2" style="padding:8px 8px 8px 20px;font-size:13px;font-weight:600">小計（${l.label}）</td>
+        <td></td>
+        <td style="text-align:right;font-size:13px;font-weight:600">${fmtJPY(l.jpy)}</td>
+      </tr>`;
+    } else {
+      tbodyHtml+=`<tr>
+        <td style="padding:8px">${l.label}</td>
+        <td style="text-align:center">1名</td>
+        <td style="text-align:right">${fmtJPY(l.jpy)}</td>
+        <td style="text-align:right">${fmtJPY(l.jpy)}</td>
+      </tr>`;
+    }
   });
-  tbodyHtml+=`<tr class="total-row">
-    <td colspan="2">合計</td>
+  tbodyHtml+=`<tr class="total-row" style="background:#1a1a18">
+    <td colspan="2" style="padding:14px 8px;font-size:16px;font-weight:700;color:#fff">合計</td>
     <td></td>
-    <td style="text-align:right">${fmtJPY(totalAll)}</td>
+    <td style="text-align:right;font-size:18px;font-weight:700;color:#fff">${fmtJPY(totalAll)}</td>
   </tr>`;
   document.getElementById("freee-tbody").innerHTML=tbodyHtml;
   document.getElementById("r-profit").textContent=fmtJPY(grossProfit);
@@ -1085,25 +1188,16 @@ function copyResult() {
 }
 
 // ===================== SAVE / LOAD / EXCEL =====================
-const GAS_URL = "https://script.google.com/a/macros/globaledu-j.com/s/AKfycbyvRwAdYufD1dwI8JoPir0KLv4aC0LN7hhaUy9zZPp0I7L-aFNv3vjSMf6YBsI9zl-K/exec";
+const STORAGE_KEY = "getc_quotes_v2";
 
-// ローカルキャッシュ（表示速度向上用）
-let _quotesCache = null;
-
-async function loadSavedQuotes() {
-  if (_quotesCache !== null) return _quotesCache;
-  try {
-    const res = await fetch(GAS_URL + "?action=getAll");
-    const data = await res.json();
-    _quotesCache = Array.isArray(data) ? data : [];
-    return _quotesCache;
-  } catch(e) {
-    console.error("読み込みエラー:", e);
-    return [];
-  }
+function loadSavedQuotes() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]"); } catch(e) { return []; }
+}
+function saveSavedQuotes(quotes) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(quotes));
 }
 
-async function saveQuote() {
+function saveQuote() {
   if (!window._lastResult) { alert("先に計算してください"); return; }
   const r = window._lastResult;
   const client = document.getElementById("client-name").value || "（未設定）";
@@ -1118,69 +1212,31 @@ async function saveQuote() {
   const reviewer = document.getElementById("reviewer-name").value || "";
   const reviewerDate = document.getElementById("reviewer-date").value || "";
 
-  const saveBtn = document.querySelector('[onclick="saveQuote()"]');
-  if (saveBtn) { saveBtn.textContent = "保存中..."; saveBtn.disabled = true; }
-
   const quote = {
     id: Date.now(),
     client, project, date,
     age, nationality, country,
     author, authorDate, reviewer, reviewerDate,
-    freeeLines: r.freeeLines.map(l=>({label:l.label, jpy:l.jpy, isJPY:l.isJPY||false})),
-    coord: r.coord,
-    visa: r.visa,
-    total: r.total,
-    grossProfit: r.grossProfit,
+    freeeLines: r.freeeLines.map(l=>({
+      label:l.label, jpy:l.jpy, isJPY:l.isJPY||false,
+      currency:l.currency, local:l.local, tts:l.tts,
+      items:l.items
+    })),
+    coord: r.coord, visa: r.visa, total: r.total, grossProfit: r.grossProfit,
     totalCommJPY: r.totalCommJPY||0,
     totalProgMarkupJPY: r.totalProgMarkupJPY||0,
     totalTTSMarkupJPY: r.totalTTSMarkupJPY||0,
     progMarkupPct: r.progMarkupPct||0,
     ttsMarkupPct: r.ttsMarkupPct||0,
-    gbpTTS: r.gbpTTS||0,
-    usdTTS: r.usdTTS||0,
+    gbpTTS: r.gbpTTS||0, usdTTS: r.usdTTS||0,
     visaNote: r.visaNote||false,
   };
 
-  try {
-    await fetch(GAS_URL, {
-      method: "POST",
-      body: JSON.stringify({ action: "save", quote }),
-    });
-    _quotesCache = null; // キャッシュクリア
-    await renderSavedQuotes();
-    alert(`「${client} / ${project}」を保存しました`);
-  } catch(e) {
-    alert("保存に失敗しました。ネットワークを確認してください。");
-  } finally {
-    if (saveBtn) { saveBtn.textContent = "この見積もりを保存"; saveBtn.disabled = false; }
-  }
-}
-
-async function deleteQuote(id) {
-  if (!confirm("この見積もりを削除しますか？")) return;
-  try {
-    await fetch(GAS_URL, {
-      method: "POST",
-      body: JSON.stringify({ action: "delete", id }),
-    });
-    _quotesCache = null;
-    await renderSavedQuotes();
-  } catch(e) {
-    alert("削除に失敗しました。");
-  }
-}
-
-async function clearAllQuotes() {
-  if (!confirm("保存済み見積もりを全件削除しますか？")) return;
-  const quotes = await loadSavedQuotes();
-  for (const q of quotes) {
-    await fetch(GAS_URL, {
-      method: "POST",
-      body: JSON.stringify({ action: "delete", id: q.id }),
-    });
-  }
-  _quotesCache = null;
-  await renderSavedQuotes();
+  const quotes = loadSavedQuotes();
+  quotes.unshift(quote);
+  saveSavedQuotes(quotes);
+  renderSavedQuotes();
+  alert(`「${client} / ${project}」を保存しました`);
 }
 
 function deleteQuote(id) {
@@ -1195,10 +1251,9 @@ function clearAllQuotes() {
   renderSavedQuotes();
 }
 
-async function renderSavedQuotes() {
+function renderSavedQuotes() {
   const el = document.getElementById("saved-quotes-list");
-  el.innerHTML=`<div style="font-size:13px;color:#999;text-align:center;padding:12px 0">読み込み中...</div>`;
-  const quotes = await loadSavedQuotes();
+  const quotes = loadSavedQuotes();
   if (quotes.length===0) {
     el.innerHTML=`<div style="font-size:13px;color:#999;text-align:center;padding:8px 0">保存済みの見積もりはありません</div>`;
     return;
@@ -1206,7 +1261,8 @@ async function renderSavedQuotes() {
   el.innerHTML=`
     <div style="margin-bottom:8px;display:flex;gap:8px;align-items:center">
       <label style="font-size:12px;color:#666"><input type="checkbox" id="select-all-quotes" onchange="toggleAllQuotes(this.checked)"> 全選択</label>
-      <button class="btn btn-sm" onclick="exportSelectedExcel()">選択をExcelで出力</button>
+      <button class="btn btn-sm" onclick="exportSelectedExcel()">✅ 選択をExcelで出力</button>
+      <button class="btn btn-sm" onclick="exportCurrentExcel()">📥 今の見積をExcelで出力</button>
     </div>
     <table style="width:100%;font-size:12px;border-collapse:collapse">
     <thead><tr style="border-bottom:0.5px solid #e0e0dc">
@@ -1214,93 +1270,47 @@ async function renderSavedQuotes() {
       <th style="text-align:left;padding:4px 8px;color:#888;font-weight:500">日付</th>
       <th style="text-align:left;padding:4px 8px;color:#888;font-weight:500">クライアント</th>
       <th style="text-align:left;padding:4px 8px;color:#888;font-weight:500">案件名</th>
-      <th style="text-align:right;padding:4px 8px;color:#888;font-weight:500">海外PG費用</th>
-      <th style="text-align:right;padding:4px 8px;color:#888;font-weight:500">コーディネーション</th>
-      <th style="text-align:right;padding:4px 8px;color:#888;font-weight:500">ビザ</th>
       <th style="text-align:right;padding:4px 8px;color:#888;font-weight:500">合計</th>
       <th style="text-align:right;padding:4px 8px;color:#888;font-weight:500">粗利</th>
       <th style="padding:4px 8px"></th>
     </tr></thead>
     <tbody>
-    ${quotes.map(q=>{
-      const pgTotal = q.freeeLines.filter(l=>!l.isJPY).reduce((s,l)=>s+l.jpy,0);
-      const coordAmt = q.coord||0;
-      const visaAmt  = q.visa||0;
-      return `<tr style="border-bottom:0.5px solid #f0f0ec">
-        <td style="padding:6px 6px;text-align:center"><input type="checkbox" class="quote-checkbox" data-id="${q.id}"></td>
-        <td style="padding:6px 8px;white-space:nowrap">${q.date}</td>
-        <td style="padding:6px 8px">${q.client}</td>
-        <td style="padding:6px 8px">${q.project}</td>
-        <td style="padding:6px 8px;text-align:right">${Math.round(pgTotal/10000)}万円</td>
-        <td style="padding:6px 8px;text-align:right">${coordAmt>0?Math.round(coordAmt/10000)+"万円":"—"}</td>
-        <td style="padding:6px 8px;text-align:right">${visaAmt>0?Math.round(visaAmt/10000)+"万円":"—"}</td>
-        <td style="padding:6px 8px;text-align:right;font-weight:500">${Math.round(q.total/10000)}万円</td>
-        <td style="padding:6px 8px;text-align:right;color:#166534">${Math.round(q.grossProfit/10000)}万円</td>
-        <td style="padding:6px 8px;text-align:right;white-space:nowrap">
-          <button class="btn btn-sm" onclick="showQuoteDetail(${q.id})" style="margin-right:4px">詳細</button>
-          <button class="btn btn-sm btn-danger" onclick="deleteQuote(${q.id})">削除</button>
-        </td>
-      </tr>`;
-    }).join("")}
-    </tbody>
-  </table>`;
+    ${quotes.map(q=>`<tr style="border-bottom:0.5px solid #f0f0ec">
+      <td style="padding:6px 6px;text-align:center"><input type="checkbox" class="quote-checkbox" data-id="${q.id}"></td>
+      <td style="padding:6px 8px;white-space:nowrap">${q.date}</td>
+      <td style="padding:6px 8px">${q.client}</td>
+      <td style="padding:6px 8px">${q.project}</td>
+      <td style="padding:6px 8px;text-align:right;font-weight:500">${Math.round(q.total/10000)}万円</td>
+      <td style="padding:6px 8px;text-align:right;color:#166534">${Math.round(q.grossProfit/10000)}万円</td>
+      <td style="padding:6px 8px;text-align:right;white-space:nowrap">
+        <button class="btn btn-sm btn-danger" onclick="deleteQuote(${q.id})">削除</button>
+      </td>
+    </tr>`).join("")}
+    </tbody></table>`;
 }
 
 function toggleAllQuotes(checked) {
   document.querySelectorAll(".quote-checkbox").forEach(cb=>cb.checked=checked);
 }
 
-async function showQuoteDetail(id) {
-  const quotes = await loadSavedQuotes();
-  const q = quotes.find(x=>x.id===id);
-  if (!q) return;
-  let html=`<div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center" onclick="if(event.target===this)this.remove()">
-    <div style="background:#fff;border-radius:12px;padding:24px;max-width:600px;width:90%;max-height:80vh;overflow-y:auto">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-        <div>
-          <div style="font-size:15px;font-weight:500">${q.client}</div>
-          <div style="font-size:12px;color:#888">${q.project}　${q.date}</div>
-          ${q.age||q.nationality ? `<div style="font-size:12px;color:#666;margin-top:4px">派遣者：${q.age?q.age+"歳":""}${q.nationality==="japanese"?" 日本国籍":q.nationality==="foreign"?` 外国籍（${q.country||""}）`:" 国籍不明"}</div>`:""}
-          ${q.author||q.reviewer ? `<div style="font-size:12px;color:#666">作成：${q.author||"—"}${q.authorDate?" ("+q.authorDate+")":""}　確認：${q.reviewer||"—"}${q.reviewerDate?" ("+q.reviewerDate+")":""}</div>`:""}
-        </div>
-        <button class="btn btn-sm" onclick="this.closest('[style*=fixed]').remove()">閉じる</button>
-      </div>
-      <table style="width:100%;border-collapse:collapse;font-size:13px">
-        <thead><tr style="border-bottom:1px solid #e0e0dc">
-          <th style="text-align:left;padding:6px 8px;color:#888;font-weight:500">摘要</th>
-          <th style="text-align:center;padding:6px 8px;color:#888;font-weight:500">数量</th>
-          <th style="text-align:right;padding:6px 8px;color:#888;font-weight:500">単価</th>
-          <th style="text-align:right;padding:6px 8px;color:#888;font-weight:500">明細金額</th>
-        </tr></thead>
-        <tbody>
-        ${q.freeeLines.map(l=>`<tr style="border-bottom:0.5px solid #f0f0ec">
-          <td style="padding:6px 8px">${l.label}</td>
-          <td style="padding:6px 8px;text-align:center">1名</td>
-          <td style="padding:6px 8px;text-align:right">${Math.round(l.jpy).toLocaleString("ja-JP")}円</td>
-          <td style="padding:6px 8px;text-align:right">${Math.round(l.jpy).toLocaleString("ja-JP")}円</td>
-        </tr>`).join("")}
-        <tr style="border-top:1.5px solid #1a1a18;font-weight:500">
-          <td colspan="2" style="padding:8px 8px">合計</td>
-          <td></td>
-          <td style="padding:8px 8px;text-align:right">${Math.round(q.total).toLocaleString("ja-JP")}円</td>
-        </tr>
-        </tbody>
-      </table>
-      <div style="margin-top:12px;padding:10px 14px;background:#f0fdf4;border-radius:8px;display:flex;justify-content:space-between">
-        <span style="color:#166534;font-size:13px">粗利（コミッション＋コーディネーション＋Add-ons上乗せ）</span>
-        <span style="color:#166534;font-weight:500">${Math.round(q.grossProfit).toLocaleString("ja-JP")}円</span>
-      </div>
-    </div>
-  </div>`;
-  document.body.insertAdjacentHTML("beforeend", html);
+// 現在の見積をExcelで出力
+function exportCurrentExcel() {
+  if (!window._lastResult) { alert("先に計算してください"); return; }
+  const r = window._lastResult;
+  const client = document.getElementById("client-name").value || "見積";
+  const project = document.getElementById("project-name").value || "";
+  const date = document.getElementById("quote-date").value || new Date().toISOString().split("T")[0];
+  _exportToExcel([{
+    client, project, date,
+    freeeLines: r.freeeLines, coord: r.coord, visa: r.visa,
+    total: r.total, grossProfit: r.grossProfit,
+    totalCommJPY: r.totalCommJPY||0, progMarkupPct: r.progMarkupPct||0,
+    ttsMarkupPct: r.ttsMarkupPct||0, gbpTTS: r.gbpTTS||0, usdTTS: r.usdTTS||0,
+  }], `GETC_見積_${client}_${date}`);
 }
 
-async function exportExcel() {
-  exportSelectedExcel(true);
-}
-
-async function exportSelectedExcel(all=false) {
-  const quotes = await loadSavedQuotes();
+function exportSelectedExcel(all=false) {
+  const quotes = loadSavedQuotes();
   if (quotes.length===0) { alert("保存済みの見積もりがありません"); return; }
   let targets;
   if (all) {
@@ -1308,61 +1318,75 @@ async function exportSelectedExcel(all=false) {
   } else {
     const checked = [...document.querySelectorAll(".quote-checkbox:checked")].map(cb=>parseInt(cb.dataset.id));
     targets = quotes.filter(q=>checked.includes(q.id));
-    if (targets.length===0) { alert("Excelに出力する見積もりを選択してください"); return; }
+    if (targets.length===0) { alert("出力する見積もりを選択してください"); return; }
   }
+  _exportToExcel(targets, `GETC_見積一覧_${new Date().toISOString().split("T")[0]}`);
+}
 
-  // Build HTML table for Excel (open in Excel directly)
-  const headers = ["日付","クライアント名","案件名","摘要","単価（円）","コーディネーション（円）","ビザ申請費用（円）","見積合計（円）","粗利（円）","コミッション（円）","GBP TTS","USD TTS","プログラム上乗せ率(%)","TTS上乗せ率(%)"];
+function exportExcel() { exportSelectedExcel(true); }
 
-  const rows = [];
+function _exportToExcel(targets, filename) {
+  // Excelに貼り付けやすいHTML形式で出力
+  // 各見積もりをシート内に縦に並べ、単価×週数の計算式付き
+  let rows = [];
+
+  // ヘッダー
+  rows.push(["GETC 海外プログラム見積書", "", "", "", "", "", ""]);
+  rows.push([]);
+
   targets.forEach(q => {
-    const pgLines = q.freeeLines.filter(l=>!l.isJPY);
-    pgLines.forEach((l,i) => {
-      rows.push([
-        i===0?q.date:"",
-        i===0?q.client:"",
-        i===0?q.project:"",
-        l.label,
-        Math.round(l.jpy),
-        i===0?Math.round(q.coord||0):"",
-        i===0?Math.round(q.visa||0):"",
-        i===0?Math.round(q.total):"",
-        i===0?Math.round(q.grossProfit):"",
-        i===0?Math.round(q.totalCommJPY||0):"",
-        i===0?(q.gbpTTS||0):"",
-        i===0?(q.usdTTS||0):"",
-        i===0?(q.progMarkupPct||0):"",
-        i===0?(q.ttsMarkupPct||0):"",
-      ]);
+    rows.push([`■ ${q.client}　${q.project}　${q.date}`]);
+    rows.push(["摘要", "数量", "外貨単価", "通貨", "レート", "単価（円）", "金額（円）"]);
+
+    q.freeeLines.forEach(l => {
+      if (!l.isJPY && l.items) {
+        // 学校ヘッダー
+        rows.push([`【${l.label}】`, "", "", l.currency||"", l.tts||"", "", l.jpy]);
+        // 明細
+        l.items && l.items.forEach(item => {
+          item.lines && item.lines.forEach(ln => {
+            const localAmt = ln.local || 0;
+            const tts = l.tts || 1;
+            const jpyAmt = Math.round(localAmt * tts);
+            rows.push([
+              `　${ln.label}`,
+              1,
+              localAmt,
+              l.currency||"",
+              tts,
+              jpyAmt,
+              `=${String.fromCharCode(66)}${rows.length+1}*${String.fromCharCode(69)}${rows.length+1}`,
+            ]);
+          });
+        });
+      } else {
+        rows.push([l.label, 1, "", "JPY", 1, l.jpy, l.jpy]);
+      }
     });
+
+    rows.push(["合計", "", "", "", "", "", Math.round(q.total)]);
+    rows.push(["粗利（コミッション＋コーディネーション）", "", "", "", "", "", Math.round(q.grossProfit)]);
+    rows.push([]);
   });
 
-  // Build CSV with BOM for Excel
-  const csvContent = "\uFEFF" + [headers, ...rows]
-    .map(row => row.map(v => `"${String(v).replace(/"/g,'""')}"`).join(","))
+  // CSV with BOM
+  const csvContent = "\uFEFF" + rows
+    .map(row => row.map(v => `"${String(v||"").replace(/"/g,'""')}"`).join(","))
     .join("\r\n");
 
   const blob = new Blob([csvContent], { type:"text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `GETC_見積一覧_${new Date().toISOString().split("T")[0]}.csv`;
+  a.download = `${filename}.csv`;
   a.click();
   URL.revokeObjectURL(url);
-  // Note to user about xlsx
-  const note = document.createElement("div");
-  note.style.cssText="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1a1a18;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;z-index:9999";
-  note.textContent="CSVをダウンロードしました。Excelで開いてください（.xlsxとして保存可能です）";
-  document.body.appendChild(note);
-  setTimeout(()=>note.remove(), 4000);
 }
 
 // 初期化
-(async () => {
-  await renderSavedQuotes();
-  renderPrivLessons();
-  document.getElementById("quote-date").value = new Date().toISOString().split("T")[0];
-})();
+renderSavedQuotes();
+renderPrivLessons();
+document.getElementById("quote-date").value = new Date().toISOString().split("T")[0];
 </script>
 </body>
 </html>
