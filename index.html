@@ -284,6 +284,7 @@ function addSchoolSection() {
     country: "", school: "", campus: "",
     progMarkup: 0, ttsMarkup: 10,
     coord: 150000, visa: 0, visaType: "0",
+    priceListUrl: "",
     courses: [], accoms: [], privLessons: [], addons: [],
   });
   renderSchoolSections();
@@ -341,6 +342,14 @@ function renderSchoolSection(s, si) {
       <div class="field"><label>学校</label><select onchange="updateSection(${s.id},'school',this.value)">${schoolOpts}</select></div>
       ${campKeys.length>1 ? `<div class="field"><label>キャンパス</label><select onchange="updateSection(${s.id},'campus',this.value)">${campOpts}</select></div>` : `<div class="field"><label>キャンパス</label><select onchange="updateSection(${s.id},'campus',this.value)">${campOpts}</select></div>`}
     </div>
+    <!-- Price List URL -->
+    <div class="field" style="margin-bottom:10px">
+      <label>Price List URL（ダブルチェック用）</label>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input type="url" value="${s.priceListUrl||""}" placeholder="https://..." style="flex:1" oninput="updateSection(${s.id},'priceListUrl',this.value)">
+        ${s.priceListUrl ? `<a href="${s.priceListUrl}" target="_blank" style="white-space:nowrap;padding:6px 12px;background:#1565c0;color:#fff;border-radius:6px;font-size:12px;text-decoration:none">Price List ↗</a>` : ""}
+      </div>
+    </div>
 
     <!-- 上乗せ・コーディネーション・ビザ -->
     <div style="background:#f0f5ff;border-radius:8px;padding:12px;margin-bottom:12px">
@@ -358,8 +367,12 @@ function renderSchoolSection(s, si) {
           <label>コーディネーション</label>
           <select onchange="updateSection(${s.id},'coord',this.value)">
             <option value="0" ${s.coord===0?"selected":""}>なし</option>
-            <option value="150000" ${s.coord===150000?"selected":""}>あり（¥150,000）</option>
+            <option value="150000" ${s.coord===150000?"selected":""}>語学学校（¥150,000）</option>
+            <option value="300000" ${s.coord===300000?"selected":""}>ミニMBA（¥300,000）</option>
+            <option value="450000" ${s.coord===450000?"selected":""}>語学学校＋ミニMBA（¥450,000）</option>
           </select>
+          ${s.coord===450000?`<div style="font-size:11px;color:#e65100;margin-top:4px;line-height:1.5">⚠️ 語学学校1校（¥150,000）＋ミニMBA1校（¥300,000）の組み合わせです。<br>例：語学学校→UC Irvine / NYU等のプログラムへの進学パターン</div>`:""}
+          ${s.coord===300000?`<div style="font-size:11px;color:#1565c0;margin-top:4px">💡 ミニMBAのみのコーディネーション費用です</div>`:""}
         </div>
         <div class="field">
           <label>ビザ申請費用</label>
@@ -430,10 +443,11 @@ function updateSection(sid, field, val) {
     s.accoms.forEach(b=>{b.campus=val;b.accom="";});
     s.privLessons.forEach(b=>{b.campus=val;b.pricePerLesson=PRIVATE_LESSON_PRICES[s.school]?.[val]||null;});
   } else if (field==="coord"||field==="visaType") {
-    s[field] = field==="coord" ? parseInt(val) : val;
+    s[field] = field==="coord" ? parseInt(val)||0 : val;
     s.visa = field==="visaType" ? (val==="300000b"?300000:parseInt(val)||0) : s.visa;
   } else {
     s[field] = parseFloat(val)||0;
+    if (field === "priceListUrl") s[field] = val;  // URLはそのまま文字列で保存
   }
   renderSchoolSections(); calcAll();
 }
