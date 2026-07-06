@@ -67,6 +67,23 @@ h1 { font-size: 20px; font-weight: 500; margin-bottom: 24px; color: #1a1a18; }
 .fx-card { background: #f0f5ff; border: 0.5px solid #c7d7f8; border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; }
 .fx-card-title { font-size: 11px; color: #3b5bdb; font-weight: 500; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
 .copy-btn { display: flex; align-items: center; gap: 6px; margin-top: 14px; width: 100%; justify-content: center; }
+@media print {
+  body { background:#fff; font-size:11px; }
+  .app { max-width:100%; padding:8px; }
+  .card, .result-card { border:0.5px solid #ccc; margin-bottom:8px; box-shadow:none; }
+  .btn, .btn-add, .tabs-bar, #compare-btn, #compare-modal,
+  .copy-btn, button, .card-header button { display:none !important; }
+  .card-header { padding:8px 12px; }
+  #result-section { display:block !important; }
+  .print-section { page-break-before: always; }
+  .print-section:first-child { page-break-before: avoid; }
+  .print-tab-title { font-size:14px; font-weight:600; color:#1565c0; padding:8px 0 4px; border-bottom:1.5px solid #1565c0; margin-bottom:12px; }
+  .print-compare { margin-top:16px; }
+  #school-sections-container, #tabs-bar, .tab-content > button { display:none !important; }
+  h1 { font-size:16px; margin-bottom:8px; }
+  .freee-table { font-size:11px; }
+  .breakdown-line { font-size:10px; }
+}
 @media (max-width: 600px) { .g2,.g3,.g4 { grid-template-columns: 1fr; } }
 
 /* タブ */
@@ -235,10 +252,13 @@ h1 { font-size: 20px; font-weight: 500; margin-bottom: 24px; color: #1a1a18; }
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn btn-primary copy-btn" onclick="copyResult()" style="flex:1">freee用テキストをコピー</button>
         <button class="btn" onclick="saveQuote()" style="flex:1;background:#166534;color:#fff;border-color:#166534">この見積もりを保存</button>
+        <button class="btn" onclick="exportPDF()" style="flex:1;background:#1565c0;color:#fff;border-color:#1565c0">📄 PDFで出力</button>
       </div>
     </div>
   </div>
-</div>
+
+  <!-- PDF印刷用エリア（通常時は非表示） -->
+  <div id="print-area" style="display:none"></div>
 
 <script src="school_data.js"></script>
 <script>
@@ -1394,6 +1414,153 @@ function calcAll() {
     renderTabs();
   }
 }
+function exportPDF() {
+  syncTabSections();
+  const client = document.getElementById("client-name").value || "（未設定）";
+  const project = document.getElementById("project-name").value || "（未設定）";
+  const date = document.getElementById("quote-date").value || "";
+  const author = document.getElementById("author-name").value || "";
+
+  // 計算済みタブのみ
+  const readyTabs = tabs.filter(t => t.result);
+  if (readyTabs.length === 0) { alert("先に計算してください"); return; }
+
+  let html = `
+    <div style="margin-bottom:16px">
+      <div style="font-size:18px;font-weight:700;margin-bottom:4px">海外プログラム見積書</div>
+      <div style="font-size:12px;color:#555">
+        クライアント: <strong>${client}</strong>　
+        案件名: <strong>${project}</strong>　
+        日付: ${date}　
+        作成者: ${author}
+      </div>
+    </div>`;
+
+  // 各タブの詳細
+  readyTabs.forEach((t, i) => {
+    const r = t.result;
+    const tabName = getTabName(t);
+    html += `<div class="print-section">`;
+    html += `<div class="print-tab-title">【${tabName}】</div>`;
+
+    // freeeテーブル
+    html += `<table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:8px">
+      <thead><tr style="border-bottom:1px solid #ccc">
+        <th style="text-align:left;padding:5px 6px;width:50%">摘要</th>
+        <th style="text-align:center;padding:5px 6px;width:10%">数量</th>
+        <th style="text-align:right;padding:5px 6px;width:20%">単価</th>
+        <th style="text-align:right;padding:5px 6px;width:20%">明細金額</th>
+      </tr></thead><tbody>`;
+
+    (r.freeeLines||[]).forEach(l => {
+      if (!l.isJPY) {
+        html += `<tr style="background:#f0f5ff"><td colspan="4" style="padding:6px;font-weight:600;color:#1565c0">${l.label}</td></tr>`;
+        (l.items||[]).forEach(item => {
+          (item.lines||[]).forEach(ln => {
+            html += `<tr style="border-bottom:0.5px solid #eee">
+              <td style="padding:4px 6px 4px 14px">${ln.label}</td>
+              <td style="text-align:center;padding:4px 6px">1名</td>
+              <td style="text-align:right;padding:4px 6px">${fmt(Math.round(ln.local*(l.tts||1)))}</td>
+              <td style="text-align:right;padding:4px 6px">${fmt(Math.round(ln.local*(l.tts||1)))}</td>
+            </tr>`;
+          });
+        });
+        html += `<tr style="background:#e8f0fe"><td colspan="2" style="padding:5px 6px 5px 14px;font-weight:600">小計（${l.label}）</td><td></td><td style="text-align:right;padding:5px 6px;font-weight:600">${fmt(l.jpy)}</td></tr>`;
+      } else {
+        html += `<tr style="border-bottom:0.5px solid #eee">
+          <td style="padding:4px 6px">${l.label}</td>
+          <td style="text-align:center;padding:4px 6px">1名</td>
+          <td style="text-align:right;padding:4px 6px">${fmt(l.jpy)}</td>
+          <td style="text-align:right;padding:4px 6px">${fmt(l.jpy)}</td>
+        </tr>`;
+      }
+    });
+    html += `<tr style="background:#1a1a18"><td colspan="2" style="padding:8px;color:#fff;font-weight:700;font-size:13px">合計</td><td></td><td style="text-align:right;padding:8px;color:#fff;font-weight:700;font-size:14px">${fmt(r.total)}</td></tr>`;
+    html += `</tbody></table>`;
+
+    // 粗利
+    html += `<div style="background:#f0fdf4;border:0.5px solid #bbf7d0;border-radius:6px;padding:8px 12px;margin-bottom:10px;display:flex;justify-content:space-between">
+      <span style="color:#166534;font-size:12px">粗利（コミッション＋コーディネーション＋上乗せ）</span>
+      <span style="color:#166534;font-weight:600">${fmt(r.grossProfit)}</span>
+    </div>`;
+
+    // 明細
+    html += `<div style="font-size:10px;color:#555;border-top:0.5px solid #eee;padding-top:8px">`;
+    (r.freeeLines||[]).filter(l=>!l.isJPY).forEach(l => {
+      html += `<div style="margin-bottom:6px">
+        <div style="font-weight:600;color:#333;margin-bottom:2px">${l.label}</div>
+        <div style="padding-left:8px">原価 ${fmtC(l.local,l.currency)} × TTS ${l.tts} → 実効レート ${(l.effectiveFX||l.tts).toFixed(2)} = ${fmt(l.costJPY+l.ttsGainJPY)}</div>
+        ${(l.progGainJPY||0)>0?`<div style="padding-left:8px">プログラム上乗せ +${l.progMarkupPct}% = ${fmt(l.progGainJPY)}</div>`:""}
+      </div>`;
+    });
+    html += `</div></div>`;
+  });
+
+  // 比較表（タブが2つ以上の場合）
+  if (readyTabs.length > 1) {
+    html += `<div class="print-section print-compare">`;
+    html += `<div class="print-tab-title">【比較表】</div>`;
+    html += `<table style="width:100%;border-collapse:collapse;font-size:11px">
+      <thead><tr style="background:#1a1a18">
+        <th style="text-align:left;padding:6px 8px;color:#fff;min-width:140px">項目</th>
+        ${readyTabs.map(t=>`<th style="text-align:right;padding:6px 8px;color:#fff;min-width:110px">${getTabName(t)}</th>`).join("")}
+      </tr></thead><tbody>`;
+
+    // 海外PG費用
+    html += `<tr style="background:#f5f5f3"><td colspan="${readyTabs.length+1}" style="padding:6px 8px;font-weight:600">海外プログラム費用</td></tr>`;
+    const allLabels = [];
+    readyTabs.forEach(t => { (t.result.freeeLines||[]).filter(l=>!l.isJPY).forEach(l=>{ if(!allLabels.includes(l.label)) allLabels.push(l.label); }); });
+    allLabels.forEach(label => {
+      html += `<tr style="border-bottom:0.5px solid #eee"><td style="padding:4px 8px 4px 16px">${label}</td>`;
+      readyTabs.forEach(t => { const l=(t.result.freeeLines||[]).find(x=>!x.isJPY&&x.label===label); html+=`<td style="text-align:right;padding:4px 8px">${l?fmt(l.jpy):"—"}</td>`; });
+      html += `</tr>`;
+    });
+    // 海外PG小計
+    html += `<tr style="background:#e8f0fe"><td style="padding:5px 8px 5px 8px;font-weight:600">海外プログラム費用 計</td>`;
+    readyTabs.forEach(t=>{ const total=(t.result.freeeLines||[]).filter(l=>!l.isJPY).reduce((s,l)=>s+l.jpy,0); html+=`<td style="text-align:right;padding:5px 8px;font-weight:600">${fmt(total)}</td>`; });
+    html += `</tr>`;
+
+    // 手続き費用
+    html += `<tr style="background:#f5f5f3"><td colspan="${readyTabs.length+1}" style="padding:6px 8px;font-weight:600">手続き費用（コーディネーション）</td></tr>`;
+    html += `<tr style="border-bottom:0.5px solid #eee"><td style="padding:4px 8px 4px 16px">コーディネーション費用</td>`;
+    readyTabs.forEach(t=>{ html+=`<td style="text-align:right;padding:4px 8px">${(t.result.coord||0)>0?fmt(t.result.coord):"—"}</td>`; });
+    html += `</tr>`;
+
+    // ビザ
+    html += `<tr style="background:#f5f5f3"><td colspan="${readyTabs.length+1}" style="padding:6px 8px;font-weight:600">ビザ申請費用</td></tr>`;
+    html += `<tr style="border-bottom:0.5px solid #eee"><td style="padding:4px 8px 4px 16px">ビザ申請費用</td>`;
+    readyTabs.forEach(t=>{ html+=`<td style="text-align:right;padding:4px 8px">${(t.result.visa||0)>0?fmt(t.result.visa):"—"}</td>`; });
+    html += `</tr>`;
+
+    // 合計
+    html += `<tr style="border-top:2px solid #1a1a18;font-weight:700;font-size:12px"><td style="padding:7px 8px">合計費用</td>`;
+    readyTabs.forEach(t=>{ html+=`<td style="text-align:right;padding:7px 8px">${fmt(t.result.total)}</td>`; });
+    html += `</tr>`;
+
+    // 粗利
+    html += `<tr style="background:#f0fdf4;color:#166534;font-weight:600"><td style="padding:6px 8px">粗利</td>`;
+    readyTabs.forEach(t=>{ html+=`<td style="text-align:right;padding:6px 8px;color:#166534">${fmt(t.result.grossProfit)}</td>`; });
+    html += `</tr>`;
+
+    html += `</tbody></table></div>`;
+  }
+
+  // 印刷エリアに書き込んでprint
+  const printArea = document.getElementById("print-area");
+  printArea.innerHTML = html;
+  printArea.style.display = "block";
+
+  // 通常エリアを一時非表示
+  const app = document.querySelector(".app");
+  app.style.display = "none";
+
+  window.print();
+
+  // 復元
+  app.style.display = "";
+  printArea.style.display = "none";
+}
+
 function copyResult() {
   if (!window._lastResult) return;
   const r=window._lastResult;
