@@ -1416,13 +1416,61 @@ function copyResult() {
 }
 
 // ===================== SAVE / LOAD / EXCEL =====================
-const STORAGE_KEY = "getc_quotes_v2";
+const STORAGE_KEY = "getc_projects_v1";
+const OLD_STORAGE_KEY = "getc_quotes_v2";
 
-function loadSavedQuotes() {
+function loadProjects() {
   try { return JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]"); } catch(e) { return []; }
 }
-function saveSavedQuotes(quotes) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(quotes));
+function saveProjects(projects) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
+}
+
+// 旧データ（getc_quotes_v2）を新フォーマットに自動移行
+function migrateOldData() {
+  try {
+    const oldData = localStorage.getItem(OLD_STORAGE_KEY);
+    if (!oldData) return;
+    const oldQuotes = JSON.parse(oldData);
+    if (!oldQuotes || oldQuotes.length === 0) return;
+    // 既に移行済みかチェック
+    const existing = loadProjects();
+    if (existing.length > 0) return; // 新データがあれば移行しない
+    // 旧データを新フォーマットに変換
+    const migrated = oldQuotes.map(q => ({
+      id: q.id || Date.now(),
+      client: q.client || "（旧データ）",
+      project: q.project || "（旧データ）",
+      date: q.date || "",
+      age: q.age || "",
+      nationality: q.nationality || "",
+      country: q.country || "",
+      author: q.author || "",
+      authorDate: q.authorDate || "",
+      reviewer: q.reviewer || "",
+      reviewerDate: q.reviewerDate || "",
+      fx: { gbp: q.gbpTTS||200, usd: q.usdTTS||155, cad:110, eur:165, nzd:88, thb:4.3, sgd:115 },
+      tabs: [{
+        id: 1,
+        name: q.client || "案",
+        schoolSections: [],
+        result: {
+          freeeLines: q.freeeLines || [],
+          coord: q.coord || 0,
+          visa: q.visa || 0,
+          total: q.total || 0,
+          grossProfit: q.grossProfit || 0,
+          jpyAddons: q.jpyAddons || [],
+        },
+      }],
+      savedAt: new Date().toISOString(),
+      _migrated: true,
+    }));
+    saveProjects(migrated);
+    console.log(`旧データ ${migrated.length} 件を移行しました`);
+  } catch(e) {
+    console.error("移行エラー:", e);
+  }
 }
 
 function saveQuote() {
@@ -1655,6 +1703,7 @@ function _exportToExcel(targets, filename) {
 }
 
 // 初期化
+migrateOldData();  // 旧データを自動移行
 renderSavedQuotes();
 // 最初のタブを作成
 tabs.push(newTabData());
