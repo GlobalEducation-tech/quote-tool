@@ -326,10 +326,11 @@ const SCHOOLS = {
       "new-york": {
         name: "New York", country: "USA", regFee: 195, peakSupp: 0,
         courses: {
-          "tourists":  { name:"American English for Tourists (20L/週)", type:"group", prices:[400,270,230,210], brackets:[1,3,12,24], commission:0.25 },
+          "tourists":  { name:"American English for Tourists (20L/週)", type:"group", prices:[400,270,230,210], brackets:[1,3,12,24], commission:0.25, note:"Business English for Professionals Signature Elective（月〜木 14:15〜16:15）をこのコース費用内で受講可能。" },
           "standard":  { name:"American English Standard (22L/週)",     type:"group", prices:[400,275,240,210], brackets:[1,3,12,24], commission:0.25 },
-          "intensive": { name:"American English Intensive (30L/週)",    type:"group", prices:[450,350,330,310], brackets:[1,3,12,24], commission:0.25 },
+          "intensive": { name:"American English Intensive (30L/週)",    type:"group", prices:[450,350,330,310], brackets:[1,3,12,24], commission:0.25, note:"Business English for Professionals Signature Elective（月〜木 14:15〜16:15）をこのコース費用内で受講可能。" },
           "toefl":     { name:"TOEFL Test Preparation (22L/週)",        type:"group", prices:[350,275],         brackets:[3,12],      commission:0.25 },
+          "business-english": { name:"Business English for Professionals (Signature Elective)", type:"group", prices:[0], brackets:[1], extraPerWeek:0, commission:0.25, note:"月〜木14:15〜16:15。価格は要問い合わせ（単独またはIntensive/Touristと組み合わせ可）。price欄に手入力してください。" },
           "1to1-5":    { name:"One-to-One 5レッスン/週",                type:"group", prices:[425],             brackets:[1],         commission:0.25 },
           "1to1-10":   { name:"One-to-One 10レッスン/週",               type:"group", prices:[800],             brackets:[1],         commission:0.25 },
         },
@@ -404,12 +405,64 @@ const SCHOOLS = {
     currency: "USD",
     campuses: {
       "kuala-lumpur": {
-        name: "Kuala Lumpur", country: "Malaysia", regFee: 106, peakSupp: 0,
-        materialsFee: { type:"bracket", brackets:[{maxWeeks:4,fee:50},{maxWeeks:8,fee:100},{maxWeeks:12,fee:150},{maxWeeks:16,fee:200},{maxWeeks:20,fee:250},{maxWeeks:999,fee:270}] },
+        name: "Kuala Lumpur (KL City Campus)", country: "Malaysia", regFee: 106, peakSupp: 0,
+        // 教材費はコースごとに異なるため各コースに設定
         courses: {
-          "ge": { name:"General English (グループ)", type:"elc",
-            prices:[180.20,174.90,162.45], brackets:[1,13,25], extraPerWeek:162.45, commission:0.20,
-            note:"授業料にSST 6%別途（2025年9月〜）" },
+          // ── Intensive General / Academic English ──────────
+          "ige": {
+            name:"Intensive General English", type:"elc",
+            prices:[180.20, 174.90, 169.60, 164.30], brackets:[1, 13, 25, 37],
+            extraPerWeek:164.30, commission:0.20,
+            materialsFee:{ type:"bracket", brackets:[{maxWeeks:4,fee:50},{maxWeeks:8,fee:100},{maxWeeks:12,fee:150},{maxWeeks:16,fee:200},{maxWeeks:20,fee:250},{maxWeeks:999,fee:270}] },
+            note:"授業料にSST 6%別途（2025年9月〜）"
+          },
+          "iae": {
+            name:"Intensive Academic English", type:"elc",
+            prices:[180.20, 174.90, 169.60, 164.30], brackets:[1, 13, 25, 37],
+            extraPerWeek:164.30, commission:0.20,
+            materialsFee:{ type:"bracket", brackets:[{maxWeeks:4,fee:50},{maxWeeks:8,fee:100},{maxWeeks:12,fee:150},{maxWeeks:16,fee:200},{maxWeeks:20,fee:250},{maxWeeks:999,fee:270}] },
+            note:"授業料にSST 6%別途（2025年9月〜）"
+          },
+          // ── Semi-Intensive General English ────────────────
+          "sige": {
+            name:"Semi-Intensive General English (2〜12週)", type:"elc",
+            prices:[159], brackets:[1], extraPerWeek:159, commission:0.20,
+            materialsFee:{ type:"bracket", brackets:[{maxWeeks:4,fee:50},{maxWeeks:8,fee:100},{maxWeeks:12,fee:150},{maxWeeks:999,fee:150}] },
+            note:"学生パス非対象。最大12週まで。授業料にSST 6%別途。"
+          },
+          // ── Premium Courses（4h Group + 1h 1-2-1）─────────
+          "premium": {
+            name:"Premium Course (4h Group + 1h 1-2-1)", type:"elc",
+            prices:[424, 413.40, 402.80, 392.20], brackets:[1, 13, 25, 37],
+            extraPerWeek:392.20, commission:0.20,
+            materialsFee:{ type:"bracket", brackets:[{maxWeeks:4,fee:50},{maxWeeks:8,fee:100},{maxWeeks:12,fee:150},{maxWeeks:16,fee:200},{maxWeeks:20,fee:250},{maxWeeks:999,fee:270}] },
+            note:"授業料にSST 6%別途（2025年9月〜）"
+          },
+          // ── Executive English（Standard）──────────────────
+          // 登録費は$212（通常の$106とは別）
+          "exec-standard": {
+            name:"Standard Executive English (3h Group + 1h BE Small Group)", type:"elc",
+            prices:[212, 201.40, 190.80], brackets:[1, 13, 25],
+            extraPerWeek:190.80, commission:0.20, regFeeOverride:212,
+            materialsFee:{ type:"bracket", brackets:[{maxWeeks:6,fee:130},{maxWeeks:12,fee:160},{maxWeeks:24,fee:200},{maxWeeks:35,fee:230},{maxWeeks:999,fee:260}] },
+            note:"登録費$212（ELC Executive Centre利用込み）。SST 6%別途。"
+          },
+          // ── Executive English（Premium）───────────────────
+          "exec-premium": {
+            name:"Premium Executive English (3h G + 1h BE SG + 1h 1-2-1)", type:"elc",
+            prices:[424, 413.40, 402.80], brackets:[1, 13, 25],
+            extraPerWeek:402.80, commission:0.20, regFeeOverride:212,
+            materialsFee:{ type:"bracket", brackets:[{maxWeeks:6,fee:130},{maxWeeks:12,fee:160},{maxWeeks:24,fee:200},{maxWeeks:35,fee:230},{maxWeeks:999,fee:260}] },
+            note:"登録費$212。SST 6%別途。"
+          },
+          // ── Executive English（Premium Plus）─────────────
+          "exec-premium-plus": {
+            name:"Premium Plus Executive English (3h G + 1h BE SG + 2h 1-2-1)", type:"elc",
+            prices:[636, 614.60, 583], brackets:[1, 13, 25],
+            extraPerWeek:583, commission:0.20, regFeeOverride:212,
+            materialsFee:{ type:"bracket", brackets:[{maxWeeks:6,fee:130},{maxWeeks:12,fee:160},{maxWeeks:24,fee:200},{maxWeeks:35,fee:230},{maxWeeks:999,fee:260}] },
+            note:"登録費$212。SST 6%別途。"
+          },
         },
         accom: { "none": { name:"なし", low:0, peak:0 } },
         airports: { "KLIA/KLIA2 片道（ビザ必須）": 100 }
