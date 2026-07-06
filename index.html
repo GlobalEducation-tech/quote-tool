@@ -68,7 +68,25 @@ h1 { font-size: 20px; font-weight: 500; margin-bottom: 24px; color: #1a1a18; }
 .fx-card-title { font-size: 11px; color: #3b5bdb; font-weight: 500; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
 .copy-btn { display: flex; align-items: center; gap: 6px; margin-top: 14px; width: 100%; justify-content: center; }
 @media (max-width: 600px) { .g2,.g3,.g4 { grid-template-columns: 1fr; } }
-</style>
+
+/* タブ */
+.tabs-bar { display:flex; gap:4px; flex-wrap:wrap; align-items:center; margin-bottom:12px; }
+.tab-btn { padding:7px 14px; border:0.5px solid #ddddd8; border-radius:8px 8px 0 0; background:#f5f5f3; font-size:12px; cursor:pointer; color:#666; white-space:nowrap; max-width:200px; overflow:hidden; text-overflow:ellipsis; }
+.tab-btn.active { background:#fff; border-bottom-color:#fff; color:#1a1a18; font-weight:500; border-color:#1565c0; border-bottom:2px solid #fff; }
+.tab-btn:hover:not(.active) { background:#ebebea; }
+.tab-add-btn { padding:7px 12px; border:0.5px dashed #ccc; border-radius:8px; background:#fafafa; font-size:12px; cursor:pointer; color:#888; }
+.tab-add-btn:hover { background:#f0f0f0; }
+.tab-content { border:0.5px solid #ddddd8; border-radius:0 12px 12px 12px; background:#fff; padding:16px; margin-bottom:12px; }
+
+/* 比較表 */
+.compare-table { width:100%; border-collapse:collapse; font-size:12px; }
+.compare-table th { padding:8px 10px; background:#1a1a18; color:#fff; font-weight:500; text-align:right; }
+.compare-table th:first-child { text-align:left; }
+.compare-table td { padding:7px 10px; border-bottom:0.5px solid #f0f0ec; text-align:right; }
+.compare-table td:first-child { text-align:left; color:#555; }
+.compare-table tr.section-row td { background:#f5f5f3; font-weight:500; color:#1a1a18; padding-top:10px; }
+.compare-table tr.total-row td { border-top:1.5px solid #1a1a18; font-weight:600; font-size:13px; }
+.compare-table tr.profit-row td { background:#f0fdf4; color:#166534; font-weight:500; }</style>
 </head>
 <body>
 <div class="app">
@@ -167,14 +185,27 @@ h1 { font-size: 20px; font-weight: 500; margin-bottom: 24px; color: #1a1a18; }
     </div>
   </div>
 
-  <!-- 学校セクション -->
-  <div class="card">
-    <div class="card-header">
-      <span class="card-title">プログラム（学校ごとに追加）</span>
+  <!-- タブ式プログラム入力 -->
+  <div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+      <span style="font-size:11px;font-weight:500;color:#888;text-transform:uppercase;letter-spacing:0.05em">プログラム（案ごとにタブ追加）</span>
+      <button class="btn btn-sm" onclick="showCompare()" id="compare-btn" style="display:none;background:#1565c0;color:#fff;border-color:#1565c0">📊 案を比較</button>
     </div>
-    <div class="card-body">
+    <div class="tabs-bar" id="tabs-bar"></div>
+    <div class="tab-content" id="tab-content">
       <div id="school-sections-container"></div>
       <button class="btn-add" onclick="addSchoolSection()" style="margin-top:12px">＋ 学校を追加</button>
+    </div>
+  </div>
+
+  <!-- 比較モーダル -->
+  <div id="compare-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;overflow:auto">
+    <div style="background:#fff;border-radius:12px;padding:24px;max-width:900px;width:90%;margin:40px auto">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <span style="font-size:15px;font-weight:600">案の比較</span>
+        <button class="btn btn-sm" onclick="document.getElementById('compare-modal').style.display='none'">閉じる</button>
+      </div>
+      <div id="compare-content"></div>
     </div>
   </div>
 
@@ -271,8 +302,180 @@ function getCountryList() {
   return Object.keys(countries).sort();
 }
 
-let schoolSections = [];  // 学校セクション（メインデータ構造）
+let schoolSections = [];  // 現在アクティブなタブの学校セクション
 let ssIdx = 0, cIdx=0, aIdx=0, dIdx=0, plIdx=0;
+
+// ===================== TABS =====================
+let tabs = [];      // [{ id, name, schoolSections, result }]
+let activeTabIdx = 0;
+let tabIdx = 0;
+
+function newTabData() {
+  return { id: ++tabIdx, name: "新規案", schoolSections: [], result: null };
+}
+
+function getActiveTab() { return tabs[activeTabIdx]; }
+
+function syncTabSections() {
+  // 現在の入力をアクティブタブに同期
+  if (tabs[activeTabIdx]) tabs[activeTabIdx].schoolSections = schoolSections;
+}
+
+function switchTab(idx) {
+  syncTabSections();
+  activeTabIdx = idx;
+  schoolSections = tabs[activeTabIdx].schoolSections;
+  renderTabs();
+  renderSchoolSections();
+  calcAll();
+}
+
+function addTab() {
+  syncTabSections();
+  const t = newTabData();
+  tabs.push(t);
+  activeTabIdx = tabs.length - 1;
+  schoolSections = tabs[activeTabIdx].schoolSections;
+  renderTabs();
+  renderSchoolSections();
+  calcAll();
+}
+
+function removeTab(idx) {
+  if (tabs.length <= 1) return;
+  tabs.splice(idx, 1);
+  activeTabIdx = Math.min(activeTabIdx, tabs.length - 1);
+  schoolSections = tabs[activeTabIdx].schoolSections;
+  renderTabs();
+  renderSchoolSections();
+  calcAll();
+}
+
+function getTabName(t) {
+  if (!t.schoolSections || t.schoolSections.length === 0) return "新規案";
+  // 学校名を抽出
+  const names = [];
+  t.schoolSections.forEach(s => {
+    if (s.school && SCHOOLS[s.school]) {
+      const schoolName = SCHOOLS[s.school].name;
+      // 週数を取得（全コースの最大週数）
+      const weeks = s.courses.reduce((max, c) => Math.max(max, parseInt(c.weeks)||0), 0);
+      names.push(weeks > 0 ? `${shortName(schoolName)} ${weeks}週` : shortName(schoolName));
+    }
+  });
+  return names.length > 0 ? names.join(" / ") : "新規案";
+}
+
+function shortName(name) {
+  // 長い学校名を短縮
+  return name
+    .replace("International House", "IH")
+    .replace("Languages International", "LI")
+    .replace("Converse International School of Languages", "CISL")
+    .replace("UCI Division of Continuing Education", "UCI")
+    .replace("USH (Universal Student Housing)", "USH")
+    .replace("LSI Portsmouth (IH Portsmouth)", "LSI Portsmouth")
+    .replace("inlingua School of Languages Singapore", "inlingua SG")
+    .replace("International House Bangkok", "IH Bangkok")
+    .replace("GrandLine (フィリピン留学)", "GrandLine")
+    .replace("ELC (English Language Company) Malaysia", "ELC Malaysia");
+}
+
+function renderTabs() {
+  const bar = document.getElementById("tabs-bar");
+  bar.innerHTML = tabs.map((t, i) => `
+    <div style="display:flex;align-items:stretch;gap:0">
+      <button class="tab-btn ${i===activeTabIdx?"active":""}" onclick="switchTab(${i})" title="${getTabName(t)}">${getTabName(t)}</button>
+      ${tabs.length > 1 ? `<button onclick="removeTab(${i})" style="padding:4px 6px;border:0.5px solid #ddddd8;border-left:none;border-radius:0 8px 8px 0;background:${i===activeTabIdx?"#fff":"#f5f5f3"};font-size:10px;cursor:pointer;color:#aaa" title="この案を削除">✕</button>` : ""}
+    </div>
+  `).join("") + `<button class="tab-add-btn" onclick="addTab()">＋ 案を追加</button>`;
+
+  // 比較ボタン表示
+  const compareBtn = document.getElementById("compare-btn");
+  if (compareBtn) compareBtn.style.display = tabs.length > 1 ? "inline-block" : "none";
+}
+
+// ===================== 比較表 =====================
+function showCompare() {
+  syncTabSections();
+  const modal = document.getElementById("compare-modal");
+  const content = document.getElementById("compare-content");
+
+  // 全タブのresultを計算
+  const results = tabs.map((t, i) => {
+    const r = t.result;
+    const name = getTabName(t);
+    return { name, result: r };
+  }).filter(x => x.result);
+
+  if (results.length === 0) {
+    content.innerHTML = `<div style="color:#888;text-align:center;padding:20px">各案を入力して計算してください</div>`;
+    modal.style.display = "block";
+    return;
+  }
+
+  // 比較表を構築
+  const cols = results.length;
+  let html = `<div style="overflow-x:auto"><table class="compare-table">`;
+  html += `<thead><tr>
+    <th style="min-width:160px">項目</th>
+    ${results.map(r=>`<th style="min-width:120px">${r.name}</th>`).join("")}
+  </tr></thead><tbody>`;
+
+  // 海外PG費用（学校ごとに展開）
+  html += `<tr class="section-row"><td colspan="${cols+1}">海外プログラム費用</td></tr>`;
+
+  // 全タブの学校ラベルを収集
+  const allLabels = [];
+  results.forEach(r => {
+    r.result.freeeLines.filter(l=>!l.isJPY).forEach(l => {
+      if (!allLabels.includes(l.label)) allLabels.push(l.label);
+    });
+  });
+  allLabels.forEach(label => {
+    html += `<tr><td style="padding-left:16px;color:#555">${label}</td>`;
+    results.forEach(r => {
+      const l = r.result.freeeLines.find(x=>!x.isJPY&&x.label===label);
+      html += `<td>${l ? fmt(l.jpy) : "—"}</td>`;
+    });
+    html += `</tr>`;
+  });
+
+  // コーディネーション
+  html += `<tr class="section-row"><td>コーディネーション費用</td>`;
+  results.forEach(r => { html += `<td>${r.result.coord>0?fmt(r.result.coord):"—"}</td>`; });
+  html += `</tr>`;
+
+  // ビザ
+  html += `<tr class="section-row"><td>ビザ申請費用</td>`;
+  results.forEach(r => { html += `<td>${r.result.visa>0?fmt(r.result.visa):"—"}</td>`; });
+  html += `</tr>`;
+
+  // その他（円建てAdd-ons）
+  const hasOther = results.some(r => (r.result.jpyAddons||[]).length > 0);
+  if (hasOther) {
+    html += `<tr class="section-row"><td>その他費用</td>`;
+    results.forEach(r => {
+      const total = (r.result.jpyAddons||[]).reduce((s,a)=>s+a.jpy,0);
+      html += `<td>${total>0?fmt(total):"—"}</td>`;
+    });
+    html += `</tr>`;
+  }
+
+  // 合計
+  html += `<tr class="total-row"><td>合計</td>`;
+  results.forEach(r => { html += `<td>${fmt(r.result.total)}</td>`; });
+  html += `</tr>`;
+
+  // 粗利
+  html += `<tr class="profit-row"><td>粗利</td>`;
+  results.forEach(r => { html += `<td>${fmt(r.result.grossProfit)}</td>`; });
+  html += `</tr>`;
+
+  html += `</tbody></table></div>`;
+  content.innerHTML = html;
+  modal.style.display = "block";
+}
 
 // 後方互換性のためのダミー（calcAllで参照される旧変数）
 let courseBlocks=[], accomBlocks=[], addonBlocks=[], privLessonBlocks=[];
@@ -1183,6 +1386,13 @@ function calcAll() {
     usdTTS:parseFloat(document.getElementById("fx-usd").value)||155,
     jpyAddons:allJpyAddons,
   };
+
+  // アクティブタブにresultを保存・タブ名を更新
+  if (tabs[activeTabIdx]) {
+    tabs[activeTabIdx].result = window._lastResult;
+    tabs[activeTabIdx].schoolSections = schoolSections;
+    renderTabs();
+  }
 }
 function copyResult() {
   if (!window._lastResult) return;
@@ -1441,6 +1651,10 @@ function _exportToExcel(targets, filename) {
 
 // 初期化
 renderSavedQuotes();
+// 最初のタブを作成
+tabs.push(newTabData());
+schoolSections = tabs[0].schoolSections;
+renderTabs();
 renderSchoolSections();
 document.getElementById("quote-date").value = new Date().toISOString().split("T")[0];
 </script>
