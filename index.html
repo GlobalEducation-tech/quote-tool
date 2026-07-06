@@ -92,17 +92,17 @@ h1 { font-size: 20px; font-weight: 500; margin-bottom: 24px; color: #1a1a18; }
 <div class="app">
   <h1>海外プログラム見積計算ツール</h1>
 
-  <!-- 保存済み見積もり -->
+  <!-- 案件ライブラリ -->
   <div class="card">
     <div class="card-header">
-      <span class="card-title">保存済み見積もり</span>
+      <span class="card-title">案件ライブラリ</span>
       <div style="display:flex;gap:8px">
-        <button class="btn btn-sm" onclick="exportExcel()">Excel一覧を出力</button>
+        <button class="btn btn-sm" onclick="exportExcel()">Excel出力</button>
         <button class="btn btn-sm btn-danger" onclick="clearAllQuotes()">全件削除</button>
       </div>
     </div>
-    <div class="card-body" id="saved-quotes-list" style="max-height:320px;overflow-y:auto">
-      <div style="font-size:13px;color:#999;text-align:center;padding:8px 0">保存済みの見積もりはありません</div>
+    <div class="card-body" id="saved-quotes-list" style="max-height:400px;overflow-y:auto">
+      <div style="font-size:13px;color:#999;text-align:center;padding:8px 0">保存済みの案件はありません</div>
     </div>
   </div>
 
@@ -1411,109 +1411,166 @@ function copyResult() {
 }
 
 // ===================== SAVE / LOAD / EXCEL =====================
-const STORAGE_KEY = "getc_quotes_v2";
+const STORAGE_KEY = "getc_projects_v1";
 
-function loadSavedQuotes() {
+function loadProjects() {
   try { return JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]"); } catch(e) { return []; }
 }
-function saveSavedQuotes(quotes) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(quotes));
+function saveProjects(projects) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
 }
 
 function saveQuote() {
-  if (!window._lastResult) { alert("先に計算してください"); return; }
-  const r = window._lastResult;
+  // 現在のタブを同期
+  syncTabSections();
+
   const client = document.getElementById("client-name").value || "（未設定）";
   const project = document.getElementById("project-name").value || "（未設定）";
   const date = document.getElementById("quote-date").value || new Date().toISOString().split("T")[0];
-  const age = document.getElementById("person-age").value || "";
-  const nationality = document.getElementById("person-nationality").value || "";
-  const countryEl = document.getElementById("person-country");
-  const country = countryEl ? countryEl.value : "";
-  const author = document.getElementById("author-name").value || "";
-  const authorDate = document.getElementById("author-date").value || "";
-  const reviewer = document.getElementById("reviewer-name").value || "";
-  const reviewerDate = document.getElementById("reviewer-date").value || "";
 
-  const quote = {
-    id: Date.now(),
+  // 既存案件の更新チェック
+  const projects = loadProjects();
+  const existingIdx = projects.findIndex(p => p.client===client && p.project===project);
+
+  const projectData = {
+    id: existingIdx >= 0 ? projects[existingIdx].id : Date.now(),
     client, project, date,
-    age, nationality, country,
-    author, authorDate, reviewer, reviewerDate,
-    freeeLines: r.freeeLines.map(l=>({
-      label:l.label, jpy:l.jpy, isJPY:l.isJPY||false,
-      currency:l.currency, local:l.local, tts:l.tts,
-      effectiveFX:l.effectiveFX, costJPY:l.costJPY,
-      progGainJPY:l.progGainJPY, ttsGainJPY:l.ttsGainJPY,
-      items:l.items
+    // クライアント情報
+    age: document.getElementById("person-age").value || "",
+    nationality: document.getElementById("person-nationality").value || "",
+    country: (document.getElementById("person-country")||{}).value || "",
+    author: document.getElementById("author-name").value || "",
+    authorDate: document.getElementById("author-date").value || "",
+    reviewer: document.getElementById("reviewer-name").value || "",
+    reviewerDate: document.getElementById("reviewer-date").value || "",
+    // TTS
+    fx: {
+      gbp: parseFloat(document.getElementById("fx-gbp").value)||200,
+      cad: parseFloat(document.getElementById("fx-cad").value)||110,
+      usd: parseFloat(document.getElementById("fx-usd").value)||155,
+      eur: parseFloat(document.getElementById("fx-eur").value)||165,
+      nzd: parseFloat(document.getElementById("fx-nzd").value)||88,
+      thb: parseFloat(document.getElementById("fx-thb").value)||4.3,
+      sgd: parseFloat(document.getElementById("fx-sgd").value)||115,
+    },
+    // 全タブのデータ
+    tabs: tabs.map(t => ({
+      id: t.id,
+      name: getTabName(t),
+      schoolSections: t.schoolSections,
+      result: t.result ? {
+        freeeLines: t.result.freeeLines,
+        coord: t.result.coord,
+        visa: t.result.visa,
+        total: t.result.total,
+        grossProfit: t.result.grossProfit,
+        jpyAddons: t.result.jpyAddons||[],
+      } : null,
     })),
-    coord: r.coord, visa: r.visa, total: r.total, grossProfit: r.grossProfit,
-    totalCommJPY: r.totalCommJPY||0,
-    totalProgMarkupJPY: r.totalProgMarkupJPY||0,
-    totalTTSMarkupJPY: r.totalTTSMarkupJPY||0,
-    progMarkupPct: r.progMarkupPct||0,
-    ttsMarkupPct: r.ttsMarkupPct||0,
-    gbpTTS: r.gbpTTS||0, usdTTS: r.usdTTS||0,
-    visaNote: r.visaNote||false,
-    jpyAddons: r.jpyAddons||[],
-    coordSchools: r.coordSchools||0,
+    savedAt: new Date().toISOString(),
   };
 
-  const quotes = loadSavedQuotes();
-  quotes.unshift(quote);
-  saveSavedQuotes(quotes);
+  if (existingIdx >= 0) {
+    if (!confirm(`「${client} / ${project}」はすでに保存されています。上書きしますか？`)) return;
+    projects[existingIdx] = projectData;
+  } else {
+    projects.unshift(projectData);
+  }
+  saveProjects(projects);
   renderSavedQuotes();
   alert(`「${client} / ${project}」を保存しました`);
 }
 
+function loadProject(id) {
+  const projects = loadProjects();
+  const p = projects.find(x=>x.id===id);
+  if (!p) return;
+
+  // クライアント情報を復元
+  document.getElementById("client-name").value = p.client || "";
+  document.getElementById("project-name").value = p.project || "";
+  document.getElementById("quote-date").value = p.date || "";
+  document.getElementById("person-age").value = p.age || "unknown";
+  document.getElementById("person-nationality").value = p.nationality || "japanese";
+  document.getElementById("author-name").value = p.author || "";
+  document.getElementById("author-date").value = p.authorDate || "";
+  document.getElementById("reviewer-name").value = p.reviewer || "";
+  document.getElementById("reviewer-date").value = p.reviewerDate || "";
+  onNationalityChange();
+
+  // TTS復元
+  if (p.fx) {
+    if(document.getElementById("fx-gbp")) document.getElementById("fx-gbp").value = p.fx.gbp||200;
+    if(document.getElementById("fx-cad")) document.getElementById("fx-cad").value = p.fx.cad||110;
+    if(document.getElementById("fx-usd")) document.getElementById("fx-usd").value = p.fx.usd||155;
+    if(document.getElementById("fx-eur")) document.getElementById("fx-eur").value = p.fx.eur||165;
+    if(document.getElementById("fx-nzd")) document.getElementById("fx-nzd").value = p.fx.nzd||88;
+    if(document.getElementById("fx-thb")) document.getElementById("fx-thb").value = p.fx.thb||4.3;
+    if(document.getElementById("fx-sgd")) document.getElementById("fx-sgd").value = p.fx.sgd||115;
+  }
+
+  // タブを復元
+  tabs = (p.tabs||[]).map(t => ({
+    id: t.id || ++tabIdx,
+    name: t.name || "案",
+    schoolSections: t.schoolSections || [],
+    result: t.result || null,
+  }));
+  if (tabs.length === 0) tabs = [newTabData()];
+  activeTabIdx = 0;
+  schoolSections = tabs[0].schoolSections;
+
+  renderTabs();
+  renderSchoolSections();
+  calcAll();
+
+  // 画面上部にスクロール
+  document.querySelector(".app").scrollIntoView({behavior:"smooth"});
+}
+
 function deleteQuote(id) {
-  const quotes = loadSavedQuotes().filter(q=>q.id!==id);
-  saveSavedQuotes(quotes);
+  if (!confirm("この案件を削除しますか？")) return;
+  const projects = loadProjects().filter(p=>p.id!==id);
+  saveProjects(projects);
   renderSavedQuotes();
 }
 
 function clearAllQuotes() {
-  if (!confirm("保存済み見積もりを全件削除しますか？")) return;
+  if (!confirm("全件削除しますか？")) return;
   localStorage.removeItem(STORAGE_KEY);
   renderSavedQuotes();
 }
 
 function renderSavedQuotes() {
   const el = document.getElementById("saved-quotes-list");
-  const quotes = loadSavedQuotes();
-  if (quotes.length===0) {
-    el.innerHTML=`<div style="font-size:13px;color:#999;text-align:center;padding:8px 0">保存済みの見積もりはありません</div>`;
+  const projects = loadProjects();
+  if (projects.length===0) {
+    el.innerHTML=`<div style="font-size:13px;color:#999;text-align:center;padding:8px 0">保存済みの案件はありません</div>`;
     return;
   }
-  el.innerHTML=`
-    <div style="margin-bottom:8px;display:flex;gap:8px;align-items:center">
-      <label style="font-size:12px;color:#666"><input type="checkbox" id="select-all-quotes" onchange="toggleAllQuotes(this.checked)"> 全選択</label>
-      <button class="btn btn-sm" onclick="exportSelectedExcel()">✅ 選択をExcelで出力</button>
-      <button class="btn btn-sm" onclick="exportCurrentExcel()">📥 今の見積をExcelで出力</button>
-    </div>
-    <table style="width:100%;font-size:12px;border-collapse:collapse">
-    <thead><tr style="border-bottom:0.5px solid #e0e0dc">
-      <th style="padding:4px 6px;width:28px"></th>
-      <th style="text-align:left;padding:4px 8px;color:#888;font-weight:500">日付</th>
-      <th style="text-align:left;padding:4px 8px;color:#888;font-weight:500">クライアント</th>
-      <th style="text-align:left;padding:4px 8px;color:#888;font-weight:500">案件名</th>
-      <th style="text-align:right;padding:4px 8px;color:#888;font-weight:500">合計</th>
-      <th style="text-align:right;padding:4px 8px;color:#888;font-weight:500">粗利</th>
-      <th style="padding:4px 8px"></th>
-    </tr></thead>
-    <tbody>
-    ${quotes.map(q=>`<tr style="border-bottom:0.5px solid #f0f0ec">
-      <td style="padding:6px 6px;text-align:center"><input type="checkbox" class="quote-checkbox" data-id="${q.id}"></td>
-      <td style="padding:6px 8px;white-space:nowrap">${q.date}</td>
-      <td style="padding:6px 8px">${q.client}</td>
-      <td style="padding:6px 8px">${q.project}</td>
-      <td style="padding:6px 8px;text-align:right;font-weight:500">${Math.round(q.total/10000)}万円</td>
-      <td style="padding:6px 8px;text-align:right;color:#166534">${Math.round(q.grossProfit/10000)}万円</td>
-      <td style="padding:6px 8px;text-align:right;white-space:nowrap">
-        <button class="btn btn-sm btn-danger" onclick="deleteQuote(${q.id})">削除</button>
-      </td>
-    </tr>`).join("")}
-    </tbody></table>`;
+  el.innerHTML = projects.map(p => {
+    const tabNames = (p.tabs||[]).map(t=>t.name||"案").join("　／　");
+    const totalMax = Math.max(...(p.tabs||[]).filter(t=>t.result).map(t=>t.result.total||0), 0);
+    const savedAt = p.savedAt ? new Date(p.savedAt).toLocaleDateString("ja-JP") : p.date;
+    return `<div style="border:0.5px solid #e0e0dc;border-radius:10px;padding:12px 14px;margin-bottom:8px;background:#fafafa">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:500;color:#1a1a18;margin-bottom:2px">${p.client}　<span style="color:#666;font-weight:400">${p.project}</span></div>
+          <div style="font-size:11px;color:#888;margin-bottom:6px">保存日: ${savedAt}</div>
+          <div style="font-size:11px;color:#555;line-height:1.8">
+            ${(p.tabs||[]).map(t=>{
+              const r = t.result;
+              return `<span style="display:inline-block;background:#f0f5ff;border-radius:4px;padding:2px 8px;margin:2px 4px 2px 0;color:#1565c0">${t.name||"案"}${r?` • ${fmt(r.total)}`:" • 未計算"}</span>`;
+            }).join("")}
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;flex-shrink:0;align-items:center">
+          <button class="btn btn-sm btn-primary" onclick="loadProject(${p.id})">開く</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteQuote(${p.id})">削除</button>
+        </div>
+      </div>
+    </div>`;
+  }).join("");
 }
 
 function toggleAllQuotes(checked) {
@@ -1522,32 +1579,49 @@ function toggleAllQuotes(checked) {
 
 // 現在の見積をExcelで出力
 function exportCurrentExcel() {
-  if (!window._lastResult) { alert("先に計算してください"); return; }
-  const r = window._lastResult;
+  syncTabSections();
   const client = document.getElementById("client-name").value || "見積";
   const project = document.getElementById("project-name").value || "";
   const date = document.getElementById("quote-date").value || new Date().toISOString().split("T")[0];
-  _exportToExcel([{
+  const targets = tabs.filter(t=>t.result).map(t=>({
     client, project, date,
-    freeeLines: r.freeeLines, coord: r.coord, visa: r.visa,
-    total: r.total, grossProfit: r.grossProfit,
-    totalCommJPY: r.totalCommJPY||0, progMarkupPct: r.progMarkupPct||0,
-    ttsMarkupPct: r.ttsMarkupPct||0, gbpTTS: r.gbpTTS||0, usdTTS: r.usdTTS||0,
-    jpyAddons: r.jpyAddons||[], coordSchools: r.coordSchools||0,
-  }], `GETC_見積_${client}_${date}`);
+    tabName: getTabName(t),
+    freeeLines: t.result.freeeLines,
+    coord: t.result.coord,
+    visa: t.result.visa,
+    total: t.result.total,
+    grossProfit: t.result.grossProfit,
+    totalCommJPY: t.result.totalCommJPY||0,
+    progMarkupPct: t.result.progMarkupPct||0,
+    ttsMarkupPct: t.result.ttsMarkupPct||0,
+    gbpTTS: t.result.gbpTTS||0,
+    usdTTS: t.result.usdTTS||0,
+    jpyAddons: t.result.jpyAddons||[],
+    coordSchools: t.result.coordSchools||0,
+  }));
+  if (targets.length===0) { alert("先に計算してください"); return; }
+  _exportToExcel(targets, `GETC_見積_${client}_${date}`);
 }
 
 function exportSelectedExcel(all=false) {
-  const quotes = loadSavedQuotes();
-  if (quotes.length===0) { alert("保存済みの見積もりがありません"); return; }
-  let targets;
-  if (all) {
-    targets = quotes;
-  } else {
-    const checked = [...document.querySelectorAll(".quote-checkbox:checked")].map(cb=>parseInt(cb.dataset.id));
-    targets = quotes.filter(q=>checked.includes(q.id));
-    if (targets.length===0) { alert("出力する見積もりを選択してください"); return; }
-  }
+  const projects = loadProjects();
+  if (projects.length===0) { alert("保存済みの案件がありません"); return; }
+  const targets = [];
+  projects.forEach(p => {
+    (p.tabs||[]).filter(t=>t.result).forEach(t => {
+      targets.push({
+        client: p.client, project: p.project, date: p.date,
+        tabName: t.name||"案",
+        freeeLines: t.result.freeeLines||[],
+        coord: t.result.coord||0,
+        visa: t.result.visa||0,
+        total: t.result.total||0,
+        grossProfit: t.result.grossProfit||0,
+        jpyAddons: t.result.jpyAddons||[],
+      });
+    });
+  });
+  if (targets.length===0) { alert("計算済みの案件がありません"); return; }
   _exportToExcel(targets, `GETC_見積一覧_${new Date().toISOString().split("T")[0]}`);
 }
 
