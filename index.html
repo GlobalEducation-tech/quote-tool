@@ -69,20 +69,11 @@ h1 { font-size: 20px; font-weight: 500; margin-bottom: 24px; color: #1a1a18; }
 .copy-btn { display: flex; align-items: center; gap: 6px; margin-top: 14px; width: 100%; justify-content: center; }
 @media print {
   body { background:#fff; font-size:11px; }
-  .app { max-width:100%; padding:8px; }
-  .card, .result-card { border:0.5px solid #ccc; margin-bottom:8px; box-shadow:none; }
-  .btn, .btn-add, .tabs-bar, #compare-btn, #compare-modal,
-  .copy-btn, button, .card-header button { display:none !important; }
-  .card-header { padding:8px 12px; }
-  #result-section { display:block !important; }
+  .app > *:not(#print-area) { display:none !important; }
+  #print-area { display:block !important; }
   .print-section { page-break-before: always; }
   .print-section:first-child { page-break-before: avoid; }
   .print-tab-title { font-size:14px; font-weight:600; color:#1565c0; padding:8px 0 4px; border-bottom:1.5px solid #1565c0; margin-bottom:12px; }
-  .print-compare { margin-top:16px; }
-  #school-sections-container, #tabs-bar, .tab-content > button { display:none !important; }
-  h1 { font-size:16px; margin-bottom:8px; }
-  .freee-table { font-size:11px; }
-  .breakdown-line { font-size:10px; }
 }
 @media (max-width: 600px) { .g2,.g3,.g4 { grid-template-columns: 1fr; } }
 
@@ -259,6 +250,7 @@ h1 { font-size: 20px; font-weight: 500; margin-bottom: 24px; color: #1a1a18; }
 
   <!-- PDF印刷用エリア（通常時は非表示） -->
   <div id="print-area" style="display:none"></div>
+</div>
 
 <script src="school_data.js"></script>
 <script>
@@ -1550,15 +1542,11 @@ function exportPDF() {
   printArea.innerHTML = html;
   printArea.style.display = "block";
 
-  // 通常エリアを一時非表示
-  const app = document.querySelector(".app");
-  app.style.display = "none";
-
   window.print();
 
   // 復元
-  app.style.display = "";
   printArea.style.display = "none";
+  printArea.innerHTML = "";
 }
 
 function copyResult() {
