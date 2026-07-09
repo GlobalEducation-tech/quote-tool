@@ -1815,6 +1815,9 @@ function _lineFormula(ln) {
   if (m && Math.abs(num(m[1])*num(m[2])*num(m[3])-(ln.local||0))<0.01) return `${num(m[1])}*${num(m[2])}*${num(m[3])}`;
   m = lbl.match(/(\d+)\s*回\s*×\s*[^\d]*([\d,]+(?:\.\d+)?)/);
   if (m && Math.abs(num(m[1])*num(m[2])-(ln.local||0))<0.01) return `${num(m[2])}*${num(m[1])}`;
+  // 旧形式の宿泊ラベル「宿泊 × 8週」: 金額が週数で割り切れる場合のみ 単価×週数 に復元
+  m = lbl.match(/^宿泊\s*×\s*(\d+)週$/);
+  if (m) { const w=num(m[1]); const amt=ln.local||0; if (w>0 && amt>0 && amt%w===0) return `${amt/w}*${w}`; }
   return null;
 }
 
@@ -1852,14 +1855,20 @@ function _exportToExcel(targets, filename) {
         push([`　【${item.section}】`]);
         item.lines && item.lines.forEach(ln => {
           const localAmt = ln.local || 0;
+          const lf = _lineFormula(ln);
+          let lbl = ln.label;
+          if (!ln.formula && lf) {
+            const m = String(lbl).match(/^宿泊\s*×\s*(\d+)週$/);
+            if (m) lbl = `宿泊 ${lf.split("*")[0]}/週 × ${m[1]}週`;
+          }
           const r = push([
-            `　　${ln.label}`, localAmt, cur, tts,
+            `　　${lbl}`, localAmt, cur, tts,
             Math.round(effRate * 100) / 100,
             Math.round(localAmt * tts),
             Math.round(localAmt * effRate),
           ]);
           detailRows.push(r);
-          const lf = _lineFormula(ln); if (lf) formulas.push({ r: r-1, c: 1, f: lf }); // 外貨金額 = 単価×週数
+          if (lf) formulas.push({ r: r-1, c: 1, f: lf }); // 外貨金額 = 単価×週数
           formulas.push({ r: r-1, c: 5, f: `ROUND(B${r}*D${r},0)` });               // 原価 = 外貨×TTS
           formulas.push({ r: r-1, c: 6, f: `ROUND(B${r}*E${r},0)` });               // 計算レート適用 = 外貨×実効レート
         });
