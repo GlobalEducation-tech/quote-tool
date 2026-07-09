@@ -1822,11 +1822,11 @@ function _lineFormula(ln) {
 }
 
 function _exportToExcel(targets, filename) {
-  // SheetJS で .xlsx を生成。単価×週数などは数式（=400*4 形式）、
-  // 円換算はセル参照数式（=B行*D行）で出力し、Excel上で編集・検算できる。
-  const rows = [];              // 値の二次元配列
-  const formulas = [];          // {r, c, f} 後からセルに数式を設定
-  const push = (arr) => { rows.push(arr); return rows.length; }; // 戻り値 = 1始まりの行番号
+  // SheetJS で .xlsx を生成。列構成: A項目 / B外貨金額 / C通貨 / D計算レート / E円換算
+  // 外貨金額は 単価×週数 の数式、円換算は =ROUND(B行*D行,0) のセル参照数式。
+  const rows = [];
+  const formulas = [];          // {r, c, f}
+  const push = (arr) => { rows.push(arr); return rows.length; };
 
   targets.forEach((q, qi) => {
     if (qi > 0) { push([]); push([]); }
@@ -1834,8 +1834,8 @@ function _exportToExcel(targets, filename) {
     push([`■ 見積書　${q.client}　${q.project}${q.tabName?`　[${q.tabName}]`:""}　${q.date}`]);
     push([]);
 
-    const subtotalRefs = []; // 各学校小計のG列セル参照
-    const jpyRefs = [];      // 円建て費用のG列セル参照
+    const subtotalRefs = [];
+    const jpyRefs = [];
 
     q.freeeLines && q.freeeLines.forEach(l => {
       if (l.isJPY) return;
@@ -1847,10 +1847,10 @@ function _exportToExcel(targets, filename) {
       const lProgPct = l.progMarkupPct ?? 0;
 
       push([`▼ ${l.label}`]);
-      push([`　TTS上乗せ: ${lTtsPct}%　プログラム上乗せ: ${lProgPct}%　計算レート: ${Math.round(effRate*100)/100}`]);
-      push(["　項目", "外貨金額", "通貨", "TTS", `計算レート(TTS+${lTtsPct}%)`, "円換算（原価）", "円換算（計算レート適用）"]);
+      push([`　TTS ${tts}　TTS上乗せ: ${lTtsPct}%　プログラム上乗せ: ${lProgPct}%　→ 計算レート: ${Math.round(effRate*100)/100}`]);
+      push(["　項目", "外貨金額", "通貨", `計算レート(TTS+${lTtsPct}%)`, "円換算"]);
 
-      const detailRows = []; // 明細行の行番号（1始まり）
+      const detailRows = [];
       l.items && l.items.forEach(item => {
         push([`　【${item.section}】`]);
         item.lines && item.lines.forEach(ln => {
@@ -1862,74 +1862,69 @@ function _exportToExcel(targets, filename) {
             if (m) lbl = `宿泊 ${lf.split("*")[0]}/週 × ${m[1]}週`;
           }
           const r = push([
-            `　　${lbl}`, localAmt, cur, tts,
+            `　　${lbl}`, localAmt, cur,
             Math.round(effRate * 100) / 100,
-            Math.round(localAmt * tts),
             Math.round(localAmt * effRate),
           ]);
           detailRows.push(r);
-          if (lf) formulas.push({ r: r-1, c: 1, f: lf }); // 外貨金額 = 単価×週数
-          formulas.push({ r: r-1, c: 5, f: `ROUND(B${r}*D${r},0)` });               // 原価 = 外貨×TTS
-          formulas.push({ r: r-1, c: 6, f: `ROUND(B${r}*E${r},0)` });               // 計算レート適用 = 外貨×実効レート
+          if (lf) formulas.push({ r: r-1, c: 1, f: lf });                 // 外貨金額 = 単価×週数
+          formulas.push({ r: r-1, c: 4, f: `ROUND(B${r}*D${r},0)` });      // 円換算 = 外貨×計算レート
         });
       });
 
       let progRow = null;
       if (l.ttsGainJPY > 0) {
-        push([`　TTS上乗せ差益 (+${lTtsPct}%)　※明細の計算レートに含まれるため小計には加算しない`, "", "", "", "", "", Math.round(l.ttsGainJPY)]);
+        push([`　TTS上乗せ差益 (+${lTtsPct}%)　※明細の計算レートに含まれるため小計には加算しない`, "", "", "", Math.round(l.ttsGainJPY)]);
       }
       if (l.progGainJPY > 0) {
-        progRow = push([`　プログラム上乗せ (+${lProgPct}%)`, "", "", "", "", "", Math.round(l.progGainJPY)]);
+        progRow = push([`　プログラム上乗せ (+${lProgPct}%)`, "", "", "", Math.round(l.progGainJPY)]);
       }
 
-      const sumArgs = detailRows.map(r => `G${r}`);
-      if (progRow) sumArgs.push(`G${progRow}`);
-      const costArgs = detailRows.map(r => `F${r}`);
+      const sumArgs = detailRows.map(r => `E${r}`);
+      if (progRow) sumArgs.push(`E${progRow}`);
       const localArgs = detailRows.map(r => `B${r}`);
-      const sr = push([`　▶ ${l.label} 小計`, Math.round(l.local*100)/100, cur, tts, Math.round(effRate*100)/100, Math.round(l.costJPY), Math.round(l.jpy)]);
+      const sr = push([`　▶ ${l.label} 小計`, Math.round(l.local*100)/100, cur, Math.round(effRate*100)/100, Math.round(l.jpy)]);
       if (localArgs.length) formulas.push({ r: sr-1, c: 1, f: `SUM(${localArgs.join(",")})` });
-      if (costArgs.length)  formulas.push({ r: sr-1, c: 5, f: `SUM(${costArgs.join(",")})` });
-      if (sumArgs.length)   formulas.push({ r: sr-1, c: 6, f: `SUM(${sumArgs.join(",")})` });
-      subtotalRefs.push(`G${sr}`);
+      if (sumArgs.length)   formulas.push({ r: sr-1, c: 4, f: `SUM(${sumArgs.join(",")})` });
+      subtotalRefs.push(`E${sr}`);
       push([]);
     });
 
     // 円建て費用
     const jpyLines = [];
-    if ((q.coord||0) > 0) jpyLines.push([`コーディネーション費用（${q.coordSchools}校）`, "", "JPY", 1, 1, q.coord, q.coord]);
-    if ((q.visa||0) > 0)  jpyLines.push([`ビザ申請費用`, "", "JPY", 1, 1, q.visa, q.visa]);
-    q.jpyAddons && q.jpyAddons.forEach(a => { jpyLines.push([a.label, "", "JPY", 1, 1, a.jpy, a.jpy]); });
+    if ((q.coord||0) > 0) jpyLines.push([`コーディネーション費用（${q.coordSchools}校）`, "", "JPY", 1, q.coord]);
+    if ((q.visa||0) > 0)  jpyLines.push([`ビザ申請費用`, "", "JPY", 1, q.visa]);
+    q.jpyAddons && q.jpyAddons.forEach(a => { jpyLines.push([a.label, "", "JPY", 1, a.jpy]); });
     if (jpyLines.length > 0) {
       push(["▼ 円建て費用"]);
-      push(["　項目", "", "通貨", "", "", "金額（円）", "金額（円）"]);
-      jpyLines.forEach(r => { const rn = push(r); jpyRefs.push(`G${rn}`); });
+      push(["　項目", "", "通貨", "", "金額（円）"]);
+      jpyLines.forEach(r => { const rn = push(r); jpyRefs.push(`E${rn}`); });
       push([]);
     }
 
-    // 合計・粗利（合計はセル参照の数式）
+    // 合計・粗利
     const totalArgs = [...subtotalRefs, ...jpyRefs];
-    const tr = push(["★ 見積合計", "", "", "", "", "", Math.round(q.total)]);
-    if (totalArgs.length) formulas.push({ r: tr-1, c: 6, f: `SUM(${totalArgs.join(",")})` });
-    const cr = push(["　うちコミッション（授業料×コミッション率）", "", "", "", "", "", Math.round(q.totalCommJPY||0)]);
-    const mr = push(["　うちTTS上乗せ差益", "", "", "", "", "", Math.round(q.totalTTSMarkupJPY||0)]);
-    const pr = push(["　うちプログラム上乗せ益", "", "", "", "", "", Math.round(q.totalProgMarkupJPY||0)]);
+    const tr = push(["★ 見積合計", "", "", "", Math.round(q.total)]);
+    if (totalArgs.length) formulas.push({ r: tr-1, c: 4, f: `SUM(${totalArgs.join(",")})` });
+    const cr = push(["　うちコミッション（授業料×コミッション率）", "", "", "", Math.round(q.totalCommJPY||0)]);
+    const mr = push(["　うちTTS上乗せ差益", "", "", "", Math.round(q.totalTTSMarkupJPY||0)]);
+    const pr = push(["　うちプログラム上乗せ益", "", "", "", Math.round(q.totalProgMarkupJPY||0)]);
     let cdr = null;
-    if ((q.coord||0) > 0) cdr = push(["　うちコーディネーション", "", "", "", "", "", q.coord]);
-    const gr = push(["★ 粗利合計", "", "", "", "", "", Math.round(q.grossProfit)]);
-    const gpArgs = [`G${cr}`,`G${mr}`,`G${pr}`]; if (cdr) gpArgs.push(`G${cdr}`);
+    if ((q.coord||0) > 0) cdr = push(["　うちコーディネーション", "", "", "", q.coord]);
+    const gr = push(["★ 粗利合計", "", "", "", Math.round(q.grossProfit)]);
+    const gpArgs = [`E${cr}`,`E${mr}`,`E${pr}`]; if (cdr) gpArgs.push(`E${cdr}`);
     const gpSum = Math.round(q.totalCommJPY||0)+Math.round(q.totalTTSMarkupJPY||0)+Math.round(q.totalProgMarkupJPY||0)+(cdr?(q.coord||0):0);
-    if (Math.abs(gpSum-Math.round(q.grossProfit))<=2) formulas.push({ r: gr-1, c: 6, f: `SUM(${gpArgs.join(",")})` });
+    if (Math.abs(gpSum-Math.round(q.grossProfit))<=2) formulas.push({ r: gr-1, c: 4, f: `SUM(${gpArgs.join(",")})` });
     push([]);
   });
 
-  // ── xlsx 生成 ──
   const ws = XLSX.utils.aoa_to_sheet(rows);
   formulas.forEach(({r,c,f}) => {
     const addr = XLSX.utils.encode_cell({ r, c });
     if (!ws[addr]) ws[addr] = { t:"n", v:0 };
     ws[addr].f = f;
   });
-  ws["!cols"] = [{wch:64},{wch:12},{wch:6},{wch:9},{wch:16},{wch:14},{wch:20}];
+  ws["!cols"] = [{wch:64},{wch:12},{wch:6},{wch:16},{wch:16}];
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "見積");
   XLSX.writeFile(wb, `${filename}.xlsx`);
