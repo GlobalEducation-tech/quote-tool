@@ -215,6 +215,8 @@ else{document.addEventListener("DOMContentLoaded",()=>{const i=document.getEleme
         <div class="field"><label>NZD / JPY（TTS）</label><input type="number" id="fx-nzd" value="88" min="30" max="200" step="0.1" oninput="calcAll()"></div>
         <div class="field"><label>THB / JPY（TTS）</label><input type="number" id="fx-thb" value="4.3" min="1" max="20" step="0.01" oninput="calcAll()"></div>
         <div class="field"><label>SGD / JPY（TTS）</label><input type="number" id="fx-sgd" value="115" min="50" max="300" oninput="calcAll()"></div>
+        <div class="field"><label>AUD / JPY（TTS）</label><input type="number" id="fx-aud" value="100" min="50" max="200" step="0.1" oninput="calcAll()"></div>
+        <div class="field"><label>CHF / JPY（TTS）</label><input type="number" id="fx-chf" value="185" min="80" max="350" step="0.1" oninput="calcAll()"></div>
       </div>
     </div>
   </div>
@@ -281,6 +283,14 @@ else{document.addEventListener("DOMContentLoaded",()=>{const i=document.getEleme
 <script src="school_data.js"></script>
 <script>
 // ===================== DATA（学校データはschool_data.jsに移動） =====================
+// ビジネススクール（手入力）疑似スクール：価格リストがなく都度リサーチするプログラム用
+SCHOOLS.bschool = {
+  name: "ビジネススクール（手入力）", currency: "USD",
+  campuses: { "custom": { name:"手入力プログラム", country:"ビジネススクール（手入力）",
+    regFee:0, peakSupp:0, courses:{}, accom:{ "none":{name:"なし",low:0,peak:0} }, airports:{} } }
+};
+PRIVATE_LESSON_PRICES.bschool = { "custom": null };
+let bsIdx = 0;
 
 // PRICE_YEAR管理
 const PRICE_YEARS = {};
@@ -526,7 +536,7 @@ function addSchoolSection() {
     progMarkup: 0, ttsMarkup: 10,
     coord: 150000, visa: 0, visaType: "0",
     priceListUrls: [],
-    courses: [], accoms: [], privLessons: [], addons: [],
+    courses: [], accoms: [], privLessons: [], addons: [], bsPrograms: [],
   });
   renderSchoolSections();
 }
@@ -635,6 +645,14 @@ function renderSchoolSection(s, si) {
       </div>
     </div>
 
+    ${s.school==="bschool" ? `
+    <!-- ビジネススクール手入力プログラム -->
+    <div style="margin-bottom:10px">
+      <div style="font-size:11px;font-weight:500;color:#666;text-transform:uppercase;margin-bottom:6px">プログラム（手入力）</div>
+      <div style="margin-bottom:8px;padding:8px 12px;background:#fff8e1;border:0.5px solid #ffe082;border-radius:6px;font-size:12px;color:#795548;line-height:1.6">⚠️ 価格・日程は必ず公式ページで確認し、出典URLと確認日を記録してください。日程はビジネススクール指定のコホート日程をそのまま入力します。</div>
+      <div id="bsprograms-${s.id}">${(s.bsPrograms||[]).map((b,i)=>renderBsProgramBlock(b,i,s.id)).join("")}</div>
+      <button class="btn-add" onclick="addBsProgramToSection(${s.id})">＋ プログラムを追加</button>
+    </div>` : `
     <!-- コース -->
     <div style="margin-bottom:10px">
       <div style="font-size:11px;font-weight:500;color:#666;text-transform:uppercase;margin-bottom:6px">コース</div>
@@ -662,8 +680,72 @@ function renderSchoolSection(s, si) {
       ${glNote}
       <div id="addons-${s.id}">${addonsHtml}</div>
       <button class="btn-add" onclick="addAddonToSection(${s.id})">＋ Add-onを追加</button>
-    </div>
+    </div>`}
   </div>`;
+}
+
+// ===================== ビジネススクール手入力 =====================
+function renderBsProgramBlock(b, i, sid) {
+  const curOpts = ["USD","GBP","EUR","CHF","CAD","AUD","SGD","NZD"]
+    .map(c=>`<option value="${c}" ${(b.currency||"USD")===c?"selected":""}>${c}</option>`).join("");
+  const w = (b.start&&b.end) ? calcWeeks(b.start,b.end) : null;
+  const weeksLabel = w ? `${w.total}週` : "—";
+  const esc = v => String(v||"").replace(/"/g,"&quot;");
+  const fee = parseFloat(b.fee)||0;
+  return `<div class="course-block">
+    <div class="block-header">
+      <span class="block-label">🎓 プログラム ${i+1}</span>
+      <button class="btn btn-sm btn-danger" onclick="removeBsProgram(${b.id})">削除</button>
+    </div>
+    <div class="field-grid g3">
+      <div class="field"><label>プログラム名（例: HBS General Management Program）</label><input type="text" value="${esc(b.name)}" oninput="updateBsProgram(${b.id},'name',this.value)"></div>
+      <div class="field"><label>通貨</label><select onchange="updateBsProgram(${b.id},'currency',this.value)">${curOpts}</select></div>
+      <div class="field"><label>プログラム費（現地通貨・総額）</label><input type="number" value="${b.fee||""}" min="0" oninput="updateBsProgram(${b.id},'fee',this.value)"></div>
+    </div>
+    <div class="field-grid g4" style="margin-top:10px">
+      <div class="field"><label>開始日（学校指定）</label><input type="date" value="${b.start||""}" onchange="updateBsProgram(${b.id},'start',this.value)"></div>
+      <div class="field"><label>終了日（学校指定）</label><input type="date" value="${b.end||""}" onchange="updateBsProgram(${b.id},'end',this.value)"></div>
+      <div class="field"><label>週数（自動）</label><input type="text" id="bs${b.id}-weeks" value="${weeksLabel}" readonly style="background:#f5f5f3;color:#888"></div>
+      <div class="field"><label>コミッション率（%）※ない学校は0</label><input type="number" value="${b.commissionPct||0}" min="0" max="50" step="0.5" oninput="updateBsProgram(${b.id},'commissionPct',this.value)"></div>
+    </div>
+    <div class="field-grid g2" style="margin-top:10px">
+      <div class="field"><label>出典URL（公式ページ）</label>
+        <div style="display:flex;gap:6px">
+          <input type="url" value="${esc(b.url)}" placeholder="https://www.exed.hbs.edu/..." style="flex:1" oninput="updateBsProgram(${b.id},'url',this.value)">
+          ${b.url?`<a href="${esc(b.url)}" target="_blank" style="white-space:nowrap;padding:7px 10px;background:#1565c0;color:#fff;border-radius:6px;font-size:11px;text-decoration:none;align-self:center">開く ↗</a>`:""}
+        </div>
+      </div>
+      <div class="field"><label>価格確認日（公式ページで確認した日）</label><input type="date" value="${b.checked||""}" onchange="updateBsProgram(${b.id},'checked',this.value)"></div>
+    </div>
+    <div class="subtotal-row"><span class="subtotal-label">小計</span><span class="subtotal-value" id="bs${b.id}-sub">${fee>0?fmtC(fee,b.currency||"USD"):"—"}</span></div>
+  </div>`;
+}
+
+function addBsProgramToSection(sid) {
+  const s = schoolSections.find(x=>x.id===sid);
+  if (!s) return;
+  if (!s.bsPrograms) s.bsPrograms = [];
+  s.bsPrograms.push({ id:++bsIdx, name:"", currency:"USD", fee:"", start:"", end:"", commissionPct:0, url:"", checked:"" });
+  renderSchoolSections(); calcAll();
+}
+function removeBsProgram(id) {
+  schoolSections.forEach(s=>{ if(s.bsPrograms) s.bsPrograms=s.bsPrograms.filter(b=>b.id!==id); });
+  renderSchoolSections(); calcAll();
+}
+function updateBsProgram(id, field, val) {
+  for (const s of schoolSections) {
+    const b = (s.bsPrograms||[]).find(x=>x.id===id);
+    if (!b) continue;
+    b[field] = val;
+    if (field==="start"||field==="end") {
+      const w = (b.start&&b.end) ? calcWeeks(b.start,b.end) : null;
+      const el = document.getElementById("bs"+id+"-weeks");
+      if (el) el.value = w ? `${w.total}週` : "—";
+    }
+    if (field==="currency") { renderSchoolSections(); }
+    break;
+  }
+  calcAll();
 }
 
 function updateSection(sid, field, val) {
@@ -964,6 +1046,8 @@ function getFxRate(currency) {
     NZD: parseFloat(document.getElementById("fx-nzd")?.value)||90,
     THB: parseFloat(document.getElementById("fx-thb")?.value)||4.3,
     SGD: parseFloat(document.getElementById("fx-sgd")?.value)||115,
+    AUD: parseFloat(document.getElementById("fx-aud")?.value)||100,
+    CHF: parseFloat(document.getElementById("fx-chf")?.value)||185,
     JPY: 1,
   };
   return rates[currency] || 1;
@@ -1065,7 +1149,7 @@ function weeksOpts(selected) {
 function fmt(n) { return Math.round(Math.round(n)/10000)+"万円"; }
 function fmtJPY(n) { return Math.round(n).toLocaleString("ja-JP")+"円"; }
 function fmtC(n, currency) {
-  const syms={GBP:"£",CAD:"C$",USD:"$",EUR:"€",THB:"฿",NZD:"NZ$",SGD:"S$",JPY:"¥"};
+  const syms={GBP:"£",CAD:"C$",USD:"$",EUR:"€",THB:"฿",NZD:"NZ$",SGD:"S$",AUD:"A$",CHF:"CHF ",JPY:"¥"};
   if (currency==="JPY") return "¥"+(Math.round(n)).toLocaleString("ja-JP");
   return (syms[currency]||"")+(Math.round(n*100)/100).toLocaleString("en",{minimumFractionDigits:2,maximumFractionDigits:2});
 }
@@ -1191,6 +1275,29 @@ function calcAll() {
         };
       }
       return schoolGroups[key];
+    }
+
+    // ビジネススクール手入力プログラム（このセクション内）
+    if (s.school === "bschool") {
+      (s.bsPrograms||[]).forEach((p) => {
+        const fee = parseFloat(p.fee)||0;
+        const currency = p.currency||"USD";
+        const el = document.getElementById("bs"+p.id+"-sub");
+        if (el) el.textContent = fee>0 ? fmtC(fee,currency) : "—";
+        if (fee<=0) return;
+        const w = (p.start&&p.end) ? calcWeeks(p.start,p.end) : null;
+        const key = "__bschool_"+p.id+"__";
+        const pname = p.name||"ビジネススクール プログラム";
+        schoolGroups[key] = { label:pname, yrLabel:"", currency, totalLocal:0, commissionLocal:0, items:[] };
+        const grp = schoolGroups[key];
+        const lines = [{ label:`プログラム費（総額${w?`・${p.start}〜${p.end}・${w.total}週`:""}）`, local:fee }];
+        let secLabel = `ビジネススクール: ${pname}`;
+        if (p.url) secLabel += `｜出典: ${p.url}`;
+        if (p.checked) secLabel += `（価格確認日: ${p.checked}）`;
+        grp.items.push({ section:secLabel, lines, subtotal:fee });
+        grp.totalLocal += fee;
+        grp.commissionLocal += fee * ((parseFloat(p.commissionPct)||0)/100);
+      });
     }
 
     // COURSES（このセクション内）
@@ -1652,6 +1759,8 @@ function saveQuote() {
       nzd:parseFloat(document.getElementById("fx-nzd").value)||88,
       thb:parseFloat(document.getElementById("fx-thb").value)||4.3,
       sgd:parseFloat(document.getElementById("fx-sgd").value)||115,
+      aud:parseFloat(document.getElementById("fx-aud")?.value)||100,
+      chf:parseFloat(document.getElementById("fx-chf")?.value)||185,
     },
     tabs: tabs.map(t=>({
       id:t.id, name:getTabName(t), schoolSections:t.schoolSections,
@@ -1686,7 +1795,7 @@ function loadProject(id) {
   document.getElementById("reviewer-date").value=p.reviewerDate||"";
   onNationalityChange();
   if (p.fx) {
-    ["gbp","cad","usd","eur","nzd","thb","sgd"].forEach(c=>{
+    ["gbp","cad","usd","eur","nzd","thb","sgd","aud","chf"].forEach(c=>{
       const el=document.getElementById("fx-"+c);
       if(el) el.value=p.fx[c]||"";
     });
