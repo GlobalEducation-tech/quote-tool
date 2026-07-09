@@ -781,6 +781,543 @@ const SCHOOLS = {
       },
     }
   },
+
+  // ── ILSC Australia（2026年 全料金AUD・登録受付 Jan 1 – Dec 31, 2026）──
+  ilsc_australia: {
+    name: "ILSC Australia",
+    currency: "AUD",
+    campuses: {
+      "adelaide": {
+        name: "Adelaide", country: "Australia", regFee: 250, peakSupp: 0,
+        materialsFee: { type:"bracket", brackets:[{maxWeeks:4, fee:60},{maxWeeks:5, fee:75},{maxWeeks:6, fee:90},{maxWeeks:7, fee:105},{maxWeeks:8, fee:120},{maxWeeks:9, fee:135},{maxWeeks:10, fee:150},{maxWeeks:11, fee:165},{maxWeeks:12, fee:180},{maxWeeks:13, fee:195},{maxWeeks:14, fee:210},{maxWeeks:15, fee:225},{maxWeeks:16, fee:240},{maxWeeks:17, fee:255},{maxWeeks:18, fee:270},{maxWeeks:19, fee:285},{maxWeeks:20, fee:300},{maxWeeks:21, fee:315},{maxWeeks:22, fee:330},{maxWeeks:23, fee:345},{maxWeeks:24, fee:360},{maxWeeks:25, fee:375},{maxWeeks:26, fee:390},{maxWeeks:27, fee:405},{maxWeeks:28, fee:420},{maxWeeks:29, fee:435},{maxWeeks:999, fee:450}] },
+        courses: {
+          "ft-am":   { name:"Full-Time Morning FT AM (24L・20h/週) GE/EAP/IELTS/Business等", type:"group", prices:[460,440,420], brackets:[1,12,24], extraPerWeek:420, commission:0.25, note:"登録費$250(非返金)。General English/EAP/IELTS/Cambridge Open/UPP/Business English/Café Work Skills/English Through AI等はこのFT AM授業料を適用。18歳未満はUnderage Service Fee $175別途。COE管理・再発行$30/COE。" },
+          "ft-pm":   { name:"Full-Time Evening FT PM (24L・20h/週 17:30-21:30)", type:"group", prices:[380], brackets:[1], extraPerWeek:380, commission:0.25 },
+          "pt-am":   { name:"Part-Time Morning PT AM (14.5L・12h/週 月-水)", type:"group", prices:[400], brackets:[1], extraPerWeek:400, commission:0.25 },
+          "pt-pm":   { name:"Part-Time Evening PT PM (14.5L・12h/週 月-水)", type:"group", prices:[370], brackets:[1], extraPerWeek:370, commission:0.25 },
+          "cambridge-mastery": { name:"Cambridge B2 First / C1 Advanced Mastery (FT AM・10-12週)", type:"group", prices:[460,440,420], brackets:[1,12,24], extraPerWeek:420, commission:0.25, note:"試験料$400別途（B2 First / C1 Advanced各$400）。他プログラムからの切替はCambridge Transfer Materials Fee $120。授業料は到着後支払い・非返金。" },
+          "tutoring-private": { name:"Tutoring Private (個人レッスン・2週〜)", type:"1to1", pricePerHour:120, commission:0.25 },
+          "tutoring-semi":    { name:"Tutoring Semi-Private (1人あたり・2週〜)", type:"1to1", pricePerHour:70, commission:0.25 },
+        },
+        accom: {
+          "none":         { name:"なし", low:0, peak:0 },
+          "homestay-18":  { name:"Homestay Half board・昼食なし (18+) ※4週(28日)〜", low:385, peak:385, placementFee:370, halfBoard:true },
+          "homestay-u18": { name:"Homestay Half board・昼食なし (U18) ※4週〜・特別食+$70/週", low:410, peak:410, placementFee:370, halfBoard:true },
+        },
+        airports: { "空港送迎（片道）":200 }
+      },
+      "brisbane": {
+        name: "Brisbane", country: "Australia", regFee: 250, peakSupp: 0,
+        materialsFee: { type:"bracket", brackets:[{maxWeeks:4, fee:60},{maxWeeks:5, fee:75},{maxWeeks:6, fee:90},{maxWeeks:7, fee:105},{maxWeeks:8, fee:120},{maxWeeks:9, fee:135},{maxWeeks:10, fee:150},{maxWeeks:11, fee:165},{maxWeeks:12, fee:180},{maxWeeks:13, fee:195},{maxWeeks:14, fee:210},{maxWeeks:15, fee:225},{maxWeeks:16, fee:240},{maxWeeks:17, fee:255},{maxWeeks:18, fee:270},{maxWeeks:19, fee:285},{maxWeeks:20, fee:300},{maxWeeks:21, fee:315},{maxWeeks:22, fee:330},{maxWeeks:23, fee:345},{maxWeeks:24, fee:360},{maxWeeks:25, fee:375},{maxWeeks:26, fee:390},{maxWeeks:27, fee:405},{maxWeeks:28, fee:420},{maxWeeks:29, fee:435},{maxWeeks:999, fee:450}] },
+        courses: {
+          "ft-am":   { name:"Full-Time Morning FT AM (24L・20h/週) GE/EAP/IELTS/Business等", type:"group", prices:[460,440,420], brackets:[1,12,24], extraPerWeek:420, commission:0.25, note:"登録費$250(非返金)。General English/EAP/IELTS/Cambridge Open/UPP/Business English/Café Work Skills/English Through AI等はこのFT AM授業料を適用。18歳未満はUnderage Service Fee $175別途。COE管理・再発行$30/COE。" },
+          "ft-aft":  { name:"Full-Time Afternoon FT AFT (24L・20h/週 13:15-17:15)", type:"group", prices:[380], brackets:[1], extraPerWeek:380, commission:0.25 },
+          "ft-pm":   { name:"Full-Time Evening FT PM (24L・20h/週 17:30-21:30)", type:"group", prices:[380], brackets:[1], extraPerWeek:380, commission:0.25 },
+          "pt-am":   { name:"Part-Time Morning PT AM (14.5L・12h/週 月-水)", type:"group", prices:[400], brackets:[1], extraPerWeek:400, commission:0.25 },
+          "pt-pm":   { name:"Part-Time Evening PT PM (14.5L・12h/週 月-水)", type:"group", prices:[370], brackets:[1], extraPerWeek:370, commission:0.25 },
+          "cambridge-mastery": { name:"Cambridge B2 First / C1 Advanced Mastery (FT AM・10-12週)", type:"group", prices:[460,440,420], brackets:[1,12,24], extraPerWeek:420, commission:0.25, note:"試験料$400別途（B2 First / C1 Advanced各$400）。他プログラムからの切替はCambridge Transfer Materials Fee $120。授業料は到着後支払い・非返金。" },
+          "tutoring-private": { name:"Tutoring Private (個人レッスン・2週〜)", type:"1to1", pricePerHour:120, commission:0.25 },
+          "tutoring-semi":    { name:"Tutoring Semi-Private (1人あたり・2週〜)", type:"1to1", pricePerHour:70, commission:0.25 },
+        },
+        accom: {
+          "none":         { name:"なし", low:0, peak:0 },
+          "homestay-18":  { name:"Homestay Half board・昼食なし (18+) ※4週(28日)〜", low:395, peak:395, placementFee:370, halfBoard:true },
+          "homestay-u18": { name:"Homestay Half board・昼食なし (U18) ※4週〜・特別食+$70/週", low:420, peak:420, placementFee:370, halfBoard:true },
+          "res-cbd-single": { name:"5-Bedroom CBD Single 相部屋バス By Student One（24-51週$470/52週$430）", low:550, peak:550, placementFee:370 },
+          "res-twin": { name:"Twin Shared Apartment 相部屋バス By Student One（24-51週$375/52週$340）", low:405, peak:405, placementFee:370 },
+        },
+        airports: { "空港送迎（片道）":200 }
+      },
+      "melbourne": {
+        name: "Melbourne", country: "Australia", regFee: 250, peakSupp: 0,
+        materialsFee: { type:"bracket", brackets:[{maxWeeks:4, fee:60},{maxWeeks:5, fee:75},{maxWeeks:6, fee:90},{maxWeeks:7, fee:105},{maxWeeks:8, fee:120},{maxWeeks:9, fee:135},{maxWeeks:10, fee:150},{maxWeeks:11, fee:165},{maxWeeks:12, fee:180},{maxWeeks:13, fee:195},{maxWeeks:14, fee:210},{maxWeeks:15, fee:225},{maxWeeks:16, fee:240},{maxWeeks:17, fee:255},{maxWeeks:18, fee:270},{maxWeeks:19, fee:285},{maxWeeks:20, fee:300},{maxWeeks:21, fee:315},{maxWeeks:22, fee:330},{maxWeeks:23, fee:345},{maxWeeks:24, fee:360},{maxWeeks:25, fee:375},{maxWeeks:26, fee:390},{maxWeeks:27, fee:405},{maxWeeks:28, fee:420},{maxWeeks:29, fee:435},{maxWeeks:999, fee:450}] },
+        courses: {
+          "ft-am":   { name:"Full-Time Morning FT AM (24L・20h/週) GE/EAP/IELTS/Business等", type:"group", prices:[460,440,420], brackets:[1,12,24], extraPerWeek:420, commission:0.25, note:"登録費$250(非返金)。General English/EAP/IELTS/Cambridge Open/UPP/Business English/Café Work Skills/English Through AI等はこのFT AM授業料を適用。18歳未満はUnderage Service Fee $175別途。COE管理・再発行$30/COE。" },
+          "ft-aft":  { name:"Full-Time Afternoon FT AFT (24L・20h/週 13:15-17:15)", type:"group", prices:[380], brackets:[1], extraPerWeek:380, commission:0.25 },
+          "ft-pm":   { name:"Full-Time Evening FT PM (24L・20h/週 17:30-21:30)", type:"group", prices:[380], brackets:[1], extraPerWeek:380, commission:0.25 },
+          "pt-am":   { name:"Part-Time Morning PT AM (14.5L・12h/週 月-水)", type:"group", prices:[400], brackets:[1], extraPerWeek:400, commission:0.25 },
+          "pt-pm":   { name:"Part-Time Evening PT PM (14.5L・12h/週 月-水)", type:"group", prices:[370], brackets:[1], extraPerWeek:370, commission:0.25 },
+          "cambridge-mastery": { name:"Cambridge B2 First / C1 Advanced Mastery (FT AM・10-12週)", type:"group", prices:[460,440,420], brackets:[1,12,24], extraPerWeek:420, commission:0.25, note:"試験料$400別途（B2 First / C1 Advanced各$400）。他プログラムからの切替はCambridge Transfer Materials Fee $120。授業料は到着後支払い・非返金。" },
+          "tutoring-private": { name:"Tutoring Private (個人レッスン・2週〜)", type:"1to1", pricePerHour:120, commission:0.25 },
+          "tutoring-semi":    { name:"Tutoring Semi-Private (1人あたり・2週〜)", type:"1to1", pricePerHour:70, commission:0.25 },
+        },
+        accom: {
+          "none":         { name:"なし", low:0, peak:0 },
+          "homestay-18":  { name:"Homestay Half board・昼食なし (18+) ※4週(28日)〜", low:395, peak:395, placementFee:370, halfBoard:true },
+          "homestay-u18": { name:"Homestay Half board・昼食なし (U18) ※4週〜・特別食+$70/週", low:420, peak:420, placementFee:370, halfBoard:true },
+          "res-studio": { name:"Studio Single ensuite By Campus Melbourne（24-51週$460/52週$385）", low:495, peak:495, placementFee:370 },
+          "res-iglu-cbd": { name:"6-Bedroom CBD Single ensuite By Iglu（24-51週$570/52週$540）", low:615, peak:615, placementFee:370 },
+          "res-carlton-en": { name:"6-Bedroom Carlton Single ensuite By Scape（24-51週$560/52週$535）", low:610, peak:610, placementFee:370 },
+          "res-carlton-sh": { name:"6-Bedroom Carlton Single 相部屋バス By Scape（24-51週$520/52週$480）", low:570, peak:570, placementFee:370 },
+        },
+        airports: { "空港送迎（片道）":200 }
+      },
+      "perth": {
+        name: "Perth", country: "Australia", regFee: 250, peakSupp: 0,
+        materialsFee: { type:"bracket", brackets:[{maxWeeks:4, fee:60},{maxWeeks:5, fee:75},{maxWeeks:6, fee:90},{maxWeeks:7, fee:105},{maxWeeks:8, fee:120},{maxWeeks:9, fee:135},{maxWeeks:10, fee:150},{maxWeeks:11, fee:165},{maxWeeks:12, fee:180},{maxWeeks:13, fee:195},{maxWeeks:14, fee:210},{maxWeeks:15, fee:225},{maxWeeks:16, fee:240},{maxWeeks:17, fee:255},{maxWeeks:18, fee:270},{maxWeeks:19, fee:285},{maxWeeks:20, fee:300},{maxWeeks:21, fee:315},{maxWeeks:22, fee:330},{maxWeeks:23, fee:345},{maxWeeks:24, fee:360},{maxWeeks:25, fee:375},{maxWeeks:26, fee:390},{maxWeeks:27, fee:405},{maxWeeks:28, fee:420},{maxWeeks:29, fee:435},{maxWeeks:999, fee:450}] },
+        courses: {
+          "ft-am":   { name:"Full-Time Morning FT AM (24L・20h/週) GE/EAP/IELTS/Business等", type:"group", prices:[460,440,420], brackets:[1,12,24], extraPerWeek:420, commission:0.25, note:"登録費$250(非返金)。General English/EAP/IELTS/Cambridge Open/UPP/Business English/Café Work Skills/English Through AI等はこのFT AM授業料を適用。18歳未満はUnderage Service Fee $175別途。COE管理・再発行$30/COE。" },
+          "ft-pm":   { name:"Full-Time Evening FT PM (24L・20h/週 17:30-21:30)", type:"group", prices:[380], brackets:[1], extraPerWeek:380, commission:0.25 },
+          "pt-am":   { name:"Part-Time Morning PT AM (14.5L・12h/週 月-水)", type:"group", prices:[400], brackets:[1], extraPerWeek:400, commission:0.25 },
+          "pt-pm":   { name:"Part-Time Evening PT PM (14.5L・12h/週 月-水)", type:"group", prices:[370], brackets:[1], extraPerWeek:370, commission:0.25 },
+          "cambridge-mastery": { name:"Cambridge B2 First / C1 Advanced Mastery (FT AM・10-12週)", type:"group", prices:[460,440,420], brackets:[1,12,24], extraPerWeek:420, commission:0.25, note:"試験料$400別途（B2 First / C1 Advanced各$400）。他プログラムからの切替はCambridge Transfer Materials Fee $120。授業料は到着後支払い・非返金。" },
+          "tutoring-private": { name:"Tutoring Private (個人レッスン・2週〜)", type:"1to1", pricePerHour:120, commission:0.25 },
+          "tutoring-semi":    { name:"Tutoring Semi-Private (1人あたり・2週〜)", type:"1to1", pricePerHour:70, commission:0.25 },
+        },
+        accom: {
+          "none":         { name:"なし", low:0, peak:0 },
+          "homestay-18":  { name:"Homestay Half board・昼食なし (18+) ※4週(28日)〜", low:385, peak:385, placementFee:370, halfBoard:true },
+          "homestay-u18": { name:"Homestay Half board・昼食なし (U18) ※4週〜・特別食+$70/週", low:410, peak:410, placementFee:370, halfBoard:true },
+          "res-4bed": { name:"4-Bed Shared Apartment 相部屋バス By Campus Perth（24-51週$300/52週$295）", low:330, peak:330, placementFee:370 },
+        },
+        airports: { "空港送迎（片道）":200 }
+      },
+      "sydney": {
+        name: "Sydney", country: "Australia", regFee: 250, peakSupp: 0,
+        materialsFee: { type:"bracket", brackets:[{maxWeeks:4, fee:60},{maxWeeks:5, fee:75},{maxWeeks:6, fee:90},{maxWeeks:7, fee:105},{maxWeeks:8, fee:120},{maxWeeks:9, fee:135},{maxWeeks:10, fee:150},{maxWeeks:11, fee:165},{maxWeeks:12, fee:180},{maxWeeks:13, fee:195},{maxWeeks:14, fee:210},{maxWeeks:15, fee:225},{maxWeeks:16, fee:240},{maxWeeks:17, fee:255},{maxWeeks:18, fee:270},{maxWeeks:19, fee:285},{maxWeeks:20, fee:300},{maxWeeks:21, fee:315},{maxWeeks:22, fee:330},{maxWeeks:23, fee:345},{maxWeeks:24, fee:360},{maxWeeks:25, fee:375},{maxWeeks:26, fee:390},{maxWeeks:27, fee:405},{maxWeeks:28, fee:420},{maxWeeks:29, fee:435},{maxWeeks:999, fee:450}] },
+        courses: {
+          "ft-am":   { name:"Full-Time Morning FT AM (24L・20h/週) GE/EAP/IELTS/Business等", type:"group", prices:[460,440,420], brackets:[1,12,24], extraPerWeek:420, commission:0.25, note:"登録費$250(非返金)。General English/EAP/IELTS/Cambridge Open/UPP/Business English/Café Work Skills/English Through AI等はこのFT AM授業料を適用。18歳未満はUnderage Service Fee $175別途。COE管理・再発行$30/COE。" },
+          "ft-aft":  { name:"Full-Time Afternoon FT AFT (24L・20h/週 13:15-17:15)", type:"group", prices:[380], brackets:[1], extraPerWeek:380, commission:0.25 },
+          "ft-pm":   { name:"Full-Time Evening FT PM (24L・20h/週 17:30-21:30)", type:"group", prices:[380], brackets:[1], extraPerWeek:380, commission:0.25 },
+          "pt-am":   { name:"Part-Time Morning PT AM (14.5L・12h/週 月-水)", type:"group", prices:[400], brackets:[1], extraPerWeek:400, commission:0.25 },
+          "pt-pm":   { name:"Part-Time Evening PT PM (14.5L・12h/週 月-水)", type:"group", prices:[370], brackets:[1], extraPerWeek:370, commission:0.25 },
+          "cambridge-mastery": { name:"Cambridge B2 First / C1 Advanced Mastery (FT AM・10-12週)", type:"group", prices:[460,440,420], brackets:[1,12,24], extraPerWeek:420, commission:0.25, note:"試験料$400別途（B2 First / C1 Advanced各$400）。他プログラムからの切替はCambridge Transfer Materials Fee $120。授業料は到着後支払い・非返金。" },
+          "tutoring-private": { name:"Tutoring Private (個人レッスン・2週〜)", type:"1to1", pricePerHour:120, commission:0.25 },
+          "tutoring-semi":    { name:"Tutoring Semi-Private (1人あたり・2週〜)", type:"1to1", pricePerHour:70, commission:0.25 },
+        },
+        accom: {
+          "none":         { name:"なし", low:0, peak:0 },
+          "homestay-18":  { name:"Homestay Half board・昼食なし (18+) ※4週(28日)〜", low:415, peak:415, placementFee:370, halfBoard:true },
+          "homestay-u18": { name:"Homestay Half board・昼食なし (U18) ※4週〜・特別食+$70/週", low:440, peak:440, placementFee:370, halfBoard:true },
+          "res-chatswood": { name:"5-Bedroom Chatswood Single ensuite By Iglu（24-51週$670/52週$605）", low:690, peak:690, placementFee:370 },
+          "res-twin-scape": { name:"Large Twin Shared Apartment Sydney Central 相部屋バス By Scape（24-51週$535/52週$495）", low:570, peak:570, placementFee:370 },
+        },
+        airports: { "空港送迎（片道）":200 }
+      },
+    }
+  },
+
+  // ── ILSC Canada（2026年 全料金CAD）──
+  // 宿泊ハイシーズン: 5/16夜〜9/6夜（レジデンスは夏期+$40/週をpeakに反映）
+  // ホームステイの表ヘッダはMay 31-Aug 31表記だが脚注はMay 16-Sep 6（要確認）
+  ilsc_canada: {
+    name: "ILSC Canada",
+    currency: "CAD",
+    campuses: {
+      "montreal": {
+        name: "Montréal", country: "Canada", regFee: 220, peakSupp: 0,
+        peakStart: "05-16", peakEnd: "09-06",
+        materialsFee: { type:"bracket", brackets:[{maxWeeks:4, fee:60},{maxWeeks:5, fee:75},{maxWeeks:6, fee:90},{maxWeeks:7, fee:105},{maxWeeks:8, fee:120},{maxWeeks:9, fee:135},{maxWeeks:10, fee:150},{maxWeeks:11, fee:165},{maxWeeks:12, fee:180},{maxWeeks:13, fee:195},{maxWeeks:14, fee:210},{maxWeeks:15, fee:225},{maxWeeks:16, fee:240},{maxWeeks:17, fee:255},{maxWeeks:18, fee:270},{maxWeeks:19, fee:285},{maxWeeks:20, fee:300},{maxWeeks:21, fee:315},{maxWeeks:22, fee:330},{maxWeeks:23, fee:345},{maxWeeks:24, fee:360},{maxWeeks:25, fee:375},{maxWeeks:26, fee:390},{maxWeeks:27, fee:405},{maxWeeks:28, fee:420},{maxWeeks:29, fee:435},{maxWeeks:999, fee:450}] },
+        courses: {
+          "fti":   { name:"Full-Time Intensive FTI (30L/週)（Montréalは英語/フランス語選択可）", type:"group", prices:[470,450,440,430], brackets:[1,12,24,36], extraPerWeek:430, commission:0.25, note:"登録費$220(非返金)。GE/EAP/IELTS Open/UPP/Business English Mastery/Volunteer Experience(+サービス料$825)/Medical English等はこの週額授業料を適用。" },
+          "ft-am": { name:"Full-Time Morning FT AM (24L/週)", type:"group", prices:[420,400,390,380], brackets:[1,12,24,36], extraPerWeek:380, commission:0.25 },
+          "ft-aft":{ name:"Full-Time Afternoon FT AFT (24L/週)", type:"group", prices:[350], brackets:[1], extraPerWeek:350, commission:0.25 },
+          "pt-am": { name:"Part-Time Morning PT AM (17L/週)", type:"group", prices:[315], brackets:[1], extraPerWeek:315, commission:0.25 },
+          "pt-aft":{ name:"Part-Time Afternoon PT AFT (15L/週 月-水)", type:"group", prices:[200], brackets:[1], extraPerWeek:200, commission:0.25 },
+          "hs-fasttrack":  { name:"ILSC High School: Fast Track to Higher Education (32週固定)", type:"group", prices:[14190], brackets:[1], fixedWeeks:32, commission:0.25, materialsFee:{ type:"fixed", fee:450 }, note:"教材費$450（通常教材費と別体系・アプリ側の適用要確認）" },
+          "hs-foundation": { name:"ILSC High School: Foundation Year (40週固定)", type:"group", prices:[18500], brackets:[1], fixedWeeks:40, commission:0.25, materialsFee:{ type:"fixed", fee:450 }, note:"教材費$450" },
+        },
+        accom: {
+          "none":            { name:"なし", low:0, peak:0 },
+          "homestay-fb-18":  { name:"Homestay Full board 3食 (18+) ※13歳〜", low:350, peak:390, placementFee:250, halfBoard:true },
+          "homestay-hb-18":  { name:"Homestay Half board 2食・昼食なし (18+)", low:325, peak:365, placementFee:250, halfBoard:true },
+          "homestay-fb-u18": { name:"Homestay Full board 3食 (U18)", low:370, peak:410, placementFee:250, halfBoard:true },
+          "homestay-hb-u18": { name:"Homestay Half board 2食 (U18)", low:340, peak:385, placementFee:250, halfBoard:true },
+          "res-lamarq": { name:"La Marq Single room・相部屋バス（25週〜$440）", low:460, peak:500, placementFee:250 },
+        },
+        airports: { "空港送迎（片道）":135, "空港送迎（往復）":270 }
+      },
+      "toronto": {
+        name: "Toronto", country: "Canada", regFee: 220, peakSupp: 0,
+        peakStart: "05-16", peakEnd: "09-06",
+        materialsFee: { type:"bracket", brackets:[{maxWeeks:4, fee:60},{maxWeeks:5, fee:75},{maxWeeks:6, fee:90},{maxWeeks:7, fee:105},{maxWeeks:8, fee:120},{maxWeeks:9, fee:135},{maxWeeks:10, fee:150},{maxWeeks:11, fee:165},{maxWeeks:12, fee:180},{maxWeeks:13, fee:195},{maxWeeks:14, fee:210},{maxWeeks:15, fee:225},{maxWeeks:16, fee:240},{maxWeeks:17, fee:255},{maxWeeks:18, fee:270},{maxWeeks:19, fee:285},{maxWeeks:20, fee:300},{maxWeeks:21, fee:315},{maxWeeks:22, fee:330},{maxWeeks:23, fee:345},{maxWeeks:24, fee:360},{maxWeeks:25, fee:375},{maxWeeks:26, fee:390},{maxWeeks:27, fee:405},{maxWeeks:28, fee:420},{maxWeeks:29, fee:435},{maxWeeks:999, fee:450}] },
+        courses: {
+          "fti":   { name:"Full-Time Intensive FTI (30L/週)", type:"group", prices:[480,460,450,440], brackets:[1,12,24,36], extraPerWeek:440, commission:0.25, note:"登録費$220(非返金)。GE/EAP/IELTS Open/UPP/Business English Mastery/Volunteer Experience(+サービス料$825)/Medical English等はこの週額授業料を適用。" },
+          "ft-am": { name:"Full-Time Morning FT AM (24L/週)", type:"group", prices:[430,410,400,390], brackets:[1,12,24,36], extraPerWeek:390, commission:0.25 },
+          "ft-aft":{ name:"Full-Time Afternoon FT AFT (24L/週)", type:"group", prices:[360], brackets:[1], extraPerWeek:360, commission:0.25 },
+          "pt-am": { name:"Part-Time Morning PT AM (17L/週)", type:"group", prices:[325], brackets:[1], extraPerWeek:325, commission:0.25 },
+          "pt-aft":{ name:"Part-Time Afternoon PT AFT (15L/週 月-水)", type:"group", prices:[210], brackets:[1], extraPerWeek:210, commission:0.25 },
+          "hs-fasttrack":  { name:"ILSC High School: Fast Track to Higher Education (32週固定)", type:"group", prices:[14190], brackets:[1], fixedWeeks:32, commission:0.25, materialsFee:{ type:"fixed", fee:450 }, note:"教材費$450。学生ビザ申請者はPAL発行前に$750（Allocation $550＋登録費$200・非返金）が必要。" },
+          "hs-foundation": { name:"ILSC High School: Foundation Year (40週固定)", type:"group", prices:[18500], brackets:[1], fixedWeeks:40, commission:0.25, materialsFee:{ type:"fixed", fee:450 }, note:"教材費$450" },
+        },
+        accom: {
+          "none":            { name:"なし", low:0, peak:0 },
+          "homestay-fb-18":  { name:"Homestay Full board 3食 (18+) ※13歳〜", low:350, peak:390, placementFee:250, halfBoard:true },
+          "homestay-hb-18":  { name:"Homestay Half board 2食・昼食なし (18+)", low:325, peak:365, placementFee:250, halfBoard:true },
+          "homestay-fb-u18": { name:"Homestay Full board 3食 (U18)", low:370, peak:410, placementFee:250, halfBoard:true },
+          "homestay-hb-u18": { name:"Homestay Half board 2食 (U18)", low:340, peak:385, placementFee:250, halfBoard:true },
+          "res-harrington": { name:"Harrington Housing Single・相部屋バス（25週〜$430）", low:450, peak:490, placementFee:250 },
+          "res-maddox": { name:"Maddox Sherbourne Single・相部屋バス（25週〜$445）", low:465, peak:505, placementFee:250 },
+          "res-replin-sh": { name:"Replin Co-Living 女性専用 Single 相部屋バス（25週〜$385）", low:405, peak:445, placementFee:250 },
+          "res-replin-lower": { name:"Replin Co-Living 女性専用 Single Lower ensuite（25週〜$435）", low:455, peak:495, placementFee:250 },
+          "res-replin-upper": { name:"Replin Co-Living 女性専用 Single Upper ensuite（25週〜$480）", low:500, peak:540, placementFee:250 },
+          "res-elm-shared": { name:"The Elm & The Ledbury Shared Room 相部屋バス（25週〜$380）", low:400, peak:440, placementFee:250 },
+          "res-elm-flex": { name:"The Elm & The Ledbury Premium Single Flex 相部屋バス（25週〜$475）", low:495, peak:535, placementFee:250 },
+          "res-elm-single": { name:"The Elm & The Ledbury Single 相部屋バス（25週〜$520）", low:540, peak:580, placementFee:250 },
+          "res-elm-private": { name:"The Elm & The Ledbury Single 専用バス（25週〜$595）", low:615, peak:655, placementFee:250 },
+          "res-parker-shared": { name:"The Parker Shared Room 相部屋バス（25週〜$365）", low:385, peak:425, placementFee:250 },
+          "res-parker-flex": { name:"The Parker Premium Single Flex 相部屋バス（25週〜$460）", low:480, peak:520, placementFee:250 },
+          "res-parker-single": { name:"The Parker Single 相部屋バス（25週〜$505）", low:525, peak:565, placementFee:250 },
+          "res-parker-private": { name:"The Parker Single 専用バス（25週〜$575）", low:595, peak:635, placementFee:250 },
+        },
+        airports: { "空港送迎（片道）":135, "空港送迎（往復）":270 }
+      },
+      "vancouver": {
+        name: "Vancouver", country: "Canada", regFee: 220, peakSupp: 0,
+        peakStart: "05-16", peakEnd: "09-06",
+        materialsFee: { type:"bracket", brackets:[{maxWeeks:4, fee:60},{maxWeeks:5, fee:75},{maxWeeks:6, fee:90},{maxWeeks:7, fee:105},{maxWeeks:8, fee:120},{maxWeeks:9, fee:135},{maxWeeks:10, fee:150},{maxWeeks:11, fee:165},{maxWeeks:12, fee:180},{maxWeeks:13, fee:195},{maxWeeks:14, fee:210},{maxWeeks:15, fee:225},{maxWeeks:16, fee:240},{maxWeeks:17, fee:255},{maxWeeks:18, fee:270},{maxWeeks:19, fee:285},{maxWeeks:20, fee:300},{maxWeeks:21, fee:315},{maxWeeks:22, fee:330},{maxWeeks:23, fee:345},{maxWeeks:24, fee:360},{maxWeeks:25, fee:375},{maxWeeks:26, fee:390},{maxWeeks:27, fee:405},{maxWeeks:28, fee:420},{maxWeeks:29, fee:435},{maxWeeks:999, fee:450}] },
+        courses: {
+          "fti":   { name:"Full-Time Intensive FTI (30L/週)", type:"group", prices:[480,460,450,440], brackets:[1,12,24,36], extraPerWeek:440, commission:0.25, note:"登録費$220(非返金)。GE/EAP/IELTS Open/UPP/Business English Mastery/Volunteer Experience(+サービス料$825)/Medical English等はこの週額授業料を適用。" },
+          "ft-am": { name:"Full-Time Morning FT AM (24L/週)", type:"group", prices:[430,410,400,390], brackets:[1,12,24,36], extraPerWeek:390, commission:0.25 },
+          "ft-aft":{ name:"Full-Time Afternoon FT AFT (24L/週)", type:"group", prices:[360], brackets:[1], extraPerWeek:360, commission:0.25 },
+          "pt-am": { name:"Part-Time Morning PT AM (17L/週)", type:"group", prices:[325], brackets:[1], extraPerWeek:325, commission:0.25 },
+          "pt-aft":{ name:"Part-Time Afternoon PT AFT (15L/週 月-水)", type:"group", prices:[210], brackets:[1], extraPerWeek:210, commission:0.25 },
+          "hs-fasttrack":  { name:"ILSC High School: Fast Track to Higher Education (32週固定)", type:"group", prices:[14190], brackets:[1], fixedWeeks:32, commission:0.25, materialsFee:{ type:"fixed", fee:450 }, note:"教材費$450。学生ビザ申請者はPAL発行前に$750（Allocation $550＋登録費$200・非返金）が必要。" },
+          "hs-foundation": { name:"ILSC High School: Foundation Year (40週固定)", type:"group", prices:[18500], brackets:[1], fixedWeeks:40, commission:0.25, materialsFee:{ type:"fixed", fee:450 }, note:"教材費$450" },
+        },
+        accom: {
+          "none":            { name:"なし", low:0, peak:0 },
+          "homestay-fb-18":  { name:"Homestay Full board 3食 (18+) ※13歳〜", low:350, peak:390, placementFee:250, halfBoard:true },
+          "homestay-hb-18":  { name:"Homestay Half board 2食・昼食なし (18+)", low:325, peak:365, placementFee:250, halfBoard:true },
+          "homestay-fb-u18": { name:"Homestay Full board 3食 (U18)", low:370, peak:410, placementFee:250, halfBoard:true },
+          "homestay-hb-u18": { name:"Homestay Half board 2食 (U18)", low:340, peak:385, placementFee:250, halfBoard:true },
+          "res-apt-studio": { name:"APT Living Private Studio 専用バス（25週〜$550）", low:570, peak:610, placementFee:250 },
+          "res-marzena-shared": { name:"Marzena Co-Living Shared room 相部屋バス（25週〜$280）", low:300, peak:340, placementFee:250 },
+          "res-marzena-single": { name:"Marzena Co-Living Single room 相部屋バス（25週〜$435）", low:455, peak:495, placementFee:250 },
+          "res-meadown-shared": { name:"Meadown Co-Living 女性専用 Shared room（25週〜$280）", low:300, peak:340, placementFee:250 },
+          "res-meadown-single": { name:"Meadown Co-Living 女性専用 Single room（25週〜$435）", low:455, peak:495, placementFee:250 },
+          "res-meadown-ensuite": { name:"Meadown Co-Living 女性専用 Single ensuite（25週〜$485）", low:505, peak:545, placementFee:250 },
+          "res-grand-shared": { name:"Grand House Co-Living Shared room（25週〜$280）", low:300, peak:340, placementFee:250 },
+          "res-grand-single": { name:"Grand House Co-Living Single room（25週〜$435）", low:455, peak:495, placementFee:250 },
+          "res-grand-ensuite": { name:"Grand House Co-Living Single ensuite（25週〜$485）", low:505, peak:545, placementFee:250 },
+          "res-gateway-shared": { name:"Gateway Shared room・相部屋バス（25週〜$415）", low:435, peak:475, placementFee:250 },
+          "res-gateway-single": { name:"Gateway Single room・相部屋バス（25週〜$615）", low:635, peak:675, placementFee:250 },
+        },
+        airports: { "空港送迎（片道）":135, "空港送迎（往復）":270 }
+      }
+    }
+  },
+
+  // ── ILSC Dublin（2026年 全料金EUR）──
+  ilsc_dublin: {
+    name: "ILSC Dublin",
+    currency: "EUR",
+    campuses: {
+      "dublin": {
+        name: "Dublin", country: "Ireland", regFee: 75, peakSupp: 0,
+        peakStart: "06-15", peakEnd: "08-31",
+        materialsFee: { type:"bracket", brackets:[{maxWeeks:4, fee:20},{maxWeeks:5, fee:25},{maxWeeks:6, fee:30},{maxWeeks:7, fee:35},{maxWeeks:8, fee:40},{maxWeeks:9, fee:45},{maxWeeks:10, fee:50},{maxWeeks:11, fee:55},{maxWeeks:12, fee:60},{maxWeeks:13, fee:65},{maxWeeks:14, fee:70},{maxWeeks:15, fee:75},{maxWeeks:16, fee:80},{maxWeeks:17, fee:85},{maxWeeks:18, fee:90},{maxWeeks:19, fee:95},{maxWeeks:20, fee:100},{maxWeeks:21, fee:105},{maxWeeks:22, fee:110},{maxWeeks:23, fee:115},{maxWeeks:999, fee:120}] },
+        courses: {
+          "ft-am": { name:"General English Full-Time Morning FT AM (22.5L・19h/週)", type:"group", prices:[360,330,300], brackets:[1,12,24], extraPerWeek:300, commission:0.25, note:"登録費€75(非返金)。GE開始は2026/1/26以降。Learner Protection €30・TIE試験€120・非EU保険€125等別途の場合あり。" },
+          "st-am": { name:"General English Standard Morning ST AM (18L・15h/週 月-木)", type:"group", prices:[300,270,240], brackets:[1,12,24], extraPerWeek:240, commission:0.25 },
+          "st-aft":{ name:"General English Standard Afternoon ST AFT (18L・15h/週 月-木)", type:"group", prices:[230], brackets:[1], extraPerWeek:230, commission:0.25 },
+          "sw-am": { name:"Study & Work 25週 Standard Morning + 8週休暇（パッケージ）", type:"group", prices:[6000], brackets:[1], fixedWeeks:33, commission:0.25, note:"授業料+TIE試験料込。非EU/EEA・25週以上対象。学期中週20h・休暇中週40h就労可。保険€125別途。" },
+          "sw-aft":{ name:"Study & Work 25週 Standard Afternoon + 8週休暇（パッケージ）", type:"group", prices:[5750], brackets:[1], fixedWeeks:33, commission:0.25, note:"授業料+TIE試験料込。保険€125別途。" },
+        },
+        accom: {
+          "none":          { name:"なし", low:0, peak:0 },
+          "homestay-std":  { name:"Homestay Standard (18+) Single・相部屋バス Half board", low:300, peak:355, placementFee:75, halfBoard:true },
+          "homestay-twin": { name:"Homestay Twin Room Half board（2人部屋）", low:250, peak:285, placementFee:75, halfBoard:true },
+          "homestay-exec": { name:"Homestay Executive Single ensuite Half board", low:395, peak:430, placementFee:75, halfBoard:true },
+          "res-point":     { name:"Point Campus Private Bedroom ensuite（夏期+€35/週）", low:350, peak:385, placementFee:75 },
+        },
+        airports: { "空港送迎（片道）":100, "Express Courier Service":70 }
+      }
+    }
+  },
+
+  // ── ILSC New Delhi（2026年 全料金USD）──
+  ilsc_delhi: {
+    name: "ILSC New Delhi",
+    currency: "USD",
+    campuses: {
+      "new-delhi": {
+        name: "New Delhi", country: "India", regFee: 75, peakSupp: 0,
+        materialsFee: { type:"fixed", fee:35 },
+        courses: {
+          "fti":   { name:"Full-Time Intensive FTI (30L/週)", type:"group", prices:[235], brackets:[1], extraPerWeek:235, commission:0.25, note:"登録・アセスメント費$75(非返金)。Speed Post $65別途の場合あり。" },
+          "ft":    { name:"Full-Time FT (24L/週)", type:"group", prices:[205], brackets:[1], extraPerWeek:205, commission:0.25 },
+          "pt-am": { name:"Part-Time AM PT AM (17L/週) 英/仏/ヒンディー", type:"group", prices:[170], brackets:[1], extraPerWeek:170, commission:0.25 },
+          "pt-pm": { name:"Part-Time PM PT PM (13L/週)", type:"group", prices:[145], brackets:[1], extraPerWeek:145, commission:0.25, note:"IELTS/Cambridge Open ClassはPT PM授業料+教材費$35" },
+          "pt-hindi": { name:"Part-Time Hindi AM/PM+ (13L/週)", type:"group", prices:[170], brackets:[1], extraPerWeek:170, commission:0.25 },
+          "yoga-2wk": { name:"Yoga Package 2週（週4日・5h）", type:"group", prices:[250], brackets:[1], fixedWeeks:2, commission:0.25 },
+          "yoga-4wk": { name:"Yoga Package 4週（週4日・5h）", type:"group", prices:[400], brackets:[1], fixedWeeks:4, commission:0.25 },
+          "tutor-em-2wk": { name:"Early Morning Tutoring Package 2週（週4日・5h）", type:"group", prices:[200], brackets:[1], fixedWeeks:2, commission:0.25 },
+          "tutor-em-4wk": { name:"Early Morning Tutoring Package 4週（週4日・5h）", type:"group", prices:[355], brackets:[1], fixedWeeks:4, commission:0.25 },
+          "tutor-private": { name:"Tutoring Private（英/仏/西/ヒンディー・最低8h/週）", type:"1to1", pricePerHour:35, commission:0.25 },
+          "tutor-mini":    { name:"Tutoring Mini-group 2-3名（1人あたり）", type:"1to1", pricePerHour:25, commission:0.25 },
+        },
+        accom: {
+          "none":        { name:"なし", low:0, peak:0 },
+          "homestay-hb": { name:"Homestay Half board (2食)", low:350, peak:350, placementFee:100, halfBoard:true },
+          "apt-single":  { name:"Student Apartment Single（デポジットUSD50/INR3000返金可）", low:280, peak:280, placementFee:100 },
+          "apt-shared":  { name:"Student Apartment Shared（男女別室）", low:205, peak:205, placementFee:100 },
+          "bnb":         { name:"Bed & Breakfast", low:300, peak:300, placementFee:100 },
+        },
+        airports: { "空港送迎（片道）":40, "空港送迎（往復）":75 }
+      }
+    }
+  },
+
+  // ── ILSC Online: Hello(英語)/Allo(仏語)。CAD建て（AUD価格はnote参照・通貨は生徒の通学プログラムに合わせ選択可）──
+  ilsc_online: {
+    name: "ILSC Online (Hello / Allo)",
+    currency: "CAD",
+    campuses: {
+      "hello-english": {
+        name: "ILSC Hello オンライン英語", country: "Online", regFee: 130, peakSupp: 0,
+        materialsFee: { type:"bracket", brackets:[{maxWeeks:1, fee:15},{maxWeeks:2, fee:30},{maxWeeks:3, fee:45},{maxWeeks:4, fee:60},{maxWeeks:5, fee:75},{maxWeeks:6, fee:90},{maxWeeks:7, fee:105},{maxWeeks:8, fee:120},{maxWeeks:9, fee:135},{maxWeeks:10, fee:150},{maxWeeks:11, fee:165},{maxWeeks:12, fee:180},{maxWeeks:13, fee:195},{maxWeeks:14, fee:210},{maxWeeks:15, fee:225},{maxWeeks:16, fee:240},{maxWeeks:17, fee:255},{maxWeeks:18, fee:270},{maxWeeks:19, fee:285},{maxWeeks:20, fee:300},{maxWeeks:21, fee:315},{maxWeeks:22, fee:330},{maxWeeks:23, fee:345},{maxWeeks:24, fee:360},{maxWeeks:25, fee:375},{maxWeeks:26, fee:390},{maxWeeks:27, fee:405},{maxWeeks:28, fee:420},{maxWeeks:29, fee:435},{maxWeeks:30, fee:450},{maxWeeks:31, fee:465},{maxWeeks:32, fee:480},{maxWeeks:33, fee:495},{maxWeeks:34, fee:510},{maxWeeks:35, fee:525},{maxWeeks:36, fee:540},{maxWeeks:37, fee:555},{maxWeeks:38, fee:570},{maxWeeks:39, fee:585},{maxWeeks:40, fee:600},{maxWeeks:41, fee:615},{maxWeeks:42, fee:630},{maxWeeks:43, fee:645},{maxWeeks:44, fee:660},{maxWeeks:45, fee:675},{maxWeeks:46, fee:690},{maxWeeks:47, fee:705},{maxWeeks:48, fee:720},{maxWeeks:49, fee:735},{maxWeeks:50, fee:750},{maxWeeks:51, fee:765},{maxWeeks:52, fee:780},{maxWeeks:999, fee:780}] },
+        courses: {
+          "io":  { name:"Intensive Online IO (24L・20h/週)", type:"group", prices:[145], brackets:[1], extraPerWeek:145, commission:0.25, note:"AUD建ての場合$155/週。登録費$130(非返金)・教材費$15/週。UPP/Greystone Pathway/GE Foundation/EAP対応。" },
+          "sio": { name:"Semi-Intensive Online SIO (18L・15h/週)", type:"group", prices:[115], brackets:[1], extraPerWeek:115, commission:0.25, note:"AUD建ての場合$125/週" },
+          "eo":  { name:"Elective Online EO (6L・5h/週)", type:"group", prices:[90], brackets:[1], extraPerWeek:90, commission:0.25, note:"AUD建ての場合$95/週" },
+          "hs-fasttrack":  { name:"ILSC High School Online: Fast Track (32週固定)", type:"group", prices:[13390], brackets:[1], fixedWeeks:32, commission:0.25, materialsFee:{ type:"fixed", fee:450 }, note:"教材費$450" },
+          "hs-foundation": { name:"ILSC High School Online: Foundation Year (40週固定)", type:"group", prices:[17000], brackets:[1], fixedWeeks:40, commission:0.25, materialsFee:{ type:"fixed", fee:450 }, note:"教材費$450" },
+          "hs-credit-tvo": { name:"ILSC HS Online: TVO ILC Credit 1単位 (8週固定)", type:"group", prices:[1750], brackets:[1], fixedWeeks:8, commission:0.25, materialsFee:{ type:"fixed", fee:80 }, note:"教材費$80/単位。IO授業料併用型($1,250/単位+IO)もあり。" },
+        },
+        accom: { "none": { name:"なし（オンライン）", low:0, peak:0 } },
+        airports: {}
+      },
+      "allo-french": {
+        name: "ILSC Allo オンライン仏語", country: "Online", regFee: 130, peakSupp: 0,
+        materialsFee: { type:"bracket", brackets:[{maxWeeks:1, fee:15},{maxWeeks:2, fee:30},{maxWeeks:3, fee:45},{maxWeeks:4, fee:60},{maxWeeks:5, fee:75},{maxWeeks:6, fee:90},{maxWeeks:7, fee:105},{maxWeeks:8, fee:120},{maxWeeks:9, fee:135},{maxWeeks:10, fee:150},{maxWeeks:11, fee:165},{maxWeeks:12, fee:180},{maxWeeks:13, fee:195},{maxWeeks:14, fee:210},{maxWeeks:15, fee:225},{maxWeeks:16, fee:240},{maxWeeks:17, fee:255},{maxWeeks:18, fee:270},{maxWeeks:19, fee:285},{maxWeeks:20, fee:300},{maxWeeks:21, fee:315},{maxWeeks:22, fee:330},{maxWeeks:23, fee:345},{maxWeeks:24, fee:360},{maxWeeks:25, fee:375},{maxWeeks:26, fee:390},{maxWeeks:27, fee:405},{maxWeeks:28, fee:420},{maxWeeks:29, fee:435},{maxWeeks:30, fee:450},{maxWeeks:31, fee:465},{maxWeeks:32, fee:480},{maxWeeks:33, fee:495},{maxWeeks:34, fee:510},{maxWeeks:35, fee:525},{maxWeeks:36, fee:540},{maxWeeks:37, fee:555},{maxWeeks:38, fee:570},{maxWeeks:39, fee:585},{maxWeeks:40, fee:600},{maxWeeks:41, fee:615},{maxWeeks:42, fee:630},{maxWeeks:43, fee:645},{maxWeeks:44, fee:660},{maxWeeks:45, fee:675},{maxWeeks:46, fee:690},{maxWeeks:47, fee:705},{maxWeeks:48, fee:720},{maxWeeks:49, fee:735},{maxWeeks:50, fee:750},{maxWeeks:51, fee:765},{maxWeeks:52, fee:780},{maxWeeks:999, fee:780}] },
+        courses: {
+          "io":  { name:"Intensive Online IO (24L・20h/週) General French/TEF", type:"group", prices:[145], brackets:[1], extraPerWeek:145, commission:0.25, note:"AUD建ての場合$155/週" },
+          "sio": { name:"Semi-Intensive Online SIO (18L・15h/週) General French", type:"group", prices:[115], brackets:[1], extraPerWeek:115, commission:0.25, note:"AUD建ての場合$125/週" },
+          "eo":  { name:"Elective Online EO (6L・5h/週) TEF Preparation", type:"group", prices:[90], brackets:[1], extraPerWeek:90, commission:0.25, note:"AUD建ての場合$95/週" },
+        },
+        accom: { "none": { name:"なし（オンライン）", low:0, peak:0 } },
+        airports: {}
+      }
+    }
+  },
+
+  // ── Greystone College Australia（2026年 AUD・5キャンパス共通料金）──
+  greystone_australia: {
+    name: "Greystone College Australia",
+    currency: "AUD",
+    campuses: {
+      "all-campuses": {
+        name: "Adelaide/Brisbane/Melbourne/Perth/Sydney（共通料金）", country: "Australia", regFee: 250, peakSupp: 0,
+        materialsFee: { type:"fixed", fee:280 },
+        courses: {
+          "cert2-workplace": { name:"BSB20120 Certificate II in Workplace Skills（52-54週・平日/週末）", type:"group", prices:[12000], brackets:[1], fixedWeeks:52, commission:0.25, note:"登録費$250+リソース費$280。12週タームごと4週休暇含む。" },
+          "cert3-business": { name:"BSB30120 Certificate III in Business（60-64週・平日/週末）", type:"group", prices:[12000], brackets:[1], fixedWeeks:60, commission:0.25 },
+          "cert4-business": { name:"BSB40120 Certificate IV in Business（60-64週・平日/週末）", type:"group", prices:[12000], brackets:[1], fixedWeeks:60, commission:0.25 },
+          "dip-business": { name:"BSB50120 Diploma of Business（60-64週・平日/週末）", type:"group", prices:[12000], brackets:[1], fixedWeeks:60, commission:0.25 },
+          "dip-business-od": { name:"BSB50120 Diploma of Business (Organisational Development)（60-64週）", type:"group", prices:[12000], brackets:[1], fixedWeeks:60, commission:0.25 },
+          "dip-business-dt": { name:"BSB50120 Diploma of Business (Digital Transformation)（60-64週）", type:"group", prices:[12000], brackets:[1], fixedWeeks:60, commission:0.25 },
+          "dip-digital-marketing": { name:"10931NAT Diploma of Digital Marketing（60-64週・平日）NEW", type:"group", prices:[12000], brackets:[1], fixedWeeks:60, commission:0.25 },
+          "cert4-marketing": { name:"BSB40820 Certificate IV in Marketing and Communication（60-64週・平日）", type:"group", prices:[12000], brackets:[1], fixedWeeks:60, commission:0.25 },
+          "dip-marketing": { name:"BSB50620 Diploma of Marketing and Communication（60-64週・平日）", type:"group", prices:[12000], brackets:[1], fixedWeeks:60, commission:0.25, note:"前提ユニットあり" },
+          "advdip-marketing": { name:"BSB60520 Advanced Diploma of Marketing and Communication（60-64週・平日）", type:"group", prices:[18000], brackets:[1], fixedWeeks:60, commission:0.25 },
+          "dip-ai": { name:"11287NAT Diploma of Artificial Intelligence（60-64週・平日）NEW", type:"group", prices:[12000], brackets:[1], fixedWeeks:60, commission:0.25 },
+          "cert4-leadership": { name:"BSB40120 Certificate IV in Business (Leadership)（60-64週・平日/週末）", type:"group", prices:[12000], brackets:[1], fixedWeeks:60, commission:0.25 },
+          "dip-leadership": { name:"BSB50420 Diploma of Leadership and Management（60-66週・平日/週末）", type:"group", prices:[12000], brackets:[1], fixedWeeks:60, commission:0.25 },
+          "advdip-leadership": { name:"BSB60420 Advanced Diploma of Leadership and Management（52-54週）", type:"group", prices:[18000], brackets:[1], fixedWeeks:52, commission:0.25, note:"前提ユニットあり" },
+          "cert4-sustainability": { name:"BSB40120 Certificate IV in Business (Sustainability)（60-64週・平日/週末）", type:"group", prices:[12000], brackets:[1], fixedWeeks:60, commission:0.25 },
+          "dip-project-mgmt": { name:"BSB50820 Diploma of Project Management（60-66週・平日/週末）", type:"group", prices:[12000], brackets:[1], fixedWeeks:60, commission:0.25 },
+          "cert3-entrepreneurship": { name:"BSB30220 Certificate III in Entrepreneurship & New Business（52-54週）", type:"group", prices:[12000], brackets:[1], fixedWeeks:52, commission:0.25 },
+          "spec-workplace": { name:"Specialization in Workplace Fundamentals（28-34週）", type:"group", prices:[5800], brackets:[1], fixedWeeks:28, commission:0.25 },
+          "spec-business-basics": { name:"Specialization in Business Basics（28-34週）", type:"group", prices:[5800], brackets:[1], fixedWeeks:28, commission:0.25 },
+          "spec-business-essentials": { name:"Specialization in Business Essentials（28-34週）", type:"group", prices:[5800], brackets:[1], fixedWeeks:28, commission:0.25 },
+          "spec-managers": { name:"Specialization for Managers and Supervisors（28-34週・平日）", type:"group", prices:[5800], brackets:[1], fixedWeeks:28, commission:0.25 },
+          "spec-cert4-mkt-skillset": { name:"BSB40820 Cert IV Marketing Skill Set: Pre-requisite units（28-34週・平日）", type:"group", prices:[5800], brackets:[1], fixedWeeks:28, commission:0.25 },
+          "spec-leadership-essentials": { name:"Specialization in Leadership Essentials（28-32週）NEW", type:"group", prices:[5800], brackets:[1], fixedWeeks:28, commission:0.25 },
+          "spec-leadership-mastery": { name:"Specialization in Leadership Mastery（28-32週）NEW", type:"group", prices:[5800], brackets:[1], fixedWeeks:28, commission:0.25 },
+          "spec-hr-pm": { name:"Specialization in Human Resources for Project Managers（28-34週）", type:"group", prices:[5800], brackets:[1], fixedWeeks:28, commission:0.25 },
+          "spec-pm-mastery": { name:"Specialization in Project Management Mastery（28-34週）", type:"group", prices:[5800], brackets:[1], fixedWeeks:28, commission:0.25, note:"開始日限定: 2026/4/20, 11/30・2027/7/19" },
+          "spec-startup": { name:"Specialization in Start-Up Basic（28-32週）NEW", type:"group", prices:[5800], brackets:[1], fixedWeeks:28, commission:0.25 },
+        },
+        accom: { "none": { name:"なし（宿泊はILSC Australia各キャンパスの宿泊/USH等を参照）", low:0, peak:0 } },
+        airports: { "空港送迎（片道）":200 }
+      }
+    }
+  },
+
+  // ── Greystone College Canada（2026年 CAD）──
+  greystone_canada: {
+    name: "Greystone College Canada",
+    currency: "CAD",
+    campuses: {
+      "montreal": {
+        name: "Montréal", country: "Canada", regFee: 220, peakSupp: 0,
+        courses: {
+          "aec-ibm-en": { name:"AEC International Business Management with Practicum 英語（80週=60週+実習20週・夜間）", type:"group", prices:[14325], brackets:[1], fixedWeeks:80, commission:0.25, materialsFee:{ type:"fixed", fee:750 }, note:"登録費$220(非返金)。3回目LOA申請は+$75。" },
+          "aec-ibm-fr": { name:"AEC Gestion du commerce international avec stage 仏語（80週・夜間）", type:"group", prices:[14325], brackets:[1], fixedWeeks:80, commission:0.25, materialsFee:{ type:"fixed", fee:750 } },
+          "aec-digital-mkt": { name:"AEC Digital Marketing Specialist with Practicum 英語（92週=72週+実習20週・夜間）", type:"group", prices:[13350], brackets:[1], fixedWeeks:92, commission:0.25, materialsFee:{ type:"fixed", fee:1450 } },
+          "dvs-it-support": { name:"DVS 5385 Information Technology Support 仏語（108週=84週+実習24週・夜間）", type:"group", prices:[22000], brackets:[1], fixedWeeks:108, commission:0.25, materialsFee:{ type:"fixed", fee:1950 } },
+        },
+        accom: { "none": { name:"なし（宿泊はILSC Canada Montréalの宿泊を参照）", low:0, peak:0 } },
+        airports: { "空港送迎（片道）":135, "空港送迎（往復）":270 }
+      },
+      "toronto": {
+        name: "Toronto", country: "Canada", regFee: 220, peakSupp: 0,
+        courses: {
+          "cert-bm-clerk": { name:"Certificate in Business Management Clerk（8-9週・午前）", type:"group", prices:[3320], brackets:[1], fixedWeeks:8, commission:0.25, materialsFee:{ type:"fixed", fee:180 }, note:"登録費$220(非返金)" },
+          "cert-global-bm": { name:"Certificate in Global Business Management（8-9週・午前）NEW", type:"group", prices:[3320], brackets:[1], fixedWeeks:8, commission:0.25, materialsFee:{ type:"fixed", fee:180 } },
+          "cert-ibt-clerk": { name:"Certificate in International Business and Trade Clerk（8-9週・午前）", type:"group", prices:[3320], brackets:[1], fixedWeeks:8, commission:0.25, materialsFee:{ type:"fixed", fee:185 } },
+          "cert-mgr-mkt": { name:"Certificate in Managerial Marketing and Behaviour（8-9週・午前）NEW", type:"group", prices:[3320], brackets:[1], fixedWeeks:8, commission:0.25, materialsFee:{ type:"fixed", fee:180 } },
+          "cert-org-comm": { name:"Certificate in Organizational Communication Skills（8-9週・午前）", type:"group", prices:[3320], brackets:[1], fixedWeeks:8, commission:0.25, materialsFee:{ type:"fixed", fee:180 } },
+          "dip-ibm": { name:"Diploma in International Business Management（24-25週・午前）", type:"group", prices:[10500], brackets:[1], fixedWeeks:24, commission:0.25, materialsFee:{ type:"fixed", fee:810 } },
+          "dip-ibm-coop": { name:"Diploma in International Business Management Co-op（48-49週=24-25週+Co-op24週）", type:"group", prices:[10500], brackets:[1], fixedWeeks:48, commission:0.25, materialsFee:{ type:"fixed", fee:810 } },
+          "mc-intl-business": { name:"Micro-credential: International Business（4週・午前）", type:"group", prices:[1575], brackets:[1], fixedWeeks:4, commission:0.25, materialsFee:{ type:"fixed", fee:85 } },
+          "mc-marketing": { name:"Micro-credential: Marketing（4週・午前）", type:"group", prices:[1575], brackets:[1], fixedWeeks:4, commission:0.25, materialsFee:{ type:"fixed", fee:100 } },
+          "mc-org-behaviour": { name:"Micro-credential: Organizational Behaviour（4週・午前）", type:"group", prices:[1575], brackets:[1], fixedWeeks:4, commission:0.25, materialsFee:{ type:"fixed", fee:100 } },
+          "mc-managerial-comm": { name:"Micro-credential: Managerial Communications（4週・午前）", type:"group", prices:[1575], brackets:[1], fixedWeeks:4, commission:0.25, materialsFee:{ type:"fixed", fee:80 } },
+          "mc-intro-mgmt": { name:"Micro-credential: Introduction to Management（4週・午前）", type:"group", prices:[1575], brackets:[1], fixedWeeks:4, commission:0.25, materialsFee:{ type:"fixed", fee:100 } },
+          "dip-customer-service": { name:"Diploma in Customer Service（24-25週・午前）", type:"group", prices:[10500], brackets:[1], fixedWeeks:24, commission:0.25, materialsFee:{ type:"fixed", fee:600 } },
+          "dip-cs-coop": { name:"Diploma in Customer Service Co-op（48-49週）", type:"group", prices:[10500], brackets:[1], fixedWeeks:48, commission:0.25, materialsFee:{ type:"fixed", fee:600 } },
+          "cert-hospitality-coop": { name:"Certificate in Hospitality Skills Co-op（32-33週=16-17週+Co-op16週）", type:"group", prices:[6285], brackets:[1], fixedWeeks:32, commission:0.25, materialsFee:{ type:"fixed", fee:375 } },
+          "mc-customer-interaction": { name:"Micro-credential: Customer Interaction（4週・午前）", type:"group", prices:[1575], brackets:[1], fixedWeeks:4, commission:0.25, materialsFee:{ type:"fixed", fee:45 } },
+          "mc-hosp-tourism": { name:"Micro-credential: Hospitality, Tourism & Travel Industry Info（4週・午前）", type:"group", prices:[1575], brackets:[1], fixedWeeks:4, commission:0.25, materialsFee:{ type:"fixed", fee:45 } },
+          "mc-restaurant": { name:"Micro-credential: Restaurant Service（4週・午前）", type:"group", prices:[1575], brackets:[1], fixedWeeks:4, commission:0.25, materialsFee:{ type:"fixed", fee:75 } },
+          "mc-working-others": { name:"Micro-credential: Working Effectively with Others（4週・午前）", type:"group", prices:[1575], brackets:[1], fixedWeeks:4, commission:0.25, materialsFee:{ type:"fixed", fee:45 } },
+          "mc-workplace-comm": { name:"Micro-credential: Workplace Communication（4週・午前）", type:"group", prices:[1575], brackets:[1], fixedWeeks:4, commission:0.25, materialsFee:{ type:"fixed", fee:45 } },
+          "healthcare-comm": { name:"Communication in Healthcare（3週・午前）※登録費/教材費込パッケージ", type:"group", prices:[2490], brackets:[1], fixedWeeks:3, commission:0.25, materialsFee:{ type:"fixed", fee:0 }, note:"パッケージ価格$2,490に登録費・授業料・教材費込（アプリ側で登録費が二重加算されないよう注意）" },
+          "healthcare-observership": { name:"Communication in Healthcare with Observership（4週・午前）※込み価格", type:"group", prices:[3965], brackets:[1], fixedWeeks:4, commission:0.25, materialsFee:{ type:"fixed", fee:0 }, note:"パッケージ価格$3,965に登録費・授業料・教材費込" },
+        },
+        accom: { "none": { name:"なし（宿泊はILSC Canada Torontoの宿泊を参照）", low:0, peak:0 } },
+        airports: { "空港送迎（片道）":135, "空港送迎（往復）":270 }
+      },
+      "vancouver": {
+        name: "Vancouver", country: "Canada", regFee: 220, peakSupp: 0,
+        courses: {
+          "cert-org-comm-m": { name:"Certificate in Organizational Communication Skills 午前（8-16週）", type:"group", prices:[3320], brackets:[1], fixedWeeks:8, commission:0.25, materialsFee:{ type:"fixed", fee:180 }, note:"登録費$220。学生ビザ申請者はPAL発行前に$750（Allocation $550＋登録費$200）必要。" },
+          "cert-org-comm-e": { name:"Certificate in Organizational Communication Skills 夜間（15-16週）", type:"group", prices:[3320], brackets:[1], fixedWeeks:15, commission:0.25, materialsFee:{ type:"fixed", fee:180 } },
+          "cert-ibt-m": { name:"Certificate in International Business and Trade 午前（8-16週）", type:"group", prices:[3320], brackets:[1], fixedWeeks:8, commission:0.25, materialsFee:{ type:"fixed", fee:185 } },
+          "cert-ibt-e": { name:"Certificate in International Business and Trade 夜間（15-16週）", type:"group", prices:[3320], brackets:[1], fixedWeeks:15, commission:0.25, materialsFee:{ type:"fixed", fee:185 } },
+          "cert-bus-comm-m": { name:"Certificate in Business Communication 午前（8-16週）", type:"group", prices:[3320], brackets:[1], fixedWeeks:8, commission:0.25, materialsFee:{ type:"fixed", fee:180 } },
+          "cert-bus-comm-e": { name:"Certificate in Business Communication 夜間（15-16週）", type:"group", prices:[3320], brackets:[1], fixedWeeks:15, commission:0.25, materialsFee:{ type:"fixed", fee:180 } },
+          "cert-bus-comms-m": { name:"Certificate in Business Communications (旧Diploma) 午前（26-32週）", type:"group", prices:[10500], brackets:[1], fixedWeeks:26, commission:0.25, materialsFee:{ type:"fixed", fee:600 } },
+          "cert-bus-comms-e": { name:"Certificate in Business Communications (旧Diploma) 夜間（46-48週）", type:"group", prices:[13500], brackets:[1], fixedWeeks:46, commission:0.25, materialsFee:{ type:"fixed", fee:600 } },
+          "dip-ibm-m": { name:"Diploma in International Business Management 午前（26-32週）", type:"group", prices:[10500], brackets:[1], fixedWeeks:26, commission:0.25, materialsFee:{ type:"fixed", fee:810 } },
+          "dip-ibm-e": { name:"Diploma in International Business Management 夜間（46-48週）", type:"group", prices:[13500], brackets:[1], fixedWeeks:46, commission:0.25, materialsFee:{ type:"fixed", fee:810 } },
+          "coop-bus-comm-m": { name:"Certificate in Business Communications Co-op 午前（48-56週=24-32+有給Co-op24週）", type:"group", prices:[10500], brackets:[1], fixedWeeks:48, commission:0.25, materialsFee:{ type:"fixed", fee:600 } },
+          "coop-bus-comm-e": { name:"Certificate in Business Communications Co-op 夜間（86-88週=46-48+有給Co-op40週）", type:"group", prices:[13500], brackets:[1], fixedWeeks:86, commission:0.25, materialsFee:{ type:"fixed", fee:600 } },
+          "coop-ibm-m": { name:"Certificate in International Business Management Co-op 午前（48-56週）", type:"group", prices:[10500], brackets:[1], fixedWeeks:48, commission:0.25, materialsFee:{ type:"fixed", fee:810 } },
+          "coop-ibm-e": { name:"Certificate in International Business Management Co-op 夜間（86-88週）", type:"group", prices:[13500], brackets:[1], fixedWeeks:86, commission:0.25, materialsFee:{ type:"fixed", fee:810 } },
+          "coop-dip-pm": { name:"Diploma in Project Management Co-op 夜間（114-116週=64-66+有給Co-op50週）", type:"group", prices:[17000], brackets:[1], fixedWeeks:114, commission:0.25, materialsFee:{ type:"fixed", fee:1350 } },
+          "mc-intl-business": { name:"Micro-credential: International Business（午前4週/夜間6週）", type:"group", prices:[1575], brackets:[1], fixedWeeks:4, commission:0.25, materialsFee:{ type:"fixed", fee:85 }, note:"夜間スケジュールは6週" },
+          "mc-marketing": { name:"Micro-credential: Marketing（午前4週/夜間6週）", type:"group", prices:[1575], brackets:[1], fixedWeeks:4, commission:0.25, materialsFee:{ type:"fixed", fee:100 } },
+          "mc-org-behaviour": { name:"Micro-credential: Organizational Behaviour（午前4週/夜間6週）", type:"group", prices:[1575], brackets:[1], fixedWeeks:4, commission:0.25, materialsFee:{ type:"fixed", fee:100 } },
+          "mc-managerial-comm": { name:"Micro-credential: Managerial Communications（午前4週/夜間6週）", type:"group", prices:[1575], brackets:[1], fixedWeeks:4, commission:0.25, materialsFee:{ type:"fixed", fee:80 } },
+          "mc-intro-mgmt": { name:"Micro-credential: Introduction to Management（午前4週/夜間6週）", type:"group", prices:[1575], brackets:[1], fixedWeeks:4, commission:0.25, materialsFee:{ type:"fixed", fee:100 } },
+          "mc-team-mgmt": { name:"Micro-credential: Business Excellence in Team Management（午前4週/夜間6週）", type:"group", prices:[1575], brackets:[1], fixedWeeks:4, commission:0.25, materialsFee:{ type:"fixed", fee:255 } },
+          "mc-comm-workplace": { name:"Micro-credential: Communication for the Workplace（午前4週/夜間6週）", type:"group", prices:[1575], brackets:[1], fixedWeeks:4, commission:0.25, materialsFee:{ type:"fixed", fee:255 } },
+          "mc-crm": { name:"Micro-credential: Customer Relationship Management（午前4週/夜間6週）", type:"group", prices:[1575], brackets:[1], fixedWeeks:4, commission:0.25, materialsFee:{ type:"fixed", fee:0 } },
+          "mc-personal-dev": { name:"Micro-credential: Personal Development Strategies（午前4週/夜間6週）", type:"group", prices:[1575], brackets:[1], fixedWeeks:4, commission:0.25, materialsFee:{ type:"fixed", fee:255 } },
+          "mc-professionalism": { name:"Micro-credential: Professionalism in a Diverse Workplace（午前4週/夜間6週）", type:"group", prices:[1575], brackets:[1], fixedWeeks:4, commission:0.25, materialsFee:{ type:"fixed", fee:255 } },
+          "mc-pm-essentials": { name:"Micro-credential: Project Management Essentials（夜間6週）", type:"group", prices:[2500], brackets:[1], fixedWeeks:6, commission:0.25, materialsFee:{ type:"fixed", fee:155 } },
+          "cert-data-analytics": { name:"Certificate in Data Analytics 午前（20-28週）", type:"group", prices:[10500], brackets:[1], fixedWeeks:20, commission:0.25, materialsFee:{ type:"fixed", fee:1350 } },
+          "mc-intro-data": { name:"Tech Micro-credential: Introduction to Data Analytics（午前4週）", type:"group", prices:[2500], brackets:[1], fixedWeeks:4, commission:0.25, materialsFee:{ type:"fixed", fee:255 } },
+          "mc-frontend-basics": { name:"Tech Micro-credential: Front End Basics HTML/CSS（夜間6週）", type:"group", prices:[2500], brackets:[1], fixedWeeks:6, commission:0.25, materialsFee:{ type:"fixed", fee:255 } },
+          "coop-data-analytics": { name:"Diploma in Data Analytics Co-op 午前（40-48週=20-28+有給Co-op20週）", type:"group", prices:[10500], brackets:[1], fixedWeeks:40, commission:0.25, materialsFee:{ type:"fixed", fee:1350 } },
+          "coop-frontend": { name:"Diploma in Front End Development Co-op 夜間（68-70週=38-40+有給Co-op30週）", type:"group", prices:[12600], brackets:[1], fixedWeeks:68, commission:0.25, materialsFee:{ type:"fixed", fee:1350 } },
+          "coop-fullstack": { name:"Diploma in Full Stack Development Co-op 夜間（110-112週=62-64+有給Co-op48週）", type:"group", prices:[20160], brackets:[1], fixedWeeks:110, commission:0.25, materialsFee:{ type:"fixed", fee:1850 } },
+          "workplace-skills": { name:"Workplace Skills and Tools（午前4週/夜間6週）", type:"group", prices:[1575], brackets:[1], fixedWeeks:4, commission:0.25, materialsFee:{ type:"fixed", fee:345 } },
+          "cert-dm-social-m": { name:"Certificate in Digital Marketing: Social Media Professional 午前（26-32週）", type:"group", prices:[10500], brackets:[1], fixedWeeks:26, commission:0.25, materialsFee:{ type:"fixed", fee:950 } },
+          "cert-dm-social-e": { name:"Certificate in Digital Marketing: Social Media Professional 夜間（46-48週）", type:"group", prices:[13500], brackets:[1], fixedWeeks:46, commission:0.25, materialsFee:{ type:"fixed", fee:950 } },
+          "cert-dm-website-e": { name:"Certificate in Digital Marketing: Website Management and Design 夜間（46-48週）", type:"group", prices:[13500], brackets:[1], fixedWeeks:46, commission:0.25, materialsFee:{ type:"fixed", fee:950 } },
+          "dip-dm-professional": { name:"Diploma in Digital Marketing Professional 夜間（70-72週）", type:"group", prices:[13350], brackets:[1], fixedWeeks:70, commission:0.25, materialsFee:{ type:"fixed", fee:1450 } },
+          "mc-advertising": { name:"DM Micro-credential: Advertising（午前4週/夜間6週）", type:"group", prices:[1575], brackets:[1], fixedWeeks:4, commission:0.25, materialsFee:{ type:"fixed", fee:185 } },
+          "mc-branding": { name:"DM Micro-credential: Fundamentals - Branding（午前4週/夜間6週）", type:"group", prices:[1575], brackets:[1], fixedWeeks:4, commission:0.25, materialsFee:{ type:"fixed", fee:140 } },
+          "mc-domain-email": { name:"DM Micro-credential: Fundamentals - Domain, Online, Email Marketing（午前4週/夜間6週）", type:"group", prices:[1575], brackets:[1], fixedWeeks:4, commission:0.25, materialsFee:{ type:"fixed", fee:140 } },
+          "mc-seo": { name:"DM Micro-credential: Search Engine Optimization（夜間6週）", type:"group", prices:[1575], brackets:[1], fixedWeeks:6, commission:0.25, materialsFee:{ type:"fixed", fee:155 } },
+          "mc-social-strategies": { name:"DM Micro-credential: Social Media Marketing Strategies（午前4週/夜間6週）", type:"group", prices:[1575], brackets:[1], fixedWeeks:4, commission:0.25, materialsFee:{ type:"fixed", fee:140 } },
+          "mc-webdesign-analytics": { name:"DM Micro-credential: Strategic Web Design - Analytics and Beyond（夜間6週）", type:"group", prices:[1575], brackets:[1], fixedWeeks:6, commission:0.25, materialsFee:{ type:"fixed", fee:155 } },
+          "mc-webdesign-creative": { name:"DM Micro-credential: Strategic Web Design - The Creative Effort（夜間6週）", type:"group", prices:[1575], brackets:[1], fixedWeeks:6, commission:0.25, materialsFee:{ type:"fixed", fee:155 } },
+          "mc-writing-web": { name:"DM Micro-credential: Writing for the Web（午前4週/夜間6週）", type:"group", prices:[1575], brackets:[1], fixedWeeks:4, commission:0.25, materialsFee:{ type:"fixed", fee:140 } },
+          "coop-dm-social-m": { name:"Cert in Digital Marketing: Social Media Professional Co-op 午前（48-56週）", type:"group", prices:[10500], brackets:[1], fixedWeeks:48, commission:0.25, materialsFee:{ type:"fixed", fee:950 } },
+          "coop-dm-social-e": { name:"Cert in Digital Marketing: Social Media Professional Co-op 夜間（86-88週）", type:"group", prices:[13500], brackets:[1], fixedWeeks:86, commission:0.25, materialsFee:{ type:"fixed", fee:950 } },
+          "coop-dm-website-e": { name:"Cert in Digital Marketing: Website Mgmt and Design Co-op 夜間（86-88週）", type:"group", prices:[13500], brackets:[1], fixedWeeks:86, commission:0.25, materialsFee:{ type:"fixed", fee:950 } },
+          "coop-dm-professional": { name:"Diploma in Digital Marketing Professional Co-op 夜間（128-130週）", type:"group", prices:[13350], brackets:[1], fixedWeeks:128, commission:0.25, materialsFee:{ type:"fixed", fee:1450 } },
+          "cert-customer-service-m": { name:"Certificate in Customer Service 午前（26-32週）", type:"group", prices:[10500], brackets:[1], fixedWeeks:26, commission:0.25, materialsFee:{ type:"fixed", fee:600 } },
+          "cert-customer-service-e": { name:"Certificate in Customer Service 夜間（46-48週）", type:"group", prices:[13500], brackets:[1], fixedWeeks:46, commission:0.25, materialsFee:{ type:"fixed", fee:600 } },
+          "mc-customer-interaction": { name:"Hospitality MC: Customer Interaction（午前4週/夜間6週）", type:"group", prices:[1575], brackets:[1], fixedWeeks:4, commission:0.25, materialsFee:{ type:"fixed", fee:45 } },
+          "mc-hosp-tourism": { name:"Hospitality MC: Hospitality, Tourism & Travel Industry Info（午前4週/夜間6週）", type:"group", prices:[1575], brackets:[1], fixedWeeks:4, commission:0.25, materialsFee:{ type:"fixed", fee:45 } },
+          "mc-restaurant": { name:"Hospitality MC: Restaurant Service（午前4週/夜間6週）", type:"group", prices:[1575], brackets:[1], fixedWeeks:4, commission:0.25, materialsFee:{ type:"fixed", fee:75 } },
+          "mc-working-others": { name:"Hospitality MC: Working Effectively with Others（午前4週/夜間6週）", type:"group", prices:[1575], brackets:[1], fixedWeeks:4, commission:0.25, materialsFee:{ type:"fixed", fee:45 } },
+          "mc-workplace-comm": { name:"Hospitality MC: Workplace Communication（午前4週/夜間6週）", type:"group", prices:[1575], brackets:[1], fixedWeeks:4, commission:0.25, materialsFee:{ type:"fixed", fee:45 } },
+          "mc-food-beverage": { name:"Hospitality MC: Food and Beverage Service（夜間6週）", type:"group", prices:[1575], brackets:[1], fixedWeeks:6, commission:0.25, materialsFee:{ type:"fixed", fee:65 } },
+          "mc-front-office": { name:"Hospitality MC: Front Office Operations（夜間6週）", type:"group", prices:[1575], brackets:[1], fixedWeeks:6, commission:0.25, materialsFee:{ type:"fixed", fee:70 } },
+          "mc-housekeeping": { name:"Hospitality MC: Housekeeping Operations（夜間6週）", type:"group", prices:[1575], brackets:[1], fixedWeeks:6, commission:0.25, materialsFee:{ type:"fixed", fee:60 } },
+          "mc-supervision": { name:"Hospitality MC: Supervision in the Hospitality Industry（夜間6週）", type:"group", prices:[1575], brackets:[1], fixedWeeks:6, commission:0.25, materialsFee:{ type:"fixed", fee:70 } },
+          "mc-lodging": { name:"Hospitality MC: The Lodging and Food Service Industry（夜間6週）", type:"group", prices:[1575], brackets:[1], fixedWeeks:6, commission:0.25, materialsFee:{ type:"fixed", fee:60 } },
+          "coop-customer-service-m": { name:"Certificate in Customer Service Co-op 午前（48-56週）", type:"group", prices:[10500], brackets:[1], fixedWeeks:48, commission:0.25, materialsFee:{ type:"fixed", fee:600 } },
+          "coop-customer-service-e": { name:"Certificate in Customer Service Co-op 夜間（86-88週）", type:"group", prices:[13500], brackets:[1], fixedWeeks:86, commission:0.25, materialsFee:{ type:"fixed", fee:600 } },
+          "coop-hospitality-ops": { name:"Diploma in Hospitality Operations Co-op 夜間（86-88週）", type:"group", prices:[13500], brackets:[1], fixedWeeks:86, commission:0.25, materialsFee:{ type:"fixed", fee:720 } },
+        },
+        accom: { "none": { name:"なし（宿泊はILSC Canada Vancouverの宿泊を参照）", low:0, peak:0 } },
+        airports: { "空港送迎（片道）":135, "空港送迎（往復）":270 }
+      }
+    }
+  },
+
+  // ── ILSC ジュニアキャンプ Canada（2026/2027・CAD・パッケージ価格＝週数別固定額）──
+  // 登録時に非返金デポジットC$350必要（パッケージ価格に登録費・教材費等は含まれる）
+  ilsc_junior_canada: {
+    name: "ILSC Junior Camp Canada",
+    currency: "CAD",
+    campuses: {
+      "junior-canada": {
+        name: "Montréal / Toronto / Vancouver", country: "Canada", regFee: 0, peakSupp: 0,
+        courses: {
+          "summer-homestay": { name:"Summer 2026 MTL/TOR/VAN ホームステイ付 (13-17歳・1-6週)", type:"grandline-fixed", priceTable:[0,1995,3190,4385,5580,6775,7970], commission:0.25, note:"開始日6/28〜8/2（週数により異なる）。UM Fee $75/片道・特別食$50/週別途。" },
+          "summer-dayonly": { name:"Summer 2026 MTL/TOR/VAN 宿泊なしDay Only (13-17歳・1-6週)", type:"grandline-fixed", priceTable:[0,980,1660,2340,3020,3700,4380], commission:0.25 },
+          "leadership-mtl-homestay": { name:"Leadership Camp Montréal ホームステイ付 (13-17歳・英語I2+・1-3週)", type:"grandline-fixed", priceTable:[0,1995,3190,4385], commission:0.25, note:"開始日7/5, 7/12, 7/19" },
+          "leadership-mtl-dayonly": { name:"Leadership Camp Montréal Day Only (13-17歳・1-3週)", type:"grandline-fixed", priceTable:[0,980,1160,2340], commission:0.25, note:"※2週$1,160は原本PDF記載値（Summer版は$1,660のため要確認）" },
+          "ubc-residence": { name:"Summer 2026 Vancouver UBC 大学寮 (9-17歳・1-6週)", type:"grandline-fixed", priceTable:[0,3115,5580,7745,9910,12075,14240], commission:0.25, note:"到着時に返金可デポジットCAD$100(現金)必要" },
+          "ubc-dayonly": { name:"Summer 2026 Vancouver UBC Day Only (9-17歳・1-6週)", type:"grandline-fixed", priceTable:[0,1570,2705,3840,4975,6110,7245], commission:0.25 },
+          "mcgill-residence": { name:"Summer 2026 Montréal McGill 大学寮 (13-17歳・1-4週)", type:"grandline-fixed", priceTable:[0,3115,5280,7445,9610], commission:0.25, note:"Day Onlyなし。デポジット$100(現金)必要" },
+          "leadership-mcgill-residence": { name:"Leadership Camp McGill 大学寮 (13-17歳・英語I2+・1-3週)", type:"grandline-fixed", priceTable:[0,3115,5280,7445], commission:0.25 },
+          "ciss-toronto-general": { name:"Toronto CISS運営 General English 大学寮 (12-16歳・2-6週)", type:"grandline-fixed", priceTable:[0,0,5100,7075,9050,11313,13575], commission:0.25, note:"追加費用: Extra Night $250/Extra Transfer $125/Late Arrival $125/Custodianship $150" },
+          "ciss-toronto-leadership": { name:"Toronto CISS運営 Global Leadership 大学寮 (12-16歳・3週固定)", type:"grandline-fixed", priceTable:[0,0,0,7325], commission:0.25, note:"開始日6/28, 7/19。ESL授業なし" },
+          "winter2026-homestay": { name:"Winter Camp 2026 Vancouver ホームステイ付 (9-17歳・1-4週)", type:"grandline-fixed", priceTable:[0,1945,3090,4235,5380], commission:0.25, note:"開始日1/4〜1/25。9-12歳は保護者等の現地滞在必須" },
+          "winter2026-dayonly": { name:"Winter Camp 2026 Vancouver Day Only (9-17歳・1-4週)", type:"grandline-fixed", priceTable:[0,1000,1700,2400,3100], commission:0.25 },
+          "winter2026-family-1p1c-hs": { name:"Winter 2026 Family: 親1+子1 ホームステイ (1-4週)", type:"grandline-fixed", priceTable:[0,3675,6050,8345,10680], commission:0.25 },
+          "winter2026-family-addparent-hs": { name:"Winter 2026 Family: 追加親1名 ホームステイ (1-4週)", type:"grandline-fixed", priceTable:[0,1730,2960,4110,5300], commission:0.25 },
+          "winter2026-family-addchild-hs": { name:"Winter 2026 Family: 追加子1名 ホームステイ (1-4週)", type:"grandline-fixed", priceTable:[0,1945,3090,4235,5380], commission:0.25 },
+          "winter2026-family-1p1c-day": { name:"Winter 2026 Family: 親1+子1 Day Only (1-4週)", type:"grandline-fixed", priceTable:[0,2055,3560,4985,6450], commission:0.25 },
+          "winter2026-family-addparent-day": { name:"Winter 2026 Family: 追加親1名 Day Only (1-4週)", type:"grandline-fixed", priceTable:[0,1055,1860,2585,3350], commission:0.25 },
+          "winter2026-family-addchild-day": { name:"Winter 2026 Family: 追加子1名 Day Only (1-4週)", type:"grandline-fixed", priceTable:[0,1000,1700,2400,3100], commission:0.25 },
+          "winter2027-homestay": { name:"Winter Camp 2027 Vancouver ホームステイ付 (9-17歳・1-4週)", type:"grandline-fixed", priceTable:[0,1995,3190,4385,5580], commission:0.25, note:"開始日2027/1/3〜1/24" },
+          "winter2027-dayonly": { name:"Winter Camp 2027 Vancouver Day Only (9-17歳・1-4週)", type:"grandline-fixed", priceTable:[0,1035,1770,2505,3240], commission:0.25 },
+          "winter2027-family-1p1c-hs": { name:"Winter 2027 Family: 親1+子1 ホームステイ (1-4週)", type:"grandline-fixed", priceTable:[0,3750,6160,8570,10980], commission:0.25 },
+          "winter2027-family-addparent-hs": { name:"Winter 2027 Family: 追加親1名 ホームステイ (1-4週)", type:"grandline-fixed", priceTable:[0,1755,2970,4185,5400], commission:0.25 },
+          "winter2027-family-addchild-hs": { name:"Winter 2027 Family: 追加子1名 ホームステイ (1-4週)", type:"grandline-fixed", priceTable:[0,1995,3190,4385,5580], commission:0.25 },
+          "winter2027-family-1p1c-day": { name:"Winter 2027 Family: 親1+子1 Day Only (1-4週)", type:"grandline-fixed", priceTable:[0,2100,3610,5120,6630], commission:0.25 },
+          "winter2027-family-addparent-day": { name:"Winter 2027 Family: 追加親1名 Day Only (1-4週)", type:"grandline-fixed", priceTable:[0,1065,1840,2615,3390], commission:0.25 },
+          "winter2027-family-addchild-day": { name:"Winter 2027 Family: 追加子1名 Day Only (1-4週)", type:"grandline-fixed", priceTable:[0,1035,1770,2505,3240], commission:0.25 },
+          "summer-family-1p1c-hs": { name:"Summer Family Camp 2026 Vancouver: 親1+子1 ホームステイ (子8歳+・1-6週)", type:"grandline-fixed", priceTable:[0,2440,4130,5820,7510,9200,10890], commission:0.25, note:"デポジットは親・子それぞれC$350" },
+          "summer-family-addparent-hs": { name:"Summer Family 2026: 追加親1名 ホームステイ (1-6週)", type:"grandline-fixed", priceTable:[0,995,1765,2535,3305,4075,4845], commission:0.25 },
+          "summer-family-addchild-hs": { name:"Summer Family 2026: 追加子1名 ホームステイ (1-6週)", type:"grandline-fixed", priceTable:[0,1075,1925,2775,3625,4475,5325], commission:0.25 },
+          "summer-family-1p1c-day": { name:"Summer Family 2026: 親1+子1 Day Only (1-6週)", type:"grandline-fixed", priceTable:[0,1305,2160,3015,3870,4725,5580], commission:0.25 },
+          "summer-family-addparent-day": { name:"Summer Family 2026: 追加親1名 Day Only (1-6週)", type:"grandline-fixed", priceTable:[0,620,1015,1410,1805,2200,2595], commission:0.25 },
+          "summer-family-addchild-day": { name:"Summer Family 2026: 追加子1名 Day Only (1-6週)", type:"grandline-fixed", priceTable:[0,686,1147,1608,2069,2530,2991], commission:0.25 },
+        },
+        accom: { "none": { name:"パッケージに含む", low:0, peak:0 } },
+        airports: { "Unaccompanied Minor Fee（片道）":75 }
+      }
+    }
+  },
+
+  // ── ILSC ジュニアキャンプ Australia（2026・AUD）──
+  ilsc_junior_australia: {
+    name: "ILSC Junior Camp Australia (Brisbane)",
+    currency: "AUD",
+    campuses: {
+      "brisbane": {
+        name: "Brisbane", country: "Australia", regFee: 0, peakSupp: 0,
+        courses: {
+          "junior-homestay": { name:"Junior Camp 2026 Brisbane ホームステイ付 (12-17歳・1-4週)", type:"grandline-fixed", priceTable:[0,2550,3900,5250,6600], commission:0.25, note:"開始日6/29〜8/17。非返金デポジットAU$350。特別食AU$70/週。" },
+          "junior-dayonly": { name:"Junior Camp 2026 Brisbane Day Only (12-17歳・1-4週)", type:"grandline-fixed", priceTable:[0,1350,2200,3050,3900], commission:0.25 },
+        },
+        accom: { "none": { name:"パッケージに含む", low:0, peak:0 } },
+        airports: { "Unaccompanied Minor Fee（片道）":170 }
+      }
+    }
+  },
 };
 
 // 個人レッスン単価（1レッスンあたり、現地通貨）
@@ -804,6 +1341,16 @@ const PRIVATE_LESSON_PRICES = {
   "lsi_portsmouth":          { "portsmouth": 78 },
   "uci_dce":                 { "irvine": null },
   "ush":                     { "socal-la": null, "socal-sd": null, "norcal": null, "arizona": null, "florida": null, "new-york": null },
+  // ── ILSC / Greystone / Junior ──
+  "ilsc_australia":   { "adelaide":120, "brisbane":120, "melbourne":120, "perth":120, "sydney":120 },
+  "ilsc_canada":      { "montreal":85, "toronto":90, "vancouver":90 },
+  "ilsc_dublin":      { "dublin": null },
+  "ilsc_delhi":       { "new-delhi": 35 },
+  "ilsc_online":      { "hello-english": null, "allo-french": null },
+  "greystone_australia": { "all-campuses": null },
+  "greystone_canada": { "montreal": null, "toronto": null, "vancouver": null },
+  "ilsc_junior_canada":    { "junior-canada": null },
+  "ilsc_junior_australia": { "brisbane": null },
 };
 
 // ここに新しい学校を追加してください ↓
