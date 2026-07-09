@@ -1288,7 +1288,13 @@ function calcAll() {
       let subLocal=0;let subItems=[];
       const base=accom.low*normalWeeks+(accom.peak||accom.low)*peakWeeks;
       if(accom.useNese){const sess=Math.max(1,Math.round(weeks/4));const cs=Math.min(sess,12);const nt=accom.nesePrices[cs]||accom.nesePrices[12];subLocal+=nt;subItems.push({label:`宿泊（${cs}セッション）`,local:nt});}
-      else{subLocal+=base;subItems.push({label:`宿泊 × ${weeks}週${peakWeeks>0?` (ピーク${peakWeeks}週)`:""}`,local:base,formula:(peakWeeks>0?`${accom.low}*${normalWeeks}+${accom.peak||accom.low}*${peakWeeks}`:`${accom.low}*${weeks}`)});}
+      else{subLocal+=base;
+        const pkRate=accom.peak||accom.low;
+        let accLabel, accFormula;
+        if(peakWeeks>0&&normalWeeks>0){accLabel=`宿泊 ${fmtC(accom.low,currency)}/週 × ${normalWeeks}週 ＋ ピーク ${fmtC(pkRate,currency)}/週 × ${peakWeeks}週`;accFormula=`${accom.low}*${normalWeeks}+${pkRate}*${peakWeeks}`;}
+        else if(peakWeeks>0){accLabel=`宿泊 ピーク ${fmtC(pkRate,currency)}/週 × ${peakWeeks}週`;accFormula=`${pkRate}*${peakWeeks}`;}
+        else{accLabel=`宿泊 ${fmtC(accom.low,currency)}/週 × ${weeks}週`;accFormula=`${accom.low}*${weeks}`;}
+        subItems.push({label:accLabel,local:base,formula:accFormula});}
       if(accom.placementFee){subLocal+=accom.placementFee;subItems.push({label:`Accommodation Placement Fee`,local:accom.placementFee});}
       if(b.school==="ih"){if(accom.bookingFee){subLocal+=accom.bookingFee;subItems.push({label:`Booking Fee`,local:accom.bookingFee});}if(accom.ihSummerSupp){const ihsw=calcIHSummerWeeks(b.start,b.end);if(ihsw>0){const ss=accom.ihSummerSupp*ihsw;subLocal+=ss;subItems.push({label:`夏季サプリメント × ${ihsw}週`,local:ss,formula:`${accom.ihSummerSupp}*${ihsw}`});}}}
       if(b.school==="wse"&&accom.low>0&&!accom.halfBoard){subLocal+=60;subItems.push({label:`First week supplement`,local:60});}
@@ -1651,6 +1657,8 @@ function saveQuote() {
       id:t.id, name:getTabName(t), schoolSections:t.schoolSections,
       result:t.result?{ freeeLines:t.result.freeeLines, coord:t.result.coord,
         visa:t.result.visa, total:t.result.total, grossProfit:t.result.grossProfit,
+        totalCommJPY:t.result.totalCommJPY||0, totalTTSMarkupJPY:t.result.totalTTSMarkupJPY||0,
+        totalProgMarkupJPY:t.result.totalProgMarkupJPY||0,
         jpyAddons:t.result.jpyAddons||[] }:null,
     })),
     savedAt: new Date().toISOString(),
@@ -1713,7 +1721,7 @@ function renderSavedQuotes() {
   }
   el.innerHTML=`
     <div style="margin-bottom:8px;display:flex;gap:8px">
-      <button class="btn btn-sm" onclick="exportExcel()">📥 Excel出力</button>
+      <button class="btn btn-sm" onclick="exportExcel()">📥 全件をExcel出力</button>
     </div>`+
   projects.map(p=>{
     const savedAt=p.savedAt?new Date(p.savedAt).toLocaleDateString("ja-JP"):p.date;
@@ -1730,6 +1738,7 @@ function renderSavedQuotes() {
         </div>
         <div style="display:flex;gap:6px;flex-shrink:0">
           <button class="btn btn-sm btn-primary" onclick="loadProject(${p.id})">開く</button>
+          <button class="btn btn-sm" onclick="exportProjectExcel(${p.id})">📥 Excel</button>
           <button class="btn btn-sm btn-danger" onclick="deleteQuote(${p.id})">削除</button>
         </div>
       </div>
@@ -1758,6 +1767,25 @@ function exportCurrentExcel() {
   _exportToExcel(targets, `GETC_見積_${client}_${date}`);
 }
 
+// 案件（プロジェクト）単位でのExcel出力
+function exportProjectExcel(id) {
+  const p = loadProjects().find(x=>x.id===id);
+  if (!p) return;
+  const targets = [];
+  (p.tabs||[]).filter(t=>t.result).forEach(t=>{
+    targets.push({ client:p.client, project:p.project, date:p.date,
+      tabName:t.name||"案", freeeLines:t.result.freeeLines||[],
+      coord:t.result.coord||0, visa:t.result.visa||0,
+      total:t.result.total||0, grossProfit:t.result.grossProfit||0,
+      totalCommJPY:t.result.totalCommJPY||0,
+      totalTTSMarkupJPY:t.result.totalTTSMarkupJPY||0,
+      totalProgMarkupJPY:t.result.totalProgMarkupJPY||0,
+      jpyAddons:t.result.jpyAddons||[] });
+  });
+  if (targets.length===0) { alert("この案件に計算済みの見積がありません"); return; }
+  _exportToExcel(targets, `GETC_見積_${p.client}_${p.project}`);
+}
+
 function exportSelectedExcel() { exportExcel(); }
 function exportExcel() {
   const projects=loadProjects();
@@ -1776,6 +1804,20 @@ function exportExcel() {
   _exportToExcel(targets, `GETC_見積一覧_${new Date().toISOString().split("T")[0]}`);
 }
 
+// 保存済みデータに formula がない場合、ラベル「£484/週 × 4週」等から数式を復元
+function _lineFormula(ln) {
+  if (ln.formula) return ln.formula;
+  const lbl = String(ln.label||"");
+  const num = s => parseFloat(String(s).replace(/,/g,""));
+  let m = lbl.match(/([\d,]+(?:\.\d+)?)\s*\/週\s*×\s*(\d+)\s*週/);
+  if (m && Math.abs(num(m[1])*num(m[2])-(ln.local||0))<0.01) return `${num(m[1])}*${num(m[2])}`;
+  m = lbl.match(/([\d,]+(?:\.\d+)?)\s*\/h\s*×\s*([\d.]+)\s*h\s*×\s*(\d+)\s*週/);
+  if (m && Math.abs(num(m[1])*num(m[2])*num(m[3])-(ln.local||0))<0.01) return `${num(m[1])}*${num(m[2])}*${num(m[3])}`;
+  m = lbl.match(/(\d+)\s*回\s*×\s*[^\d]*([\d,]+(?:\.\d+)?)/);
+  if (m && Math.abs(num(m[1])*num(m[2])-(ln.local||0))<0.01) return `${num(m[2])}*${num(m[1])}`;
+  return null;
+}
+
 function _exportToExcel(targets, filename) {
   // SheetJS で .xlsx を生成。単価×週数などは数式（=400*4 形式）、
   // 円換算はセル参照数式（=B行*D行）で出力し、Excel上で編集・検算できる。
@@ -1786,8 +1828,7 @@ function _exportToExcel(targets, filename) {
   targets.forEach((q, qi) => {
     if (qi > 0) { push([]); push([]); }
 
-    push([`■ 見積書　${q.client}　${q.project}　${q.date}`]);
-    push([`プログラム上乗せ率: ${q.progMarkupPct||0}%`, `TTS上乗せ率: ${q.ttsMarkupPct||0}%`]);
+    push([`■ 見積書　${q.client}　${q.project}${q.tabName?`　[${q.tabName}]`:""}　${q.date}`]);
     push([]);
 
     const subtotalRefs = []; // 各学校小計のG列セル参照
@@ -1818,7 +1859,7 @@ function _exportToExcel(targets, filename) {
             Math.round(localAmt * effRate),
           ]);
           detailRows.push(r);
-          if (ln.formula) formulas.push({ r: r-1, c: 1, f: ln.formula });          // 外貨金額 = 単価×週数
+          const lf = _lineFormula(ln); if (lf) formulas.push({ r: r-1, c: 1, f: lf }); // 外貨金額 = 単価×週数
           formulas.push({ r: r-1, c: 5, f: `ROUND(B${r}*D${r},0)` });               // 原価 = 外貨×TTS
           formulas.push({ r: r-1, c: 6, f: `ROUND(B${r}*E${r},0)` });               // 計算レート適用 = 外貨×実効レート
         });
@@ -1867,7 +1908,8 @@ function _exportToExcel(targets, filename) {
     if ((q.coord||0) > 0) cdr = push(["　うちコーディネーション", "", "", "", "", "", q.coord]);
     const gr = push(["★ 粗利合計", "", "", "", "", "", Math.round(q.grossProfit)]);
     const gpArgs = [`G${cr}`,`G${mr}`,`G${pr}`]; if (cdr) gpArgs.push(`G${cdr}`);
-    formulas.push({ r: gr-1, c: 6, f: `SUM(${gpArgs.join(",")})` });
+    const gpSum = Math.round(q.totalCommJPY||0)+Math.round(q.totalTTSMarkupJPY||0)+Math.round(q.totalProgMarkupJPY||0)+(cdr?(q.coord||0):0);
+    if (Math.abs(gpSum-Math.round(q.grossProfit))<=2) formulas.push({ r: gr-1, c: 6, f: `SUM(${gpArgs.join(",")})` });
     push([]);
   });
 
@@ -1878,7 +1920,7 @@ function _exportToExcel(targets, filename) {
     if (!ws[addr]) ws[addr] = { t:"n", v:0 };
     ws[addr].f = f;
   });
-  ws["!cols"] = [{wch:48},{wch:12},{wch:6},{wch:9},{wch:16},{wch:14},{wch:20}];
+  ws["!cols"] = [{wch:64},{wch:12},{wch:6},{wch:9},{wch:16},{wch:14},{wch:20}];
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "見積");
   XLSX.writeFile(wb, `${filename}.xlsx`);
