@@ -1318,6 +1318,760 @@ const SCHOOLS = {
       }
     }
   },
+
+  // ══ EC USA 2026（USD）══ ハイシーズン割増は12週未満のコースのみ対象（notes参照）
+  ec_usa: {
+    name: "EC English (USA)",
+    currency: "USD",
+    campuses: {
+      "boston": {
+        name: "Boston", country: "USA", regFee: 170, peakSupp: 25,
+        peakStart:"06-27", peakEnd:"08-29",
+        materialsFee: { type:"bracket", brackets:[{maxWeeks:1, fee:10},{maxWeeks:2, fee:20},{maxWeeks:3, fee:30},{maxWeeks:4, fee:40},{maxWeeks:5, fee:50},{maxWeeks:6, fee:60},{maxWeeks:7, fee:70},{maxWeeks:8, fee:80},{maxWeeks:9, fee:90},{maxWeeks:10, fee:100},{maxWeeks:11, fee:110},{maxWeeks:23, fee:120},{maxWeeks:999, fee:140}] },
+        courses: {
+          "ge20": { name:"Vacation English GE20 (20L・15h/週)", type:"group", prices:[505, 485], brackets:[1, 12], extraPerWeek:485, commission:0.25, note:"ハイシーズン割増$25/週(6/29-8/28)は12週未満のコースのみ対象。12週以上の場合は自動加算された割増行を手動削除してください。宿泊は24週以上の予約でハイシーズン料金免除。 登録費$170。" },
+          "ge24": { name:"General English 24 (24L・18h/週)", type:"group", prices:[570, 510, 480], brackets:[1, 12, 24], extraPerWeek:480, commission:0.25 },
+          "ge26": { name:"General English 26 (26L・19.5h/週)", type:"group", prices:[585, 535, 505], brackets:[1, 12, 24], extraPerWeek:505, commission:0.25 },
+          "ge30": { name:"General English 30 (30L・22.5h/週)", type:"group", prices:[650, 595, 525], brackets:[1, 12, 24], extraPerWeek:525, commission:0.25 },
+          "efw": { name:"English for Work (GE20+4・最大12週)", type:"group", prices:[570, 510], brackets:[1, 12], extraPerWeek:510, commission:0.25 },
+          "eitc": { name:"English in the City (GE20+4・最大8週・ハイシーズンのみ)", type:"group", prices:[570], brackets:[1], extraPerWeek:570, commission:0.25 },
+          "exam30": { name:"English & Exam Preparation IELTS (GE20+10・30L)", type:"group", prices:[650, 595], brackets:[1, 12], extraPerWeek:595, commission:0.25 },
+          "one2one": { name:"English Plus One-to-One (60分/回)", type:"1to1", pricePerHour:155, commission:0.25 },
+          "futurelearn": { name:"EC x FutureLearn (オンライン+週次レビュー・最低4週)", type:"group", prices:[40], brackets:[1], extraPerWeek:40, commission:0.25 },
+        },
+        accom: {
+          "none": { name:"なし", low:0, peak:0 },
+          "hs-twin-bb": { name:"Homestay Twin B&B（2名同時申込のみ）U18+$25/週", low:325, peak:365, placementFee:95 },
+          "hs-single-bb": { name:"Homestay Single B&B", low:370, peak:410, placementFee:95 },
+          "hs-twin-hb": { name:"Homestay Twin Half Board（2名同時申込のみ）", low:370, peak:410, placementFee:95 },
+          "hs-single-hb": { name:"Homestay Single Half Board", low:440, peak:480, placementFee:95 },
+          "res-overlook": { name:"The Overlook Shared Apartments Single 相部屋バス 自炊", low:785, peak:825, placementFee:95 },
+        },
+        airports: { "Boston Logan空港送迎（片道）":180 }
+      },
+      "newyork": {
+        name: "New York", country: "USA", regFee: 170, peakSupp: 25,
+        peakStart:"06-27", peakEnd:"08-29",
+        materialsFee: { type:"bracket", brackets:[{maxWeeks:1, fee:10},{maxWeeks:2, fee:20},{maxWeeks:3, fee:30},{maxWeeks:4, fee:40},{maxWeeks:5, fee:50},{maxWeeks:6, fee:60},{maxWeeks:7, fee:70},{maxWeeks:8, fee:80},{maxWeeks:9, fee:90},{maxWeeks:10, fee:100},{maxWeeks:11, fee:110},{maxWeeks:23, fee:120},{maxWeeks:999, fee:140}] },
+        courses: {
+          "ge20": { name:"Vacation English GE20 (20L)", type:"group", prices:[500, 480], brackets:[1, 12], extraPerWeek:480, commission:0.25, note:"ハイシーズン割増$25/週(6/29-8/28)は12週未満のコースのみ対象。12週以上の場合は自動加算された割増行を手動削除してください。宿泊は24週以上の予約でハイシーズン料金免除。 登録費$170+Landmark Fee $10。" },
+          "ge24": { name:"General English 24", type:"group", prices:[565, 505, 465], brackets:[1, 12, 24], extraPerWeek:465, commission:0.25 },
+          "ge26": { name:"General English 26", type:"group", prices:[580, 530, 495], brackets:[1, 12, 24], extraPerWeek:495, commission:0.25 },
+          "ge30": { name:"General English 30", type:"group", prices:[645, 590, 515], brackets:[1, 12, 24], extraPerWeek:515, commission:0.25 },
+          "efw": { name:"English for Work (GE20+4・最大12週)", type:"group", prices:[565, 505], brackets:[1, 12], extraPerWeek:505, commission:0.25 },
+          "eitc": { name:"English in the City (GE20+4・最大4週・ハイシーズンのみ)", type:"group", prices:[565], brackets:[1], extraPerWeek:565, commission:0.25 },
+          "toefl20": { name:"Exam Preparation TOEFL 20 (6/1-9/4のみ・最低2週)", type:"group", prices:[500, 480], brackets:[1, 12], extraPerWeek:480, commission:0.25 },
+          "toefl30": { name:"Exam Preparation TOEFL 30 (TOEFL20+10・6/1-9/4のみ)", type:"group", prices:[645, 590], brackets:[1, 12], extraPerWeek:590, commission:0.25 },
+          "one2one": { name:"English Plus One-to-One (60分/回)", type:"1to1", pricePerHour:155, commission:0.25, note:"Dance: $175/5レッスンもあり" },
+          "futurelearn": { name:"EC x FutureLearn (最低4週)", type:"group", prices:[40], brackets:[1], extraPerWeek:40, commission:0.25 },
+        },
+        accom: {
+          "none": { name:"なし", low:0, peak:0 },
+          "hs-twin-bb": { name:"Homestay Twin B&B（2名同時申込のみ）U18+$25/週", low:385, peak:425, placementFee:95 },
+          "hs-single-bb": { name:"Homestay Single B&B", low:460, peak:500, placementFee:95 },
+          "hs-twin-hb": { name:"Homestay Twin Half Board（2名同時申込のみ）", low:500, peak:535, placementFee:95 },
+          "hs-single-hb": { name:"Homestay Single Half Board", low:535, peak:575, placementFee:95 },
+          "hs-manhattan-bb": { name:"Homestay Manhattan Single B&B", low:655, peak:695, placementFee:95 },
+          "hs-manhattan-hb": { name:"Homestay Manhattan Single Half Board（最低2週）", low:785, peak:895, placementFee:95 },
+          "res-midtown-twin": { name:"Midtown Student Residence Twin 相部屋バス 自炊", low:500, peak:575, placementFee:95 },
+          "res-midtown-single": { name:"Midtown Student Residence Single ensuite 自炊", low:850, peak:925, placementFee:95 },
+          "res-mansfield-semi": { name:"Mansfield Semi-Private 相部屋バス 自炊", low:550, peak:600, placementFee:95 },
+          "res-mansfield-single": { name:"Mansfield Single ensuite 自炊", low:785, peak:835, placementFee:95 },
+          "res-uws": { name:"Upper West Side Shared Apartments Single 相部屋バス 自炊", low:745, peak:795, placementFee:95 },
+        },
+        airports: { "JFK/LGA/EWR空港送迎（片道）":195 }
+      },
+      "newyork30": {
+        name: "New York 30+", country: "USA", regFee: 170, peakSupp: 25,
+        peakStart:"06-27", peakEnd:"08-29",
+        materialsFee: { type:"bracket", brackets:[{maxWeeks:1, fee:10},{maxWeeks:2, fee:20},{maxWeeks:3, fee:30},{maxWeeks:4, fee:40},{maxWeeks:5, fee:50},{maxWeeks:6, fee:60},{maxWeeks:7, fee:70},{maxWeeks:8, fee:80},{maxWeeks:9, fee:90},{maxWeeks:10, fee:100},{maxWeeks:11, fee:110},{maxWeeks:23, fee:120},{maxWeeks:999, fee:140}] },
+        courses: {
+          "ge20": { name:"Vacation English GE20 (20L)", type:"group", prices:[500, 480], brackets:[1, 12], extraPerWeek:480, commission:0.25, note:"ハイシーズン割増$25/週(6/29-8/28)は12週未満のコースのみ対象。12週以上の場合は自動加算された割増行を手動削除してください。宿泊は24週以上の予約でハイシーズン料金免除。 最低年齢30歳。登録費$170+Landmark Fee $10。" },
+          "ge24": { name:"General English 24", type:"group", prices:[565, 505, 475], brackets:[1, 12, 24], extraPerWeek:475, commission:0.25 },
+          "ge26": { name:"General English 26", type:"group", prices:[580, 530, 500], brackets:[1, 12, 24], extraPerWeek:500, commission:0.25 },
+          "ge30": { name:"General English 30", type:"group", prices:[645, 590, 520], brackets:[1, 12, 24], extraPerWeek:520, commission:0.25 },
+          "efw": { name:"English for Work (GE20+4・最大12週)", type:"group", prices:[565, 505], brackets:[1, 12], extraPerWeek:505, commission:0.25 },
+          "eitc": { name:"English in the City (GE20+4・最大4週・ハイシーズンのみ)", type:"group", prices:[565], brackets:[1], extraPerWeek:565, commission:0.25 },
+          "escapes": { name:"EC Escapes 50+ (GE20+週4アクティビティ等込・1-2週)", type:"grandline-fixed", priceTable:[0,905,1650], commission:0.25, note:"開催: 4/20-5/1, 9/14-9/25。2週目は$825/週。" },
+          "one2one": { name:"English Plus One-to-One (60分/回)", type:"1to1", pricePerHour:155, commission:0.25, note:"Dancing: $175/5レッスン" },
+          "futurelearn": { name:"EC x FutureLearn (最低4週)", type:"group", prices:[40], brackets:[1], extraPerWeek:40, commission:0.25 },
+        },
+        accom: {
+          "none": { name:"なし", low:0, peak:0 },
+          "hs-twin-bb": { name:"Homestay Twin B&B（2名同時申込のみ）U18+$25/週", low:385, peak:425, placementFee:95 },
+          "hs-single-bb": { name:"Homestay Single B&B", low:460, peak:500, placementFee:95 },
+          "hs-twin-hb": { name:"Homestay Twin Half Board（2名同時申込のみ）", low:500, peak:535, placementFee:95 },
+          "hs-single-hb": { name:"Homestay Single Half Board", low:535, peak:575, placementFee:95 },
+          "hs-manhattan-bb": { name:"Homestay Manhattan Single B&B", low:655, peak:695, placementFee:95 },
+          "hs-manhattan-hb": { name:"Homestay Manhattan Single Half Board（最低2週）", low:785, peak:895, placementFee:95 },
+          "res-midtown-twin": { name:"Midtown Student Residence Twin 相部屋バス 自炊", low:500, peak:575, placementFee:95 },
+          "res-midtown-single": { name:"Midtown Student Residence Single ensuite 自炊", low:850, peak:925, placementFee:95 },
+          "res-mansfield-semi": { name:"Mansfield Semi-Private 相部屋バス 自炊", low:550, peak:600, placementFee:95 },
+          "res-mansfield-single": { name:"Mansfield Single ensuite 自炊", low:785, peak:835, placementFee:95 },
+          "res-uws": { name:"Upper West Side Shared Apartments Single 相部屋バス 自炊", low:745, peak:795, placementFee:95 },
+        },
+        airports: { "JFK/LGA/EWR空港送迎（片道）":195 }
+      },
+      "sanfrancisco": {
+        name: "San Francisco", country: "USA", regFee: 170, peakSupp: 25,
+        peakStart:"06-27", peakEnd:"08-29",
+        materialsFee: { type:"bracket", brackets:[{maxWeeks:1, fee:10},{maxWeeks:2, fee:20},{maxWeeks:3, fee:30},{maxWeeks:4, fee:40},{maxWeeks:5, fee:50},{maxWeeks:6, fee:60},{maxWeeks:7, fee:70},{maxWeeks:8, fee:80},{maxWeeks:9, fee:90},{maxWeeks:10, fee:100},{maxWeeks:11, fee:110},{maxWeeks:23, fee:120},{maxWeeks:999, fee:140}] },
+        courses: {
+          "ge20": { name:"Vacation English GE20 (20L)", type:"group", prices:[455, 435], brackets:[1, 12], extraPerWeek:435, commission:0.25, note:"ハイシーズン割増$25/週(6/29-8/28)は12週未満のコースのみ対象。12週以上の場合は自動加算された割増行を手動削除してください。宿泊は24週以上の予約でハイシーズン料金免除。 登録費$170。" },
+          "ge24": { name:"General English 24", type:"group", prices:[515, 460, 425], brackets:[1, 12, 24], extraPerWeek:425, commission:0.25 },
+          "ge26": { name:"General English 26", type:"group", prices:[525, 485, 455], brackets:[1, 12, 24], extraPerWeek:455, commission:0.25 },
+          "ge30": { name:"General English 30", type:"group", prices:[580, 530, 465], brackets:[1, 12, 24], extraPerWeek:465, commission:0.25 },
+          "efw": { name:"English for Work (GE20+4・最大12週)", type:"group", prices:[515, 460], brackets:[1, 12], extraPerWeek:460, commission:0.25 },
+          "one2one": { name:"English Plus One-to-One (60分/回)", type:"1to1", pricePerHour:155, commission:0.25 },
+          "futurelearn": { name:"EC x FutureLearn (最低4週)", type:"group", prices:[40], brackets:[1], extraPerWeek:40, commission:0.25 },
+        },
+        accom: {
+          "none": { name:"なし", low:0, peak:0 },
+          "hs-twin-bb": { name:"Homestay Twin B&B（2名同時申込のみ）U18+$25/週", low:325, peak:365, placementFee:95 },
+          "hs-single-bb": { name:"Homestay Single B&B", low:370, peak:410, placementFee:95 },
+          "hs-twin-hb": { name:"Homestay Twin Half Board（2名同時申込のみ）", low:370, peak:410, placementFee:95 },
+          "hs-single-hb": { name:"Homestay Single Half Board", low:440, peak:480, placementFee:95 },
+          "res-columbus": { name:"Columbus Residence Single 相部屋バス 自炊（最低4週）", low:600, peak:650, placementFee:95 },
+          "res-kenmore-twin": { name:"The Kenmore Twin 共用バス Half Board（最低2週・16歳+）", low:550, peak:585, placementFee:95 },
+          "res-kenmore-single": { name:"The Kenmore Single 共用バス Half Board（最低2週）", low:680, peak:715, placementFee:95 },
+          "res-kenmore-ensuite": { name:"The Kenmore Single ensuite Half Board（最低2週）", low:765, peak:800, placementFee:95 },
+        },
+        airports: { "SFO空港送迎（片道）":150, "SFO送迎（相乗り/人）":75 }
+      },
+      "sandiego": {
+        name: "San Diego（CEL運営）", country: "USA", regFee: 150, peakSupp: 0,
+        peakStart:"05-30", peakEnd:"09-26",
+        materialsFee: { type:"bracket", brackets:[{maxWeeks:1, fee:10},{maxWeeks:2, fee:20},{maxWeeks:3, fee:30},{maxWeeks:4, fee:40},{maxWeeks:5, fee:50},{maxWeeks:6, fee:60},{maxWeeks:7, fee:70},{maxWeeks:8, fee:80},{maxWeeks:9, fee:90},{maxWeeks:10, fee:100},{maxWeeks:11, fee:110},{maxWeeks:12, fee:120},{maxWeeks:13, fee:130},{maxWeeks:14, fee:140},{maxWeeks:15, fee:150},{maxWeeks:16, fee:160},{maxWeeks:17, fee:170},{maxWeeks:18, fee:180},{maxWeeks:19, fee:190},{maxWeeks:20, fee:200},{maxWeeks:21, fee:210},{maxWeeks:22, fee:220},{maxWeeks:23, fee:230},{maxWeeks:24, fee:240},{maxWeeks:25, fee:250},{maxWeeks:26, fee:260},{maxWeeks:27, fee:270},{maxWeeks:28, fee:280},{maxWeeks:29, fee:290},{maxWeeks:30, fee:300},{maxWeeks:31, fee:310},{maxWeeks:32, fee:320},{maxWeeks:33, fee:330},{maxWeeks:34, fee:340},{maxWeeks:35, fee:350},{maxWeeks:36, fee:360},{maxWeeks:37, fee:370},{maxWeeks:38, fee:380},{maxWeeks:39, fee:390},{maxWeeks:40, fee:400},{maxWeeks:41, fee:410},{maxWeeks:42, fee:420},{maxWeeks:43, fee:430},{maxWeeks:44, fee:440},{maxWeeks:45, fee:450},{maxWeeks:46, fee:460},{maxWeeks:47, fee:470},{maxWeeks:48, fee:480},{maxWeeks:49, fee:490},{maxWeeks:50, fee:500},{maxWeeks:51, fee:510},{maxWeeks:52, fee:520},{maxWeeks:999, fee:520}] },
+        courses: {
+          "ge20": { name:"General English 20 (最大12週)", type:"group", prices:[370, 360], brackets:[1, 7], extraPerWeek:360, commission:0.25, note:"CEL運営。登録費$150。ハイシーズン(5/30-9/26)は宿泊のみ割増・授業料割増なし。ホームステイのみ長期割引あり(名称参照)。" },
+          "ge23": { name:"GE23/Academic23/Career Dev23/TOEFL23/CAE23 (20+3.75L・最大12週)", type:"group", prices:[410, 400], brackets:[1, 7], extraPerWeek:400, commission:0.25 },
+          "ge24": { name:"GE24/Academic24/Career Dev24/TOEFL24/CAE24 (20+4L)", type:"group", prices:[410, 400, 380, 340, 320], brackets:[1, 7, 13, 20, 30], extraPerWeek:320, commission:0.25 },
+          "ge28": { name:"GE28/Academic28/Career Dev28/TOEFL28/CAE28 (+8L/24+4L)", type:"group", prices:[460, 450, 430, 390, 370], brackets:[1, 7, 13, 20, 30], extraPerWeek:370, commission:0.25, note:"TOEFL/Cambridge準備は最大8週" },
+          "gp16": { name:"Global Pathway 28 (GE20+GP8・16週固定・総額)", type:"group", prices:[6880], brackets:[1], extraPerWeek:6880, commission:0.25, note:"fixedWeeks対象外のため週数16で入力してください" },
+          "exp-sequential": { name:"English Plus Experience Sequential (ESTA/観光ビザ・英語4週+実習8週=12週)", type:"grandline-fixed", priceTable:[0,0,0,0,0,0,0,0,0,0,0,0,2570], commission:0.25, note:"総額$2,570(英語$1,620+実習$950)。12週で入力。" },
+          "exp-combined-12": { name:"English Plus Experience Combined (学生ビザ・12週)", type:"grandline-fixed", priceTable:[0,0,0,0,0,0,0,0,0,0,0,0,5750], commission:0.25, note:"総額$5,750(英語$4,800+実習$950)" },
+          "exp-combined-24": { name:"English Plus Experience Combined (学生ビザ・24週)", type:"grandline-fixed", priceTable:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,9110], commission:0.25, note:"総額$9,110(英語$8,160+実習$950)" },
+          "one2one": { name:"One-to-One (45分/回)", type:"1to1", pricePerHour:85, commission:0.25, note:"Surfing $200/週(4回)・Volunteering $250もあり" },
+        },
+        accom: {
+          "none": { name:"なし", low:0, peak:0 },
+          "hs-double-bf": { name:"Homestay Double 朝食（5-11週$310/12+週$290・ハイシーズン+$20/週）", low:330, peak:350, placementFee:200 },
+          "hs-single-bf": { name:"Homestay Single 朝食（5-11週$340/12+週$320・HS+$30/週）", low:360, peak:390, placementFee:200 },
+          "hs-double-bd": { name:"Homestay Double 朝夕（5-11週$340/12+週$320・HS+$20/週）", low:360, peak:380, placementFee:200 },
+          "hs-single-bd": { name:"Homestay Single 朝夕（5-11週$370/12+週$350・HS+$30/週）", low:390, peak:420, placementFee:200 },
+          "hs-single-priv": { name:"Homestay Single 専用バス 朝夕（5-11週$470/12+週$450・HS+$30/週）", low:490, peak:520, placementFee:200 },
+          "hs-premium": { name:"Premium Homestay Single 朝夕（学校まで35分以内・HS+$30/週）", low:490, peak:520, placementFee:200 },
+          "apt-std-twin": { name:"CEL Shared Apt Standard Twin 相部屋バス 自炊（12-23週$280/24+$270）", low:290, peak:330, placementFee:100 },
+          "apt-std-single": { name:"CEL Shared Apt Standard Single 相部屋バス（12-23週$520/24+$510）", low:530, peak:630, placementFee:100 },
+          "apt-prem-twin": { name:"CEL Shared Apt Premium Twin 専用バス（12-23週$350/24+$340）", low:360, peak:410, placementFee:100 },
+          "apt-prem-single": { name:"CEL Shared Apt Premium Single 専用バス（12-23週$710/24+$700）", low:720, peak:820, placementFee:100 },
+          "apt-sup-twin": { name:"CEL Shared Apt Superior Twin 専用バス（12-23週$400/24+$390）", low:410, peak:460, placementFee:100 },
+          "apt-sup-single": { name:"CEL Shared Apt Superior Single 専用バス（12-23週$810/24+$800）", low:820, peak:920, placementFee:100 },
+        },
+        airports: {  }
+      },
+      "losangeles": {
+        name: "Los Angeles", country: "USA", regFee: 170, peakSupp: 25,
+        peakStart:"06-27", peakEnd:"08-29",
+        materialsFee: { type:"bracket", brackets:[{maxWeeks:1, fee:10},{maxWeeks:2, fee:20},{maxWeeks:3, fee:30},{maxWeeks:4, fee:40},{maxWeeks:5, fee:50},{maxWeeks:6, fee:60},{maxWeeks:7, fee:70},{maxWeeks:8, fee:80},{maxWeeks:9, fee:90},{maxWeeks:10, fee:100},{maxWeeks:11, fee:110},{maxWeeks:23, fee:120},{maxWeeks:999, fee:140}] },
+        courses: {
+          "ge20": { name:"Vacation English GE20 (20L)", type:"group", prices:[450, 430], brackets:[1, 12], extraPerWeek:430, commission:0.25, note:"ハイシーズン割増$25/週(6/29-8/28)は12週未満のコースのみ対象。12週以上の場合は自動加算された割増行を手動削除してください。宿泊は24週以上の予約でハイシーズン料金免除。 登録費$170。" },
+          "ge24": { name:"General English 24", type:"group", prices:[510, 455, 425], brackets:[1, 12, 24], extraPerWeek:425, commission:0.25 },
+          "ge26": { name:"General English 26", type:"group", prices:[520, 480, 485], brackets:[1, 12, 24], extraPerWeek:485, commission:0.25, note:"※24+週の$485は原本PDF記載値（$450前後の誤植の可能性・要確認）" },
+          "ge30": { name:"General English 30", type:"group", prices:[575, 525, 475], brackets:[1, 12, 24], extraPerWeek:475, commission:0.25 },
+          "efw": { name:"English for Work (GE20+4・最大12週)", type:"group", prices:[510, 455], brackets:[1, 12], extraPerWeek:455, commission:0.25 },
+          "one2one": { name:"English Plus One-to-One (60分/回)", type:"1to1", pricePerHour:155, commission:0.25 },
+          "futurelearn": { name:"EC x FutureLearn (最低4週)", type:"group", prices:[40], brackets:[1], extraPerWeek:40, commission:0.25 },
+        },
+        accom: {
+          "none": { name:"なし", low:0, peak:0 },
+          "hs-twin-bb": { name:"Homestay Twin B&B（2名同時申込のみ）U18+$25/週", low:325, peak:365, placementFee:95 },
+          "hs-single-bb": { name:"Homestay Single B&B", low:365, peak:405, placementFee:95 },
+          "hs-twin-hb": { name:"Homestay Twin Half Board（2名同時申込のみ）", low:365, peak:405, placementFee:95 },
+          "hs-single-hb": { name:"Homestay Single Half Board", low:440, peak:480, placementFee:95 },
+          "res-sm-twin": { name:"Santa Monica Downtown Shared Apt Twin 相部屋バス（最低4週）", low:520, peak:570, placementFee:95 },
+          "res-sm-single": { name:"Santa Monica Downtown Shared Apt Single 専用バス（最低4週）", low:955, peak:995, placementFee:95 },
+        },
+        airports: { "LAX空港送迎（片道）":165 }
+      },
+    }
+  },
+
+  // ══ EC Canada 2026（CAD）══
+  ec_canada: {
+    name: "EC English (Canada)",
+    currency: "CAD",
+    campuses: {
+      "montreal": {
+        name: "Montréal", country: "Canada", regFee: 140, peakSupp: 25,
+        peakStart:"06-27", peakEnd:"08-29",
+        materialsFee: { type:"bracket", brackets:[{maxWeeks:1, fee:10},{maxWeeks:2, fee:20},{maxWeeks:3, fee:30},{maxWeeks:4, fee:40},{maxWeeks:5, fee:50},{maxWeeks:6, fee:60},{maxWeeks:7, fee:70},{maxWeeks:8, fee:80},{maxWeeks:9, fee:90},{maxWeeks:10, fee:100},{maxWeeks:11, fee:110},{maxWeeks:23, fee:120},{maxWeeks:999, fee:140}] },
+        courses: {
+          "gef20": { name:"General English/French 20 (20L)", type:"group", prices:[420, 405], brackets:[1, 12], extraPerWeek:405, commission:0.25, note:"ハイシーズン割増$25/週(6/29-8/28)は12週未満のコースのみ対象。12週以上の場合は自動加算された割増行を手動削除してください。宿泊は24週以上の予約でハイシーズン料金免除。 登録費$140。仏語コース教材費込。" },
+          "gef24": { name:"General English/French 24", type:"group", prices:[455, 440], brackets:[1, 12], extraPerWeek:440, commission:0.25 },
+          "gef26": { name:"General English/French 26", type:"group", prices:[485, 455], brackets:[1, 12], extraPerWeek:455, commission:0.25 },
+          "gef30": { name:"General English/French 30", type:"group", prices:[510, 495], brackets:[1, 12], extraPerWeek:495, commission:0.25 },
+          "ya24": { name:"Young Achievers English/French (GE/GF20+4)", type:"group", prices:[455, 440], brackets:[1, 12], extraPerWeek:440, commission:0.25 },
+          "bil24": { name:"Bilingual 24", type:"group", prices:[435, 420], brackets:[1, 12], extraPerWeek:420, commission:0.25 },
+          "bil26": { name:"Bilingual 26", type:"group", prices:[450, 435], brackets:[1, 12], extraPerWeek:435, commission:0.25 },
+          "bil30": { name:"Bilingual 30", type:"group", prices:[480, 465], brackets:[1, 12], extraPerWeek:465, commission:0.25 },
+          "one2one": { name:"English/French Plus One-to-One (60分/回)", type:"1to1", pricePerHour:155, commission:0.25, note:"Gastronomy $310/週・Bartending $175/週もあり" },
+          "futurelearn": { name:"EC x FutureLearn (最低4週)", type:"group", prices:[35], brackets:[1], extraPerWeek:35, commission:0.25 },
+        },
+        accom: {
+          "none": { name:"なし", low:0, peak:0 },
+          "hs-single-sc": { name:"Homestay Single 自炊 U18+$25/週", low:270, peak:305, placementFee:230 },
+          "hs-twin-hb": { name:"Homestay Twin Half Board（2名同時申込のみ）", low:300, peak:335, placementFee:230 },
+          "hs-single-hb": { name:"Homestay Single Half Board", low:320, peak:355, placementFee:230 },
+          "hs-single-fb": { name:"Homestay Single Full Board", low:365, peak:395, placementFee:230 },
+          "res-lamarq": { name:"La Marq au 515 Shared Apt Single 相部屋バス（到着時空港送迎込）", low:495, peak:545, placementFee:230 },
+        },
+        airports: { "YUL空港送迎（片道）":120 }
+      },
+      "toronto": {
+        name: "Toronto", country: "Canada", regFee: 140, peakSupp: 25,
+        peakStart:"06-27", peakEnd:"08-29",
+        materialsFee: { type:"bracket", brackets:[{maxWeeks:1, fee:10},{maxWeeks:2, fee:20},{maxWeeks:3, fee:30},{maxWeeks:4, fee:40},{maxWeeks:5, fee:50},{maxWeeks:6, fee:60},{maxWeeks:7, fee:70},{maxWeeks:8, fee:80},{maxWeeks:9, fee:90},{maxWeeks:10, fee:100},{maxWeeks:11, fee:110},{maxWeeks:23, fee:120},{maxWeeks:999, fee:140}] },
+        courses: {
+          "ge20": { name:"General English 20", type:"group", prices:[435, 410, 400], brackets:[1, 12, 24], extraPerWeek:400, commission:0.25, note:"ハイシーズン割増$25/週(6/29-8/28)は12週未満のコースのみ対象。12週以上の場合は自動加算された割増行を手動削除してください。宿泊は24週以上の予約でハイシーズン料金免除。 登録費$140。朝クラス保証は+$40/週(1-11週)/+$35(12-23週)/+$30(24+週)。PAL(州証明)費$110+授業料10%デポジット。" },
+          "ge24": { name:"General English 24", type:"group", prices:[480, 460, 435], brackets:[1, 12, 24], extraPerWeek:435, commission:0.25 },
+          "ge26": { name:"General English 26", type:"group", prices:[495, 485, 465], brackets:[1, 12, 24], extraPerWeek:465, commission:0.25 },
+          "ge30": { name:"General English 30", type:"group", prices:[520, 505, 490], brackets:[1, 12, 24], extraPerWeek:490, commission:0.25 },
+          "efw": { name:"English for Work (GE20+4・最大8週)", type:"group", prices:[480], brackets:[1], extraPerWeek:480, commission:0.25 },
+          "eitc": { name:"English in the City (GE20+4・最大4週・ハイシーズンのみ)", type:"group", prices:[480], brackets:[1], extraPerWeek:480, commission:0.25 },
+          "exam20": { name:"Exam Preparation IELTS/TOEFL/TOEIC (20L・推奨4週以上)", type:"group", prices:[435, 410], brackets:[1, 12], extraPerWeek:410, commission:0.25 },
+          "one2one": { name:"English Plus One-to-One (60分/回)", type:"1to1", pricePerHour:155, commission:0.25 },
+          "futurelearn": { name:"EC x FutureLearn (最低4週)", type:"group", prices:[35], brackets:[1], extraPerWeek:35, commission:0.25 },
+        },
+        accom: {
+          "none": { name:"なし", low:0, peak:0 },
+          "hs-twin-hb": { name:"Homestay Twin Half Board（2名同時申込のみ）U18+$25/週", low:325, peak:360, placementFee:230 },
+          "hs-single-hb": { name:"Homestay Single Half Board", low:345, peak:380, placementFee:230 },
+          "res-parker-eco": { name:"The Parker Economy Single 相部屋バス 自炊", low:575, peak:625, placementFee:230 },
+          "res-parker-single": { name:"The Parker Single 相部屋バス 自炊", low:600, peak:650, placementFee:230 },
+          "res-parker-priv": { name:"The Parker Single 専用バス 自炊", low:715, peak:765, placementFee:230 },
+          "res-ledbury-eco": { name:"The Ledbury Economy Single 相部屋バス 自炊", low:560, peak:610, placementFee:230 },
+          "res-ledbury-single": { name:"The Ledbury Single 相部屋バス 自炊", low:580, peak:630, placementFee:230 },
+          "res-ledbury-priv": { name:"The Ledbury Single 専用バス 自炊", low:680, peak:730, placementFee:230 },
+        },
+        airports: { "YYZ空港送迎（片道）":135 }
+      },
+      "toronto30": {
+        name: "Toronto 30+", country: "Canada", regFee: 140, peakSupp: 25,
+        peakStart:"06-27", peakEnd:"08-29",
+        materialsFee: { type:"bracket", brackets:[{maxWeeks:1, fee:10},{maxWeeks:2, fee:20},{maxWeeks:3, fee:30},{maxWeeks:4, fee:40},{maxWeeks:5, fee:50},{maxWeeks:6, fee:60},{maxWeeks:7, fee:70},{maxWeeks:8, fee:80},{maxWeeks:9, fee:90},{maxWeeks:10, fee:100},{maxWeeks:11, fee:110},{maxWeeks:23, fee:120},{maxWeeks:999, fee:140}] },
+        courses: {
+          "ge20": { name:"General English 20", type:"group", prices:[435, 410, 400], brackets:[1, 12, 24], extraPerWeek:400, commission:0.25, note:"ハイシーズン割増$25/週(6/29-8/28)は12週未満のコースのみ対象。12週以上の場合は自動加算された割増行を手動削除してください。宿泊は24週以上の予約でハイシーズン料金免除。 最低年齢30歳。登録費$140。" },
+          "ge24": { name:"General English 24", type:"group", prices:[480, 460, 435], brackets:[1, 12, 24], extraPerWeek:435, commission:0.25 },
+          "ge26": { name:"General English 26", type:"group", prices:[495, 485, 465], brackets:[1, 12, 24], extraPerWeek:465, commission:0.25 },
+          "ge30": { name:"General English 30", type:"group", prices:[520, 505, 490], brackets:[1, 12, 24], extraPerWeek:490, commission:0.25 },
+          "efw30": { name:"English for Work (GE20+10・最大8週)", type:"group", prices:[520, 505], brackets:[1, 12], extraPerWeek:505, commission:0.25 },
+          "one2one": { name:"English Plus One-to-One (60分/回)", type:"1to1", pricePerHour:155, commission:0.25 },
+          "futurelearn": { name:"EC x FutureLearn (最低4週)", type:"group", prices:[35], brackets:[1], extraPerWeek:35, commission:0.25 },
+        },
+        accom: {
+          "none": { name:"なし", low:0, peak:0 },
+          "hs-twin-hb": { name:"Homestay Twin Half Board（2名同時申込のみ）U18+$25/週", low:325, peak:360, placementFee:230 },
+          "hs-single-hb": { name:"Homestay Single Half Board", low:345, peak:380, placementFee:230 },
+          "res-parker-eco": { name:"The Parker Economy Single 相部屋バス 自炊", low:575, peak:625, placementFee:230 },
+          "res-parker-single": { name:"The Parker Single 相部屋バス 自炊", low:600, peak:650, placementFee:230 },
+          "res-parker-priv": { name:"The Parker Single 専用バス 自炊", low:715, peak:765, placementFee:230 },
+          "res-ledbury-eco": { name:"The Ledbury Economy Single 相部屋バス 自炊", low:560, peak:610, placementFee:230 },
+          "res-ledbury-single": { name:"The Ledbury Single 相部屋バス 自炊", low:580, peak:630, placementFee:230 },
+          "res-ledbury-priv": { name:"The Ledbury Single 専用バス 自炊", low:680, peak:730, placementFee:230 },
+        },
+        airports: { "YYZ空港送迎（片道）":135 }
+      },
+      "vancouver": {
+        name: "Vancouver", country: "Canada", regFee: 140, peakSupp: 25,
+        peakStart:"06-27", peakEnd:"08-29",
+        materialsFee: { type:"bracket", brackets:[{maxWeeks:1, fee:10},{maxWeeks:2, fee:20},{maxWeeks:3, fee:30},{maxWeeks:4, fee:40},{maxWeeks:5, fee:50},{maxWeeks:6, fee:60},{maxWeeks:7, fee:70},{maxWeeks:8, fee:80},{maxWeeks:9, fee:90},{maxWeeks:10, fee:100},{maxWeeks:11, fee:110},{maxWeeks:23, fee:120},{maxWeeks:999, fee:140}] },
+        courses: {
+          "ge20": { name:"General English 20", type:"group", prices:[435, 410, 400], brackets:[1, 12, 24], extraPerWeek:400, commission:0.25, note:"ハイシーズン割増$25/週(6/29-8/28)は12週未満のコースのみ対象。12週以上の場合は自動加算された割増行を手動削除してください。宿泊は24週以上の予約でハイシーズン料金免除。 登録費$140。PAL費$110+授業料10%デポジット。" },
+          "ge24": { name:"General English 24", type:"group", prices:[480, 460, 435], brackets:[1, 12, 24], extraPerWeek:435, commission:0.25 },
+          "ge26": { name:"General English 26", type:"group", prices:[495, 485, 465], brackets:[1, 12, 24], extraPerWeek:465, commission:0.25 },
+          "ge30": { name:"General English 30", type:"group", prices:[520, 505, 490], brackets:[1, 12, 24], extraPerWeek:490, commission:0.25 },
+          "efw": { name:"English for Work (GE20+4・最大12週)", type:"group", prices:[480, 460], brackets:[1, 12], extraPerWeek:460, commission:0.25 },
+          "wwai": { name:"Writing with AI (GE20+10・最大4週)", type:"group", prices:[520], brackets:[1], extraPerWeek:520, commission:0.25 },
+          "cambridge30": { name:"Cambridge Exam Preparation 30 (B2 First/C1 Adv・10週コース)", type:"group", prices:[520], brackets:[1], extraPerWeek:520, commission:0.25, note:"開講: 3/23-5/29, 3/30-6/5, 10/5-12/11。試験料別途。" },
+          "one2one": { name:"English Plus One-to-One (60分/回)", type:"1to1", pricePerHour:155, commission:0.25 },
+          "futurelearn": { name:"EC x FutureLearn (最低4週)", type:"group", prices:[35], brackets:[1], extraPerWeek:35, commission:0.25 },
+        },
+        accom: {
+          "none": { name:"なし", low:0, peak:0 },
+          "hs-twin-hb": { name:"Homestay Twin Half Board（2名同時申込のみ）U18+$25/週", low:325, peak:360, placementFee:230 },
+          "hs-single-hb": { name:"Homestay Single Half Board", low:345, peak:380, placementFee:230 },
+          "res-richards": { name:"Richards & Pender Shared Apt Single 専用バス 自炊", low:765, peak:800, placementFee:230 },
+          "res-vsh-eco": { name:"Vancouver Student House Economy Single 相部屋バス（最低2週）", low:435, peak:485, placementFee:230 },
+          "res-vsh-single": { name:"Vancouver Student House Single 相部屋バス（最低2週）", low:500, peak:550, placementFee:230 },
+          "res-vsh-ensuite": { name:"Vancouver Student House Single ensuite（最低2週）", low:535, peak:585, placementFee:230 },
+          "res-gastown-eco": { name:"Gastown Shared Apt Economy Single 相部屋バス", low:615, peak:665, placementFee:230 },
+          "res-gastown-single": { name:"Gastown Shared Apt Single 相部屋バス", low:640, peak:690, placementFee:230 },
+          "res-gastown-ensuite": { name:"Gastown Shared Apt Single ensuite", low:720, peak:770, placementFee:230 },
+        },
+        airports: { "YVR空港送迎（片道）":135 }
+      },
+      "vancouver30": {
+        name: "Vancouver 30+", country: "Canada", regFee: 140, peakSupp: 25,
+        peakStart:"06-27", peakEnd:"08-29",
+        materialsFee: { type:"bracket", brackets:[{maxWeeks:1, fee:10},{maxWeeks:2, fee:20},{maxWeeks:3, fee:30},{maxWeeks:4, fee:40},{maxWeeks:5, fee:50},{maxWeeks:6, fee:60},{maxWeeks:7, fee:70},{maxWeeks:8, fee:80},{maxWeeks:9, fee:90},{maxWeeks:10, fee:100},{maxWeeks:11, fee:110},{maxWeeks:23, fee:120},{maxWeeks:999, fee:140}] },
+        courses: {
+          "ge20": { name:"General English 20", type:"group", prices:[435, 410, 400], brackets:[1, 12, 24], extraPerWeek:400, commission:0.25, note:"ハイシーズン割増$25/週(6/29-8/28)は12週未満のコースのみ対象。12週以上の場合は自動加算された割増行を手動削除してください。宿泊は24週以上の予約でハイシーズン料金免除。 最低年齢30歳。登録費$140。" },
+          "ge24": { name:"General English 24", type:"group", prices:[480, 460, 435], brackets:[1, 12, 24], extraPerWeek:435, commission:0.25 },
+          "ge26": { name:"General English 26", type:"group", prices:[495, 485, 465], brackets:[1, 12, 24], extraPerWeek:465, commission:0.25 },
+          "ge30": { name:"General English 30", type:"group", prices:[520, 505, 490], brackets:[1, 12, 24], extraPerWeek:490, commission:0.25 },
+          "efw": { name:"English for Work (GE20+4・最大12週)", type:"group", prices:[480, 460], brackets:[1, 12], extraPerWeek:460, commission:0.25 },
+          "wwai": { name:"Writing with AI (GE20+10・最大4週)", type:"group", prices:[520], brackets:[1], extraPerWeek:520, commission:0.25 },
+          "one2one": { name:"English Plus One-to-One (60分/回)", type:"1to1", pricePerHour:155, commission:0.25 },
+          "futurelearn": { name:"EC x FutureLearn (最低4週)", type:"group", prices:[35], brackets:[1], extraPerWeek:35, commission:0.25 },
+        },
+        accom: {
+          "none": { name:"なし", low:0, peak:0 },
+          "hs-twin-hb": { name:"Homestay Twin Half Board（2名同時申込のみ）U18+$25/週", low:325, peak:360, placementFee:230 },
+          "hs-single-hb": { name:"Homestay Single Half Board", low:345, peak:380, placementFee:230 },
+          "res-richards": { name:"Richards & Pender Shared Apt Single 専用バス 自炊", low:765, peak:800, placementFee:230 },
+          "res-vsh-eco": { name:"Vancouver Student House Economy Single 相部屋バス（最低2週）", low:435, peak:485, placementFee:230 },
+          "res-vsh-single": { name:"Vancouver Student House Single 相部屋バス（最低2週）", low:500, peak:550, placementFee:230 },
+          "res-vsh-ensuite": { name:"Vancouver Student House Single ensuite（最低2週）", low:535, peak:585, placementFee:230 },
+          "res-gastown-eco": { name:"Gastown Shared Apt Economy Single 相部屋バス", low:615, peak:665, placementFee:230 },
+          "res-gastown-single": { name:"Gastown Shared Apt Single 相部屋バス", low:640, peak:690, placementFee:230 },
+          "res-gastown-ensuite": { name:"Gastown Shared Apt Single ensuite", low:720, peak:770, placementFee:230 },
+        },
+        airports: { "YVR空港送迎（片道）":135 }
+      },
+    }
+  },
+
+  // ══ EC UK 2026（GBP）══
+  ec_uk: {
+    name: "EC English (UK)",
+    currency: "GBP",
+    campuses: {
+      "london": {
+        name: "London", country: "UK", regFee: 60, peakSupp: 20,
+        peakStart:"06-27", peakEnd:"08-29",
+        materialsFee: { type:"bracket", brackets:[{maxWeeks:1, fee:7},{maxWeeks:2, fee:14},{maxWeeks:3, fee:21},{maxWeeks:4, fee:28},{maxWeeks:5, fee:35},{maxWeeks:6, fee:42},{maxWeeks:7, fee:49},{maxWeeks:8, fee:56},{maxWeeks:9, fee:63},{maxWeeks:10, fee:70},{maxWeeks:11, fee:77},{maxWeeks:23, fee:84},{maxWeeks:999, fee:105}] },
+        courses: {
+          "ge20": { name:"General English 20", type:"group", prices:[405, 365, 330], brackets:[1, 12, 24], extraPerWeek:330, commission:0.25, note:"ハイシーズン割増£20/週(6/29-8/28)は12週未満のコースのみ対象。12週以上の場合は自動加算された割増行を手動削除してください。宿泊は24週以上の予約でハイシーズン料金免除。 登録費£60。朝クラス保証+£40/35/30/週。" },
+          "ge30": { name:"General English 30", type:"group", prices:[495, 450, 390], brackets:[1, 12, 24], extraPerWeek:390, commission:0.25 },
+          "efw30": { name:"English for Work (GE20+10・最大12週)", type:"group", prices:[495, 450], brackets:[1, 12], extraPerWeek:450, commission:0.25 },
+          "eitc30": { name:"English in the City (GE20+10・最大4週・ハイシーズンのみ)", type:"group", prices:[495], brackets:[1], extraPerWeek:495, commission:0.25 },
+          "wwai": { name:"Writing with AI (GE20+10・最大4週)", type:"group", prices:[495], brackets:[1], extraPerWeek:495, commission:0.25 },
+          "ielts20": { name:"Exam Preparation IELTS (20L・推奨4週以上)", type:"group", prices:[405, 365], brackets:[1, 12], extraPerWeek:365, commission:0.25 },
+          "one2one": { name:"English Plus One-to-One (60分/回)", type:"1to1", pricePerHour:120, commission:0.25 },
+          "futurelearn": { name:"EC x FutureLearn (最低4週)", type:"group", prices:[35], brackets:[1], extraPerWeek:35, commission:0.25 },
+        },
+        accom: {
+          "none": { name:"なし", low:0, peak:0 },
+          "hs-twin-hb": { name:"Homestay Twin Half Board（2名同時申込のみ）", low:290, peak:340, placementFee:40 },
+          "hs-single-sc": { name:"Homestay Single 自炊", low:240, peak:290, placementFee:40 },
+          "hs-single-bb": { name:"Homestay Single B&B", low:250, peak:300, placementFee:40 },
+          "hs-single-hb": { name:"Homestay Single Half Board", low:305, peak:355, placementFee:40 },
+          "res-iq-highbury": { name:"iQ Highbury Single ensuite 自炊", low:510, peak:560, placementFee:40 },
+          "res-iq-shoreditch": { name:"iQ Shoreditch Studio ensuite 自炊", low:625, peak:675, placementFee:40 },
+          "res-summer": { name:"Summer Residence Single 専用バス 自炊（夏期のみ・通年同額）", low:550, peak:550, placementFee:40 },
+        },
+        airports: { "Heathrow LHR（片道）":210, "Gatwick LGW（片道）":240, "Stansted STN（片道）":240, "Luton LTN（片道）":235, "London City LCY（片道）":185, "St Pancras駅（片道）":140 }
+      },
+      "london30": {
+        name: "London 30+", country: "UK", regFee: 60, peakSupp: 20,
+        peakStart:"06-27", peakEnd:"08-29",
+        materialsFee: { type:"bracket", brackets:[{maxWeeks:1, fee:7},{maxWeeks:2, fee:14},{maxWeeks:3, fee:21},{maxWeeks:4, fee:28},{maxWeeks:5, fee:35},{maxWeeks:6, fee:42},{maxWeeks:7, fee:49},{maxWeeks:8, fee:56},{maxWeeks:9, fee:63},{maxWeeks:10, fee:70},{maxWeeks:11, fee:77},{maxWeeks:23, fee:84},{maxWeeks:999, fee:105}] },
+        courses: {
+          "ge20": { name:"General English 20", type:"group", prices:[405, 365, 330], brackets:[1, 12, 24], extraPerWeek:330, commission:0.25, note:"ハイシーズン割増£20/週(6/29-8/28)は12週未満のコースのみ対象。12週以上の場合は自動加算された割増行を手動削除してください。宿泊は24週以上の予約でハイシーズン料金免除。 最低年齢30歳。登録費£60。近距離ステイ+£60/週・専用バス+£100/週(手配時)。" },
+          "ge24": { name:"General English 24", type:"group", prices:[435, 390, 360], brackets:[1, 12, 24], extraPerWeek:360, commission:0.25 },
+          "ge26": { name:"General English 26", type:"group", prices:[460, 415, 375], brackets:[1, 12, 24], extraPerWeek:375, commission:0.25 },
+          "ge30": { name:"General English 30", type:"group", prices:[495, 450, 390], brackets:[1, 12, 24], extraPerWeek:390, commission:0.25 },
+          "efw30": { name:"English for Work (GE20+10・最大12週)", type:"group", prices:[495, 450], brackets:[1, 12], extraPerWeek:450, commission:0.25 },
+          "eitc30": { name:"English in the City (GE20+10・最大4週・ハイシーズンのみ)", type:"group", prices:[495], brackets:[1], extraPerWeek:495, commission:0.25 },
+          "wwai": { name:"Writing with AI (GE20+10・最大4週)", type:"group", prices:[495], brackets:[1], extraPerWeek:495, commission:0.25 },
+          "business20": { name:"Business English (20L・Upper-Int以上)", type:"group", prices:[405, 365], brackets:[1, 12], extraPerWeek:365, commission:0.25 },
+          "escapes": { name:"EC Escapes 50+ (GE20+アクティビティ込・1-2週)", type:"grandline-fixed", priceTable:[0,730,1330], commission:0.25, note:"開催: 5/11-5/22, 9/7-9/18。2週目£665/週。" },
+          "one2one": { name:"English Plus One-to-One (60分/回)", type:"1to1", pricePerHour:120, commission:0.25 },
+          "futurelearn": { name:"EC x FutureLearn (最低4週)", type:"group", prices:[35], brackets:[1], extraPerWeek:35, commission:0.25 },
+        },
+        accom: {
+          "none": { name:"なし", low:0, peak:0 },
+          "hs-twin-hb": { name:"Homestay Twin Half Board（2名同時申込のみ）", low:290, peak:340, placementFee:40 },
+          "hs-single-sc": { name:"Homestay Single 自炊", low:240, peak:290, placementFee:40 },
+          "hs-single-bb": { name:"Homestay Single B&B", low:250, peak:300, placementFee:40 },
+          "hs-single-hb": { name:"Homestay Single Half Board", low:305, peak:355, placementFee:40 },
+          "res-iq-highbury": { name:"iQ Highbury Single ensuite 自炊", low:510, peak:560, placementFee:40 },
+          "res-iq-shoreditch": { name:"iQ Shoreditch Studio ensuite 自炊", low:625, peak:675, placementFee:40 },
+          "res-summer": { name:"Summer Residence Single 専用バス 自炊（夏期のみ・通年同額）", low:550, peak:550, placementFee:40 },
+        },
+        airports: { "Heathrow LHR（片道）":210, "Gatwick LGW（片道）":240, "Stansted STN（片道）":240, "Luton LTN（片道）":235, "London City LCY（片道）":185, "St Pancras駅（片道）":140 }
+      },
+      "cambridge": {
+        name: "Cambridge", country: "UK", regFee: 60, peakSupp: 20,
+        peakStart:"06-27", peakEnd:"08-29",
+        materialsFee: { type:"bracket", brackets:[{maxWeeks:1, fee:7},{maxWeeks:2, fee:14},{maxWeeks:3, fee:21},{maxWeeks:4, fee:28},{maxWeeks:5, fee:35},{maxWeeks:6, fee:42},{maxWeeks:7, fee:49},{maxWeeks:8, fee:56},{maxWeeks:9, fee:63},{maxWeeks:10, fee:70},{maxWeeks:11, fee:77},{maxWeeks:23, fee:84},{maxWeeks:999, fee:105}] },
+        courses: {
+          "ge20": { name:"General English 20", type:"group", prices:[375, 340, 280], brackets:[1, 12, 24], extraPerWeek:280, commission:0.25, note:"ハイシーズン割増£20/週(6/29-8/28)は12週未満のコースのみ対象。12週以上の場合は自動加算された割増行を手動削除してください。宿泊は24週以上の予約でハイシーズン料金免除。 登録費£60。" },
+          "ge30": { name:"General English 30", type:"group", prices:[475, 390, 340], brackets:[1, 12, 24], extraPerWeek:340, commission:0.25 },
+          "eitc30": { name:"English in the City (GE20+10・最大4週)", type:"group", prices:[475], brackets:[1], extraPerWeek:475, commission:0.25 },
+          "efw30": { name:"English for Work (GE20+10・最大12週)", type:"group", prices:[475], brackets:[1], extraPerWeek:475, commission:0.25 },
+          "ielts20": { name:"Exam Preparation IELTS (20L・推奨4週以上)", type:"group", prices:[375, 340], brackets:[1, 12], extraPerWeek:340, commission:0.25 },
+          "flexi-std": { name:"FlexiTrack Standard (12GE+4 One-to-One・16L)", type:"group", prices:[515, 485], brackets:[1, 12], extraPerWeek:485, commission:0.25, note:"One-to-Oneは45分" },
+          "flexi-int": { name:"FlexiTrack Intensive (12GE+10EfW+4 One-to-One・26L)", type:"group", prices:[625, 595], brackets:[1, 12], extraPerWeek:595, commission:0.25 },
+          "en-fe-std": { name:"English Now for Further Education Standard (12GE+8AE・20L)", type:"group", prices:[375, 340, 280], brackets:[1, 12, 24], extraPerWeek:280, commission:0.25, note:"開始日限定(月2回程度)・最低2週・少人数(最大8名)" },
+          "en-fe-int": { name:"English Now for Further Education Intensive (30L)", type:"group", prices:[475, 390, 340], brackets:[1, 12, 24], extraPerWeek:340, commission:0.25 },
+          "en-gs-std": { name:"English Now for Global Success Standard (20L)", type:"group", prices:[375, 340, 280], brackets:[1, 12, 24], extraPerWeek:280, commission:0.25 },
+          "en-gs-int": { name:"English Now for Global Success Intensive (30L)", type:"group", prices:[475, 390, 340], brackets:[1, 12, 24], extraPerWeek:340, commission:0.25 },
+          "one2one": { name:"English Plus One-to-One (60分/回)", type:"1to1", pricePerHour:120, commission:0.25 },
+          "futurelearn": { name:"EC x FutureLearn (最低4週)", type:"group", prices:[35], brackets:[1], extraPerWeek:35, commission:0.25 },
+        },
+        accom: {
+          "none": { name:"なし", low:0, peak:0 },
+          "hs-twin-hb": { name:"Homestay Twin Half Board（2名同時申込のみ）", low:240, peak:265, placementFee:40 },
+          "hs-single-sc": { name:"Homestay Single 自炊", low:220, peak:245, placementFee:40 },
+          "hs-single-bb": { name:"Homestay Single B&B", low:240, peak:265, placementFee:40 },
+          "hs-single-hb": { name:"Homestay Single Half Board", low:275, peak:300, placementFee:40 },
+          "res-castle": { name:"Student Castle Studio ensuite 自炊", low:450, peak:485, placementFee:40 },
+          "res-newmarket-sh": { name:"Newmarket Road Shared House Single 相部屋バス 自炊", low:300, peak:335, placementFee:40 },
+          "res-newmarket-en": { name:"Newmarket Road Shared House Single ensuite 自炊", low:325, peak:360, placementFee:40 },
+          "res-summer": { name:"Summer Residence Single 専用バス（6/28-8/16のみ）", low:430, peak:430, placementFee:40 },
+        },
+        airports: { "Stansted STN（片道）":150, "Luton LTN（片道）":155, "Southend SEN（片道）":210, "LHR/LCY/St Pancras（片道）":245, "Gatwick LGW（片道）":260 }
+      },
+      "brighton": {
+        name: "Brighton", country: "UK", regFee: 60, peakSupp: 20,
+        peakStart:"06-27", peakEnd:"08-29",
+        materialsFee: { type:"bracket", brackets:[{maxWeeks:1, fee:7},{maxWeeks:2, fee:14},{maxWeeks:3, fee:21},{maxWeeks:4, fee:28},{maxWeeks:5, fee:35},{maxWeeks:6, fee:42},{maxWeeks:7, fee:49},{maxWeeks:8, fee:56},{maxWeeks:9, fee:63},{maxWeeks:10, fee:70},{maxWeeks:11, fee:77},{maxWeeks:23, fee:84},{maxWeeks:999, fee:105}] },
+        courses: {
+          "ge20": { name:"General English 20", type:"group", prices:[385, 340, 290], brackets:[1, 12, 24], extraPerWeek:290, commission:0.25, note:"ハイシーズン割増£20/週(6/29-8/28)は12週未満のコースのみ対象。12週以上の場合は自動加算された割増行を手動削除してください。宿泊は24週以上の予約でハイシーズン料金免除。 登録費£60。専用バス+£90/週(手配時)。" },
+          "ge30": { name:"General English 30", type:"group", prices:[485, 405, 360], brackets:[1, 12, 24], extraPerWeek:360, commission:0.25 },
+          "efw30": { name:"English for Work (GE20+10・最大12週)", type:"group", prices:[485, 405], brackets:[1, 12], extraPerWeek:405, commission:0.25 },
+          "eitc30": { name:"English in the City (GE20+10・最大4週・ハイシーズンのみ)", type:"group", prices:[485], brackets:[1], extraPerWeek:485, commission:0.25 },
+          "ielts20": { name:"Exam Preparation IELTS 20 (推奨4週以上)", type:"group", prices:[385, 340], brackets:[1, 12], extraPerWeek:340, commission:0.25 },
+          "ielts30": { name:"Exam Preparation IELTS 30 (推奨4週以上)", type:"group", prices:[485, 405], brackets:[1, 12], extraPerWeek:405, commission:0.25 },
+          "one2one": { name:"English Plus One-to-One (60分/回)", type:"1to1", pricePerHour:120, commission:0.25 },
+          "futurelearn": { name:"EC x FutureLearn (最低4週)", type:"group", prices:[35], brackets:[1], extraPerWeek:35, commission:0.25 },
+        },
+        accom: {
+          "none": { name:"なし", low:0, peak:0 },
+          "hs-twin-hb": { name:"Homestay Twin Half Board（2名同時申込のみ）", low:240, peak:265, placementFee:40 },
+          "hs-single-sc": { name:"Homestay Single 自炊", low:220, peak:245, placementFee:40 },
+          "hs-single-bb": { name:"Homestay Single B&B", low:240, peak:265, placementFee:40 },
+          "hs-single-hb": { name:"Homestay Single Half Board", low:275, peak:300, placementFee:40 },
+          "res-abacus": { name:"Abacus House Single ensuite 自炊", low:390, peak:425, placementFee:40 },
+          "res-pavilion": { name:"Pavilion Point Studio ensuite 自炊", low:430, peak:465, placementFee:40 },
+          "res-northlaine-ya": { name:"North Laine Young Adult Residence Single 専用バスHB（16-17歳・6/27-8/19）", low:505, peak:505, placementFee:40 },
+          "res-northlaine-single": { name:"North Laine 18+ Single 専用バス 自炊（6/27-8/19）", low:390, peak:390, placementFee:40 },
+          "res-northlaine-studio": { name:"North Laine 18+ Studio ensuite 自炊（6/27-8/19）", low:465, peak:465, placementFee:40 },
+        },
+        airports: { "Gatwick LGW（片道）":130, "Heathrow LHR（片道）":205, "Ashford Intl駅（片道）":200, "St Pancras駅（片道）":235, "LTN/STN/SEN（片道）":310 }
+      },
+      "brighton30": {
+        name: "Brighton 30+（夏期のみ）", country: "UK", regFee: 60, peakSupp: 20,
+        peakStart:"06-27", peakEnd:"08-29",
+        materialsFee: { type:"bracket", brackets:[{maxWeeks:1, fee:7},{maxWeeks:2, fee:14},{maxWeeks:3, fee:21},{maxWeeks:4, fee:28},{maxWeeks:5, fee:35},{maxWeeks:6, fee:42},{maxWeeks:7, fee:49},{maxWeeks:8, fee:56},{maxWeeks:9, fee:63},{maxWeeks:10, fee:70},{maxWeeks:11, fee:77},{maxWeeks:23, fee:84},{maxWeeks:999, fee:105}] },
+        courses: {
+          "ge20": { name:"General English 20（夏期のみ 6/28-8/30）", type:"group", prices:[405], brackets:[1], extraPerWeek:405, commission:0.25, note:"最低年齢30歳。登録費£60。夏期のみ開講。" },
+          "ge24": { name:"General English 24（夏期のみ）", type:"group", prices:[435], brackets:[1], extraPerWeek:435, commission:0.25 },
+          "ge26": { name:"General English 26（夏期のみ）", type:"group", prices:[460], brackets:[1], extraPerWeek:460, commission:0.25 },
+          "ge30": { name:"General English 30（夏期のみ）", type:"group", prices:[505], brackets:[1], extraPerWeek:505, commission:0.25 },
+          "efw30": { name:"English for Work (GE20+10・最大8週・夏期のみ)", type:"group", prices:[505], brackets:[1], extraPerWeek:505, commission:0.25 },
+          "one2one": { name:"English Plus One-to-One (60分/回)", type:"1to1", pricePerHour:120, commission:0.25 },
+          "futurelearn": { name:"EC x FutureLearn (最低4週)", type:"group", prices:[35], brackets:[1], extraPerWeek:35, commission:0.25 },
+        },
+        accom: {
+          "none": { name:"なし", low:0, peak:0 },
+          "hs-twin-hb": { name:"Homestay Twin Half Board（2名同時申込のみ）", low:240, peak:265, placementFee:40 },
+          "hs-single-sc": { name:"Homestay Single 自炊", low:220, peak:245, placementFee:40 },
+          "hs-single-bb": { name:"Homestay Single B&B", low:240, peak:265, placementFee:40 },
+          "hs-single-hb": { name:"Homestay Single Half Board", low:275, peak:300, placementFee:40 },
+          "res-abacus": { name:"Abacus House Single ensuite 自炊", low:390, peak:425, placementFee:40 },
+          "res-pavilion": { name:"Pavilion Point Studio ensuite 自炊", low:430, peak:465, placementFee:40 },
+          "res-northlaine-ya": { name:"North Laine Young Adult Residence Single 専用バスHB（16-17歳・6/27-8/19）", low:505, peak:505, placementFee:40 },
+          "res-northlaine-single": { name:"North Laine 18+ Single 専用バス 自炊（6/27-8/19）", low:390, peak:390, placementFee:40 },
+          "res-northlaine-studio": { name:"North Laine 18+ Studio ensuite 自炊（6/27-8/19）", low:465, peak:465, placementFee:40 },
+        },
+        airports: { "Gatwick LGW（片道）":130, "Heathrow LHR（片道）":205, "Ashford Intl駅（片道）":200, "St Pancras駅（片道）":235, "LTN/STN/SEN（片道）":310 }
+      },
+      "bristol": {
+        name: "Bristol", country: "UK", regFee: 60, peakSupp: 20,
+        peakStart:"06-27", peakEnd:"08-29",
+        materialsFee: { type:"bracket", brackets:[{maxWeeks:1, fee:7},{maxWeeks:2, fee:14},{maxWeeks:3, fee:21},{maxWeeks:4, fee:28},{maxWeeks:5, fee:35},{maxWeeks:6, fee:42},{maxWeeks:7, fee:49},{maxWeeks:8, fee:56},{maxWeeks:9, fee:63},{maxWeeks:10, fee:70},{maxWeeks:11, fee:77},{maxWeeks:23, fee:84},{maxWeeks:999, fee:105}] },
+        courses: {
+          "ge20": { name:"General English 20", type:"group", prices:[365, 295, 280], brackets:[1, 12, 24], extraPerWeek:280, commission:0.25, note:"ハイシーズン割増£20/週(6/29-8/28)は12週未満のコースのみ対象。12週以上の場合は自動加算された割増行を手動削除してください。宿泊は24週以上の予約でハイシーズン料金免除。 登録費£60。" },
+          "ge30": { name:"General English 30", type:"group", prices:[455, 370, 345], brackets:[1, 12, 24], extraPerWeek:345, commission:0.25 },
+          "efw30": { name:"English for Work (GE20+10・最大12週)", type:"group", prices:[455, 370], brackets:[1, 12], extraPerWeek:370, commission:0.25 },
+          "ielts20": { name:"Exam Preparation IELTS (20L・推奨4週以上)", type:"group", prices:[365, 295], brackets:[1, 12], extraPerWeek:295, commission:0.25 },
+          "one2one": { name:"English Plus One-to-One (60分/回)", type:"1to1", pricePerHour:120, commission:0.25 },
+          "futurelearn": { name:"EC x FutureLearn (最低4週)", type:"group", prices:[35], brackets:[1], extraPerWeek:35, commission:0.25 },
+        },
+        accom: {
+          "none": { name:"なし", low:0, peak:0 },
+          "hs-twin-hb": { name:"Homestay Twin Half Board（2名同時申込のみ）", low:230, peak:255, placementFee:40 },
+          "hs-single-sc": { name:"Homestay Single 自炊", low:215, peak:240, placementFee:40 },
+          "hs-single-bb": { name:"Homestay Single B&B", low:230, peak:255, placementFee:40 },
+          "hs-single-hb": { name:"Homestay Single Half Board", low:265, peak:290, placementFee:40 },
+          "res-avon": { name:"Unite Avon Point Single ensuite 自炊", low:380, peak:415, placementFee:40 },
+          "res-summer": { name:"Summer Residence Single 専用バス 自炊", low:330, peak:330, placementFee:40 },
+        },
+        airports: { "Bristol BRS（片道）":95, "Heathrow LHR（片道）":335, "Gatwick LGW（片道）":425 }
+      },
+      "manchester": {
+        name: "Manchester", country: "UK", regFee: 60, peakSupp: 20,
+        peakStart:"06-27", peakEnd:"08-29",
+        materialsFee: { type:"bracket", brackets:[{maxWeeks:1, fee:7},{maxWeeks:2, fee:14},{maxWeeks:3, fee:21},{maxWeeks:4, fee:28},{maxWeeks:5, fee:35},{maxWeeks:6, fee:42},{maxWeeks:7, fee:49},{maxWeeks:8, fee:56},{maxWeeks:9, fee:63},{maxWeeks:10, fee:70},{maxWeeks:11, fee:77},{maxWeeks:23, fee:84},{maxWeeks:999, fee:105}] },
+        courses: {
+          "ge20": { name:"General English 20", type:"group", prices:[380, 340, 290], brackets:[1, 12, 24], extraPerWeek:290, commission:0.25, note:"ハイシーズン割増£20/週(6/29-8/28)は12週未満のコースのみ対象。12週以上の場合は自動加算された割増行を手動削除してください。宿泊は24週以上の予約でハイシーズン料金免除。 登録費£60。" },
+          "ge30": { name:"General English 30", type:"group", prices:[485, 400, 365], brackets:[1, 12, 24], extraPerWeek:365, commission:0.25 },
+          "efw30": { name:"English for Work (GE20+10・最大12週)", type:"group", prices:[485, 405], brackets:[1, 12], extraPerWeek:405, commission:0.25 },
+          "eitc30": { name:"English in the City (GE20+10・最大12週)", type:"group", prices:[485, 405], brackets:[1, 12], extraPerWeek:405, commission:0.25 },
+          "ielts20": { name:"Exam Preparation IELTS 20 (推奨4週以上)", type:"group", prices:[380, 350], brackets:[1, 12], extraPerWeek:350, commission:0.25 },
+          "ielts30": { name:"Exam Preparation IELTS 30 (推奨4週以上)", type:"group", prices:[485, 405], brackets:[1, 12], extraPerWeek:405, commission:0.25 },
+          "one2one": { name:"English Plus One-to-One (60分/回)", type:"1to1", pricePerHour:120, commission:0.25 },
+          "futurelearn": { name:"EC x FutureLearn (最低4週)", type:"group", prices:[35], brackets:[1], extraPerWeek:35, commission:0.25 },
+        },
+        accom: {
+          "none": { name:"なし", low:0, peak:0 },
+          "hs-twin-hb": { name:"Homestay Twin Half Board（2名同時申込のみ）", low:230, peak:255, placementFee:40 },
+          "hs-single-sc": { name:"Homestay Single 自炊", low:215, peak:240, placementFee:40 },
+          "hs-single-bb": { name:"Homestay Single B&B", low:230, peak:255, placementFee:40 },
+          "hs-single-hb": { name:"Homestay Single Half Board", low:265, peak:290, placementFee:40 },
+          "res-vita": { name:"Vita Residence Studio ensuite 自炊", low:385, peak:420, placementFee:40 },
+          "res-iq-lf": { name:"IQ Lambert & Fairfield Single ensuite 自炊", low:340, peak:375, placementFee:40 },
+          "res-summer": { name:"Summer Residence Single 専用バス 自炊", low:355, peak:355, placementFee:40 },
+        },
+        airports: { "Manchester Piccadilly駅（片道）":115, "Manchester MAN（片道）":135 }
+      },
+    }
+  },
+
+  // ══ EC Dublin 2026（EUR）══
+  ec_dublin: {
+    name: "EC English (Dublin)",
+    currency: "EUR",
+    campuses: {
+      "dublin": {
+        name: "Dublin", country: "Ireland", regFee: 55, peakSupp: 25,
+        peakStart:"06-27", peakEnd:"08-29",
+        materialsFee: { type:"bracket", brackets:[{maxWeeks:1, fee:7},{maxWeeks:2, fee:14},{maxWeeks:3, fee:21},{maxWeeks:4, fee:28},{maxWeeks:5, fee:35},{maxWeeks:6, fee:42},{maxWeeks:7, fee:49},{maxWeeks:8, fee:56},{maxWeeks:9, fee:63},{maxWeeks:10, fee:70},{maxWeeks:11, fee:77},{maxWeeks:23, fee:84},{maxWeeks:999, fee:105}] },
+        courses: {
+          "ge20": { name:"General English 20", type:"group", prices:[380, 365, 280], brackets:[1, 12, 24], extraPerWeek:280, commission:0.25, note:"ハイシーズン割増€25/週(6/29-8/28)は12週未満のコースのみ対象。12週以上の場合は自動加算された割増行を手動削除してください。宿泊は24週以上の予約でハイシーズン料金免除。 登録費€55。朝クラス保証+€40/35/30/週。非EEA: Learner Protection £40(12週+)・試験デポジット£225(25週+)。" },
+          "ge30": { name:"General English 30", type:"group", prices:[445, 420, 325], brackets:[1, 12, 24], extraPerWeek:325, commission:0.25 },
+          "efw30": { name:"English for Work (GE20+10・最大12週)", type:"group", prices:[445, 420], brackets:[1, 12], extraPerWeek:420, commission:0.25 },
+          "ielts20": { name:"Exam Preparation IELTS (20L・4-12週)", type:"group", prices:[380, 365], brackets:[1, 12], extraPerWeek:365, commission:0.25 },
+          "one2one": { name:"English Plus One-to-One (60分/回)", type:"1to1", pricePerHour:125, commission:0.25 },
+          "futurelearn": { name:"EC x FutureLearn (最低4週)", type:"group", prices:[35], brackets:[1], extraPerWeek:35, commission:0.25, note:"原本PDFは€135/週表記だが他校は€35/週のため誤植の可能性・要確認" },
+        },
+        accom: {
+          "none": { name:"なし", low:0, peak:0 },
+          "hs-twin-hb": { name:"Homestay Twin Half Board（2名同時申込のみ）", low:275, peak:315, placementFee:55 },
+          "hs-single-bb": { name:"Homestay Single B&B", low:275, peak:315, placementFee:55 },
+          "hs-single-hb": { name:"Homestay Single Half Board", low:305, peak:345, placementFee:55 },
+          "res-heyday": { name:"Heyday Carman's Hall Single ensuite 自炊", low:450, peak:500, placementFee:55 },
+        },
+        airports: { "Dublin DUB空港送迎（片道）":120 }
+      },
+      "dublin30": {
+        name: "Dublin 30+", country: "Ireland", regFee: 55, peakSupp: 25,
+        peakStart:"06-27", peakEnd:"08-29",
+        materialsFee: { type:"bracket", brackets:[{maxWeeks:1, fee:7},{maxWeeks:2, fee:14},{maxWeeks:3, fee:21},{maxWeeks:4, fee:28},{maxWeeks:5, fee:35},{maxWeeks:6, fee:42},{maxWeeks:7, fee:49},{maxWeeks:8, fee:56},{maxWeeks:9, fee:63},{maxWeeks:10, fee:70},{maxWeeks:11, fee:77},{maxWeeks:23, fee:84},{maxWeeks:999, fee:105}] },
+        courses: {
+          "ge20": { name:"General English 20", type:"group", prices:[380, 365, 280], brackets:[1, 12, 24], extraPerWeek:280, commission:0.25, note:"最低年齢30歳。登録費€55。ハイシーズン割増€25/週(6/29-8/28)は12週未満のコースのみ対象。12週以上の場合は自動加算された割増行を手動削除してください。宿泊は24週以上の予約でハイシーズン料金免除。" },
+          "ge24": { name:"General English 24", type:"group", prices:[400, 380, 290], brackets:[1, 12, 24], extraPerWeek:290, commission:0.25 },
+          "ge26": { name:"General English 26", type:"group", prices:[420, 395, 300], brackets:[1, 12, 24], extraPerWeek:300, commission:0.25 },
+          "ge30": { name:"General English 30", type:"group", prices:[445, 420, 325], brackets:[1, 12, 24], extraPerWeek:325, commission:0.25 },
+          "efw30": { name:"English for Work (GE20+10・最大12週)", type:"group", prices:[445, 420], brackets:[1, 12], extraPerWeek:420, commission:0.25 },
+          "escapes": { name:"EC Escapes 50+ (GE20+アクティビティ込・1-2週)", type:"grandline-fixed", priceTable:[0,755,1330], commission:0.25, note:"開催: 6/8-6/19, 8/24-9/4。2週目€665/週。" },
+          "one2one": { name:"English Plus One-to-One (60分/回)", type:"1to1", pricePerHour:125, commission:0.25 },
+          "futurelearn": { name:"EC x FutureLearn (最低4週)", type:"group", prices:[35], brackets:[1], extraPerWeek:35, commission:0.25 },
+        },
+        accom: {
+          "none": { name:"なし", low:0, peak:0 },
+          "hs-twin-hb": { name:"Homestay Twin Half Board（2名同時申込のみ）", low:275, peak:315, placementFee:55 },
+          "hs-single-bb": { name:"Homestay Single B&B", low:275, peak:315, placementFee:55 },
+          "hs-single-hb": { name:"Homestay Single Half Board", low:305, peak:345, placementFee:55 },
+          "res-heyday": { name:"Heyday Carman's Hall Single ensuite 自炊", low:450, peak:500, placementFee:55 },
+        },
+        airports: { "Dublin DUB空港送迎（片道）":120 }
+      },
+    }
+  },
+
+  // ══ EC Malta 2026（EUR）══
+  ec_malta: {
+    name: "EC English (Malta)",
+    currency: "EUR",
+    campuses: {
+      "malta": {
+        name: "Malta", country: "Malta", regFee: 55, peakSupp: 25,
+        peakStart:"06-27", peakEnd:"09-27",
+        materialsFee: { type:"bracket", brackets:[{maxWeeks:1, fee:7},{maxWeeks:2, fee:14},{maxWeeks:3, fee:21},{maxWeeks:4, fee:28},{maxWeeks:5, fee:35},{maxWeeks:6, fee:42},{maxWeeks:7, fee:49},{maxWeeks:8, fee:56},{maxWeeks:9, fee:63},{maxWeeks:10, fee:70},{maxWeeks:11, fee:77},{maxWeeks:23, fee:84},{maxWeeks:999, fee:105}] },
+        courses: {
+          "ge20": { name:"General English 20", type:"group", prices:[300, 255, 240], brackets:[1, 12, 24], extraPerWeek:240, commission:0.25, note:"ハイシーズン割増€25/週(6/29-8/28)は12週未満のコースのみ対象。12週以上の場合は自動加算された割増行を手動削除してください。宿泊は24週以上の予約でハイシーズン料金免除。 登録費€55。宿泊ハイシーズンは9/27まで。18歳+はEco Tax €0.50/泊(最大€5)。コース+宿泊予約で到着時空港送迎込。" },
+          "ge30": { name:"General English 30", type:"group", prices:[410, 320, 300], brackets:[1, 12, 24], extraPerWeek:300, commission:0.25 },
+          "efw30": { name:"English for Work (GE20+10・最大12週)", type:"group", prices:[410, 320], brackets:[1, 12], extraPerWeek:320, commission:0.25 },
+          "wwai": { name:"Writing with AI (GE20+10・最大4週)", type:"group", prices:[410], brackets:[1], extraPerWeek:410, commission:0.25 },
+          "minigroup20": { name:"Mini Group 20 (最大7名・毎月第1月曜開始・最大2週)", type:"group", prices:[495], brackets:[1], extraPerWeek:495, commission:0.25 },
+          "minigroup30": { name:"Intensive Mini Group 30", type:"group", prices:[615], brackets:[1], extraPerWeek:615, commission:0.25 },
+          "bizmini20": { name:"Business Mini Group 20 (25歳+)", type:"group", prices:[540], brackets:[1], extraPerWeek:540, commission:0.25 },
+          "bizmini30": { name:"Intensive Business Mini Group 30 (25歳+)", type:"group", prices:[670], brackets:[1], extraPerWeek:670, commission:0.25 },
+          "cambridge30": { name:"Cambridge Exam Preparation 30 (B2/C1・10週)", type:"group", prices:[410, 320], brackets:[1, 12], extraPerWeek:320, commission:0.25, note:"開講: 3/30-6/5, 9/29-12/11ほか。試験料別途。" },
+          "ielts30": { name:"Exam Preparation IELTS 30 (最低4週)", type:"group", prices:[410, 320], brackets:[1, 12], extraPerWeek:320, commission:0.25 },
+          "teacher385": { name:"Specialised Teacher Training (25歳+・GE20+10L・固定日程2週)", type:"group", prices:[385], brackets:[1], extraPerWeek:385, commission:0.25, note:"English&Digital Skills / English&Teaching Methodology。年3回開催。" },
+          "one2one": { name:"English Plus One-to-One (60分/回)", type:"1to1", pricePerHour:95, commission:0.25 },
+          "futurelearn": { name:"EC x FutureLearn (最低4週)", type:"group", prices:[30], brackets:[1], extraPerWeek:30, commission:0.25 },
+        },
+        accom: {
+          "none": { name:"なし", low:0, peak:0 },
+          "hs-twin-hb": { name:"Homestay Twin Half Board", low:250, peak:315, placementFee:40 },
+          "hs-single-bb": { name:"Homestay Single B&B", low:340, peak:490, placementFee:40 },
+          "hs-single-hb": { name:"Homestay Single Half Board", low:360, peak:510, placementFee:40 },
+          "apt-twin": { name:"Student Apartment Twin 相部屋バス 自炊", low:220, peak:310, placementFee:40 },
+          "apt-single": { name:"Student Apartment Single 相部屋バス 自炊（専用バス+€50/週）", low:345, peak:530, placementFee:40 },
+          "apt-studio": { name:"Student Apartment Studio（最大2名・1室あたり）専用バス 自炊", low:495, peak:950, placementFee:40 },
+          "res-campushub-twin": { name:"Campus Hub Residence Twin 相部屋バス 自炊（HS 8/29まで）", low:210, peak:300, placementFee:40 },
+          "res-campushub-single": { name:"Campus Hub Residence Single 専用バス 自炊（HS 8/29まで）", low:390, peak:575, placementFee:40 },
+        },
+        airports: { "Malta MLA空港送迎（片道）":25, "Private Premium送迎（片道）":50 }
+      },
+      "malta30": {
+        name: "Malta 30+", country: "Malta", regFee: 55, peakSupp: 25,
+        peakStart:"06-27", peakEnd:"09-27",
+        materialsFee: { type:"bracket", brackets:[{maxWeeks:1, fee:7},{maxWeeks:2, fee:14},{maxWeeks:3, fee:21},{maxWeeks:4, fee:28},{maxWeeks:5, fee:35},{maxWeeks:6, fee:42},{maxWeeks:7, fee:49},{maxWeeks:8, fee:56},{maxWeeks:9, fee:63},{maxWeeks:10, fee:70},{maxWeeks:11, fee:77},{maxWeeks:23, fee:84},{maxWeeks:999, fee:105}] },
+        courses: {
+          "ge20": { name:"General English 20", type:"group", prices:[300, 255, 240], brackets:[1, 12, 24], extraPerWeek:240, commission:0.25, note:"最低年齢30歳。登録費€55。ハイシーズン割増€25/週(6/29-8/28)は12週未満のコースのみ対象。12週以上の場合は自動加算された割増行を手動削除してください。宿泊は24週以上の予約でハイシーズン料金免除。" },
+          "ge24": { name:"General English 24", type:"group", prices:[345, 285, 260], brackets:[1, 12, 24], extraPerWeek:260, commission:0.25 },
+          "ge26": { name:"General English 26", type:"group", prices:[365, 305, 280], brackets:[1, 12, 24], extraPerWeek:280, commission:0.25 },
+          "ge30": { name:"General English 30", type:"group", prices:[410, 320, 300], brackets:[1, 12, 24], extraPerWeek:300, commission:0.25 },
+          "efw30": { name:"English for Work (GE20+10・最大12週)", type:"group", prices:[410, 320], brackets:[1, 12], extraPerWeek:320, commission:0.25 },
+          "wwai": { name:"Writing with AI (GE20+10・最大4週)", type:"group", prices:[410], brackets:[1], extraPerWeek:410, commission:0.25 },
+          "bizmini20": { name:"Business Mini Group 20 (25歳+)", type:"group", prices:[540], brackets:[1], extraPerWeek:540, commission:0.25 },
+          "bizmini30": { name:"Business Mini Group Intensive 30 (25歳+)", type:"group", prices:[670], brackets:[1], extraPerWeek:670, commission:0.25 },
+          "escapes": { name:"EC Escapes 50+ (GE20+アクティビティ込・1-2週)", type:"grandline-fixed", priceTable:[0,695,1270], commission:0.25, note:"開催: 5/4, 6/1, 9/28, 10/26開始。2週目€635/週。" },
+          "one2one": { name:"English Plus One-to-One (60分/回)", type:"1to1", pricePerHour:95, commission:0.25 },
+          "futurelearn": { name:"EC x FutureLearn (最低4週)", type:"group", prices:[30], brackets:[1], extraPerWeek:30, commission:0.25 },
+        },
+        accom: {
+          "none": { name:"なし", low:0, peak:0 },
+          "hs-twin-hb": { name:"Homestay Twin Half Board", low:250, peak:315, placementFee:40 },
+          "hs-single-bb": { name:"Homestay Single B&B", low:340, peak:490, placementFee:40 },
+          "hs-single-hb": { name:"Homestay Single Half Board", low:360, peak:510, placementFee:40 },
+          "apt-twin": { name:"Student Apartment Twin 相部屋バス 自炊", low:220, peak:310, placementFee:40 },
+          "apt-single": { name:"Student Apartment Single 相部屋バス 自炊（専用バス+€50/週）", low:345, peak:530, placementFee:40 },
+          "apt-studio": { name:"Student Apartment Studio（最大2名・1室あたり）専用バス 自炊", low:495, peak:950, placementFee:40 },
+          "res-campushub-twin": { name:"Campus Hub Residence Twin 相部屋バス 自炊（HS 8/29まで）", low:210, peak:300, placementFee:40 },
+          "res-campushub-single": { name:"Campus Hub Residence Single 専用バス 自炊（HS 8/29まで）", low:390, peak:575, placementFee:40 },
+        },
+        airports: { "Malta MLA空港送迎（片道）":25, "Private Premium送迎（片道）":50 }
+      },
+    }
+  },
+
+  // ══ EC Cape Town 2026（EUR）══ ハイシーズンは南半球の夏（1-3月）
+  ec_capetown: {
+    name: "EC English (Cape Town)",
+    currency: "EUR",
+    campuses: {
+      "capetown": {
+        name: "Cape Town", country: "South Africa", regFee: 55, peakSupp: 25,
+        peakStart:"01-03", peakEnd:"03-29",
+        materialsFee: { type:"bracket", brackets:[{maxWeeks:1, fee:7},{maxWeeks:2, fee:14},{maxWeeks:3, fee:21},{maxWeeks:4, fee:28},{maxWeeks:5, fee:35},{maxWeeks:6, fee:42},{maxWeeks:7, fee:49},{maxWeeks:8, fee:56},{maxWeeks:9, fee:63},{maxWeeks:10, fee:70},{maxWeeks:11, fee:77},{maxWeeks:23, fee:84},{maxWeeks:999, fee:105}] },
+        courses: {
+          "ge20": { name:"General English 20", type:"group", prices:[345, 270, 240], brackets:[1, 12, 24], extraPerWeek:240, commission:0.25, note:"登録費€55。ハイシーズン割増€25/週は1/5-3/27・12週未満のみ対象。宿泊HSは1/3-3/29。コース+宿泊予約で到着時空港送迎込。" },
+          "ge30": { name:"General English 30", type:"group", prices:[450, 380, 325], brackets:[1, 12, 24], extraPerWeek:325, commission:0.25 },
+          "efw30": { name:"English for Work (GE20+10・最大12週)", type:"group", prices:[450, 380], brackets:[1, 12], extraPerWeek:380, commission:0.25 },
+          "eitc30": { name:"English in the City (GE20+10・最大4週)", type:"group", prices:[450], brackets:[1], extraPerWeek:450, commission:0.25 },
+          "ielts20": { name:"Exam Preparation IELTS (20L・最低4週)", type:"group", prices:[345, 270], brackets:[1, 12], extraPerWeek:270, commission:0.25 },
+          "one2one": { name:"English Plus One-to-One (60分/回)", type:"1to1", pricePerHour:75, commission:0.25, note:"サファリ: 1日€220/3日€395/4日Kruger €1,100。Volunteer デポジット€400・Internship手配料€400。" },
+          "futurelearn": { name:"EC x FutureLearn (最低4週)", type:"group", prices:[30], brackets:[1], extraPerWeek:30, commission:0.25 },
+        },
+        accom: {
+          "none": { name:"なし", low:0, peak:0 },
+          "hs-single-hb": { name:"Homestay Single Half Board（専用バス+€70/週）", low:270, peak:300, placementFee:40 },
+          "apt-gp-dorm": { name:"Green Point Student Apt Dormitory（最大8名）相部屋バス 自炊", low:145, peak:175, placementFee:40 },
+          "apt-gp-twin": { name:"Green Point Student Apt Twin（2名同時申込のみ）自炊", low:270, peak:300, placementFee:40 },
+          "apt-gp-single": { name:"Green Point Student Apt Single ensuite 自炊", low:495, peak:540, placementFee:40 },
+          "apt-blackbrick": { name:"BlackBrick Foreshore Studio（最大2名・1室あたり）ensuite 自炊", low:435, peak:520, placementFee:40 },
+          "res-dorp": { name:"Dorp Street Residence Single 相部屋バス B&B(平日)", low:270, peak:320, placementFee:40 },
+        },
+        airports: { "Cape Town CPT空港送迎（片道）":40 }
+      },
+      "capetown30": {
+        name: "Cape Town 30+", country: "South Africa", regFee: 55, peakSupp: 25,
+        peakStart:"01-03", peakEnd:"03-29",
+        materialsFee: { type:"bracket", brackets:[{maxWeeks:1, fee:7},{maxWeeks:2, fee:14},{maxWeeks:3, fee:21},{maxWeeks:4, fee:28},{maxWeeks:5, fee:35},{maxWeeks:6, fee:42},{maxWeeks:7, fee:49},{maxWeeks:8, fee:56},{maxWeeks:9, fee:63},{maxWeeks:10, fee:70},{maxWeeks:11, fee:77},{maxWeeks:23, fee:84},{maxWeeks:999, fee:105}] },
+        courses: {
+          "ge20": { name:"General English 20", type:"group", prices:[345, 270, 240], brackets:[1, 12, 24], extraPerWeek:240, commission:0.25, note:"最低年齢30歳。登録費€55。HS割増は1/5-3/27・12週未満のみ。" },
+          "ge24": { name:"General English 24", type:"group", prices:[365, 300, 260], brackets:[1, 12, 24], extraPerWeek:260, commission:0.25 },
+          "ge26": { name:"General English 26", type:"group", prices:[390, 325, 290], brackets:[1, 12, 24], extraPerWeek:290, commission:0.25 },
+          "ge30": { name:"General English 30", type:"group", prices:[450, 380, 325], brackets:[1, 12, 24], extraPerWeek:325, commission:0.25 },
+          "efw30": { name:"English for Work (GE20+10・最大12週)", type:"group", prices:[450, 380], brackets:[1, 12], extraPerWeek:380, commission:0.25 },
+          "eitc30": { name:"English in the City (GE20+10・最大4週)", type:"group", prices:[450], brackets:[1], extraPerWeek:450, commission:0.25 },
+          "escapes": { name:"EC Escapes 50+ (GE20+アクティビティ込・1-2週)", type:"grandline-fixed", priceTable:[0,695,1270], commission:0.25, note:"開催: 2026/1/5-1/30, 2027/1/11-1/22。2週目€635/週。" },
+          "one2one": { name:"English Plus One-to-One (60分/回)", type:"1to1", pricePerHour:75, commission:0.25 },
+          "futurelearn": { name:"EC x FutureLearn (最低4週)", type:"group", prices:[30], brackets:[1], extraPerWeek:30, commission:0.25 },
+        },
+        accom: {
+          "none": { name:"なし", low:0, peak:0 },
+          "hs-single-hb": { name:"Homestay Single Half Board（専用バス+€70/週）", low:270, peak:300, placementFee:40 },
+          "apt-gp-dorm": { name:"Green Point Student Apt Dormitory（最大8名）相部屋バス 自炊", low:145, peak:175, placementFee:40 },
+          "apt-gp-twin": { name:"Green Point Student Apt Twin（2名同時申込のみ）自炊", low:270, peak:300, placementFee:40 },
+          "apt-gp-single": { name:"Green Point Student Apt Single ensuite 自炊", low:495, peak:540, placementFee:40 },
+          "apt-blackbrick": { name:"BlackBrick Foreshore Studio（最大2名・1室あたり）ensuite 自炊", low:435, peak:520, placementFee:40 },
+          "res-dorp": { name:"Dorp Street Residence Single 相部屋バス B&B(平日)", low:270, peak:320, placementFee:40 },
+        },
+        airports: { "Cape Town CPT空港送迎（片道）":40 }
+      },
+    }
+  },
+
+  // ══ EC Dubai 2026（USD）══ ハイシーズンが特殊（notes参照）
+  ec_dubai: {
+    name: "EC English (Dubai)",
+    currency: "USD",
+    campuses: {
+      "dubai": {
+        name: "Dubai", country: "UAE", regFee: 100, peakSupp: 0,
+        peakStart:"01-03", peakEnd:"05-16",
+        materialsFee: { type:"bracket", brackets:[{maxWeeks:1, fee:7},{maxWeeks:2, fee:14},{maxWeeks:3, fee:21},{maxWeeks:4, fee:28},{maxWeeks:5, fee:35},{maxWeeks:6, fee:42},{maxWeeks:7, fee:49},{maxWeeks:8, fee:56},{maxWeeks:9, fee:63},{maxWeeks:10, fee:70},{maxWeeks:11, fee:77},{maxWeeks:23, fee:84},{maxWeeks:999, fee:105}] },
+        courses: {
+          "ge20-am": { name:"General English 20 – Morning only", type:"group", prices:[380, 335, 310], brackets:[1, 12, 24], extraPerWeek:310, commission:0.25, note:"登録費$100。ハイシーズン割増$25/週は2026/11/2-2027/2/26・12週未満のみ対象(自動計算されないため手動でAdd-on追加)。宿泊HSは1/3-5/16と10/17-1/2の2期間(データは1-5月期間で設定・秋冬期は手動確認)。180日ビザ申請費$700。" },
+          "ge20-pm": { name:"General English 20 – Afternoon only", type:"group", prices:[310, 270, 245], brackets:[1, 12, 24], extraPerWeek:245, commission:0.25 },
+          "ge30": { name:"General English 30", type:"group", prices:[520, 480, 440], brackets:[1, 12, 24], extraPerWeek:440, commission:0.25 },
+          "efw30": { name:"English for Work (GE20+10・最大12週)", type:"group", prices:[520, 480], brackets:[1, 12], extraPerWeek:480, commission:0.25 },
+          "ielts30": { name:"Exam Preparation IELTS (GE20+10・推奨4週以上)", type:"group", prices:[520, 480], brackets:[1, 12], extraPerWeek:480, commission:0.25 },
+          "one2one": { name:"English Plus One-to-One (60分/回)", type:"1to1", pricePerHour:75, commission:0.25 },
+          "futurelearn": { name:"EC x FutureLearn (最低4週)", type:"group", prices:[30], brackets:[1], extraPerWeek:30, commission:0.25 },
+        },
+        accom: {
+          "none": { name:"なし", low:0, peak:0 },
+          "apt-twin": { name:"Student Apartment Twin 相部屋バス 自炊", low:275, peak:350, placementFee:100 },
+          "apt-single": { name:"Student Apartment Single 専用バス 自炊", low:450, peak:600, placementFee:100 },
+          "apt-deluxe": { name:"Student Apartment Deluxe Single ensuite 自炊", low:750, peak:1200, placementFee:100 },
+          "res-twin": { name:"Student Residence Twin 相部屋バス 自炊", low:250, peak:275, placementFee:100 },
+          "res-single": { name:"Student Residence Single ensuite 自炊", low:425, peak:450, placementFee:100 },
+        },
+        airports: { "Dubai空港送迎（片道）":100, "Dubai空港送迎（往復）":175 }
+      },
+    }
+  },
+
+  // ══ EC Live 2026（EUR・オンライン）══
+  ec_live: {
+    name: "EC Live（オンライン）",
+    currency: "EUR",
+    campuses: {
+      "online": {
+        name: "EC Live オンライン英語", country: "Online", regFee: 35, peakSupp: 0,
+        materialsFee: { type:"fixed", fee:30 },
+        courses: {
+          "premium": { name:"EC Live Premium (週5日・7.5h+コラボ2.5h)", type:"group", prices:[115, 100, 85], brackets:[1, 12, 24], extraPerWeek:85, commission:0.25, note:"登録費€35・教材費€30(固定)。" },
+          "standard": { name:"EC Live Standard (週2日・3h・最低2週・火曜開始)", type:"group", prices:[55, 45, 35], brackets:[1, 12, 24], extraPerWeek:35, commission:0.25 },
+          "efw": { name:"EC Live English for Work (週2日・3h)", type:"group", prices:[80, 70, 60], brackets:[1, 12, 24], extraPerWeek:60, commission:0.25 },
+          "one2one": { name:"EC Live One-to-One (60分/回)", type:"1to1", pricePerHour:70, commission:0.25, note:"5回パック€60/h・10回パック€50/h" },
+          "futurelearn": { name:"EC x FutureLearn (最低4週)", type:"group", prices:[30], brackets:[1], extraPerWeek:30, commission:0.25 },
+        },
+        accom: { "none": { name:"なし（オンライン）", low:0, peak:0 } },
+        airports: {}
+      }
+    }
+  },
 };
 
 // 個人レッスン単価（1レッスンあたり、現地通貨）
@@ -1351,6 +2105,15 @@ const PRIVATE_LESSON_PRICES = {
   "greystone_canada": { "montreal": null, "toronto": null, "vancouver": null },
   "ilsc_junior_canada":    { "junior-canada": null },
   "ilsc_junior_australia": { "brisbane": null },
+  // ── EC English ──
+  "ec_usa":      { "boston":155, "newyork":155, "newyork30":155, "sanfrancisco":155, "sandiego":85, "losangeles":155 },
+  "ec_canada":   { "montreal":155, "toronto":155, "toronto30":155, "vancouver":155, "vancouver30":155 },
+  "ec_uk":       { "london":120, "london30":120, "cambridge":120, "brighton":120, "brighton30":120, "bristol":120, "manchester":120 },
+  "ec_dublin":   { "dublin":125, "dublin30":125 },
+  "ec_malta":    { "malta":95, "malta30":95 },
+  "ec_capetown": { "capetown":75, "capetown30":75 },
+  "ec_dubai":    { "dubai":75 },
+  "ec_live":     { "online":70 },
 };
 
 // ここに新しい学校を追加してください ↓
