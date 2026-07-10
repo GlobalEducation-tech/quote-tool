@@ -150,6 +150,15 @@ const SCHOOLS = {
           "biz-fulltime":      { name:"Business & Professional English Full-time (30h/week)",    type:"group", prices:[1430],         brackets:[1],      commission:0.25 },
           "biz-pt-am":         { name:"Business & Professional English Part-time AM (15h/week)", type:"group", prices:[885],          brackets:[1],      commission:0.25 },
           "biz-pt-pm":         { name:"Business & Professional English Part-time PM (15h/week)", type:"group", prices:[780],          brackets:[1],      commission:0.25 },
+          "biz-combination":   { name:"Business & Professional English Combination (グループ15h+個人15h/週・1-8週)", type:"group", prices:[2325], brackets:[1], extraPerWeek:2325, commission:0.25 },
+          "ge-combination":    { name:"General English Combination (グループ12h+個人15h/週)",     type:"group", prices:[1975], brackets:[1], extraPerWeek:1975, commission:0.25 },
+          "beginners-4wk":     { name:"General English for Beginners (Lv2-3・15h/週 午前・4週固定)", type:"group", prices:[2300], brackets:[1], fixedWeeks:4, commission:0.25, note:"総額£2,300。11/30開始回のみ3週£1,725。" },
+          "legal-20-30":       { name:"Legal English 20-30 (24h/週・4週固定)",                     type:"group", prices:[2860], brackets:[1], fixedWeeks:4, commission:0.25, note:"総額£2,860+TOLES試験料£156別途" },
+          "toles-adv":         { name:"TOLES Advanced Exam Preparation (24h/週・1週固定)",         type:"group", prices:[715], brackets:[1], fixedWeeks:1, commission:0.25, note:"+TOLES試験料£156別途" },
+          "fifty-plus":        { name:"English and Culture Programme for 50+ (午前12.5h+午後カルチャー・1-2週)", type:"group", prices:[975], brackets:[1], extraPerWeek:975, commission:0.25, note:"2週予約で週末アクティビティ込" },
+          "home-tuition-20":   { name:"Home Tuition (20h/週・講師宅ホームステイ3食込)",            type:"group", prices:[2100], brackets:[1], extraPerWeek:2100, commission:0.25, note:"講師との旅行・外出費は実費別途" },
+          "home-tuition-25":   { name:"Home Tuition (25h/週・講師宅ホームステイ3食込)",            type:"group", prices:[2510], brackets:[1], extraPerWeek:2510, commission:0.25 },
+          "young-adults":      { name:"Young Adults Summer Programme (15-18歳・大学寮/食事/送迎/保険込)", type:"grandline-fixed", priceTable:[0,0,4200,0,7400], commission:0.25, note:"2週£4,200/4週£7,400のパッケージ・固定開始日" },
           "legal-commercial":  { name:"Legal English Commercial Lawyers (30h/week)",             type:"group", prices:[1510],         brackets:[1],      commission:0.25 },
           "english-hr":        { name:"English for HR Professionals (30h/week)",                 type:"group", prices:[1510],         brackets:[1],      commission:0.25 },
           "english-banking":   { name:"English for Banking & Finance (30h/week)",                type:"group", prices:[1510],         brackets:[1],      commission:0.25 },
@@ -157,6 +166,7 @@ const SCHOOLS = {
           "1to1-faceto":       { name:"1:1 Face to Face (Holland Park Gardens)",                 type:"1to1",  pricePerHour:105,                        commission:0.25 },
           "2to1-faceto":       { name:"2:1 Face to Face (Holland Park Gardens)",                 type:"1to1",  pricePerHour:115,                        commission:0.25 },
           "1to1-online":       { name:"1:1 Online Lessons",                                      type:"1to1",  pricePerHour:75,                         commission:0.25 },
+          "2to1-online":       { name:"2:1 Online Lessons",                                      type:"1to1",  pricePerHour:95,                         commission:0.25 },
           "voice-online":      { name:"Voice & Accent Training (Online)",                        type:"1to1",  pricePerHour:100,                        commission:0.25 },
           "voice-faceto":      { name:"Voice & Accent Training (Face to Face)",                  type:"1to1",  pricePerHour:130,                        commission:0.25 },
         },
@@ -166,10 +176,11 @@ const SCHOOLS = {
           "homestay-silver-bb3d":{ name:"Homestay Silver・B&B + 3 evening meals",   low:305, peak:305, placementFee:80 },
           "homestay-gold-bb":    { name:"Homestay Gold (private bath)・B&B",         low:320, peak:320, placementFee:80 },
           "homestay-gold-bb3d":  { name:"Homestay Gold・B&B + 3 evening meals",     low:375, peak:375, placementFee:80 },
-          "vincent-std":         { name:"Vincent House Standard single",             low:448, peak:448, placementFee:80 },
+          "vincent-std":         { name:"Vincent House Standard single 朝食込（5-12週£539/13+週£518・2-4週は日割£80-100/日・8/31まで）", low:539, peak:539, placementFee:80 },
+          "paddington-citi":     { name:"Paddington Citi Bronze studio 自炊（8/30まで£550・朝食込／8/31以降£640・別途パック£100-150）", low:550, peak:550, placementFee:80 },
           "prince-consort":      { name:"Prince Consort Village Bronze studio",      low:455, peak:455, placementFee:80 },
         },
-        airports: { "Heathrow (arrival)":145, "Heathrow (departure)":135, "Gatwick (arrival)":210, "Gatwick (departure)":200, "Stansted (arrival)":225, "City (arrival)":150 }
+        airports: { "Heathrow (arrival)":145, "Heathrow (departure)":135, "Gatwick/Luton (arrival)":210, "Gatwick/Luton (departure)":200, "Stansted (arrival)":225, "City (arrival)":150, "St Pancras (arrival)":130, "St Pancras (departure)":120, "ランチ追加（週）":65, "保険（週）":7 }
       }
     }
   },
@@ -566,6 +577,10 @@ const SCHOOLS = {
       "philippines": {
         name: "フィリピン", country: "Philippines", regFee: 30000, peakSupp: 0,
         courses: {
+          "mission-1a-blakes":  { name:"ミッション実践型リーダーシップ研修 アシスタント1名 Blakes（1-14週）", type:"grandline-fixed", priceTable:[0,275000,550000,825000,1100000,1375000,1650000,1925000,2200000,2475000,2750000,3025000,3300000,3575000,3850000], commission:0.25, note:"専属外国人アシスタント付ミッション型研修。275,000円/週。語学研修との併用可。14週未満はコンテンツ選択可。" },
+          "mission-1a-air":     { name:"ミッション実践型リーダーシップ研修 アシスタント1名 Air（1-14週）",    type:"grandline-fixed", priceTable:[0,289000,578000,867000,1156000,1445000,1734000,2023000,2312000,2601000,2890000,3179000,3468000,3757000,4046000], commission:0.25 },
+          "mission-2a-blakes":  { name:"ミッション実践型リーダーシップ研修 アシスタント2名 Blakes（1-14週）", type:"grandline-fixed", priceTable:[0,425000,850000,1275000,1700000,2125000,2550000,2975000,3400000,3825000,4250000,4675000,5100000,5525000,5950000], commission:0.25 },
+          "mission-2a-air":     { name:"ミッション実践型リーダーシップ研修 アシスタント2名 Air（1-14週）",    type:"grandline-fixed", priceTable:[0,439000,878000,1317000,1756000,2195000,2634000,3073000,3512000,3951000,4390000,4829000,5268000,5707000,6146000], commission:0.25 },
           "light-breaks":      { name:"ライトプラン Breaks",              type:"grandline-fixed", priceTable:[0,57500,115000,172500,230000,287500,345000,402500,460000,517500,575000,632500,690000,747500,805000,862500,920000,977500,1035000,1092500,1150000,1207500,1265000,1322500,1380000], commission:0.25 },
           "standard-breaks":   { name:"スタンダード Breaks",             type:"grandline-fixed", priceTable:[0,80000,160000,240000,320000,400000,480000,560000,640000,720000,800000,880000,960000,1040000,1120000,1200000,1280000,1360000,1440000,1520000,1600000,1680000,1760000,1840000,1920000], commission:0.25 },
           "standard-breaks-air":{ name:"スタンダード Breaks Air",        type:"grandline-fixed", priceTable:[0,94000,188000,282000,376000,470000,564000,658000,752000,846000,940000,1034000,1128000,1222000,1316000,1410000,1504000,1598000,1692000,1786000,1880000,1974000,2068000,2162000,2256000], commission:0.25 },
