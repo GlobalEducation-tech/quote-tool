@@ -609,12 +609,20 @@ function renderSchoolSection(s, si) {
       }
     </div>
 
+    <!-- 目視確認チェック（保存に必須） -->
+    <div style="margin-bottom:12px;padding:10px 12px;background:${s.verified?'#e8f5e9':'#fff5f5'};border:1px solid ${s.verified?'#a5d6a7':'#f5c6c3'};border-radius:8px">
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;font-weight:500;color:${s.verified?'#166534':'#c0392b'}">
+        <input type="checkbox" ${s.verified?'checked':''} onchange="updateSectionVerified(${s.id},this.checked)" style="width:16px;height:16px;flex-shrink:0">
+        ${s.verified?'✅':'⚠️'} Price Listまたは学校ウェブサイトと目視で確認しました（チェックがないと見積書を保存できません）
+      </label>
+    </div>
+
     <!-- 上乗せ・コーディネーション・ビザ -->
     <div style="background:#f0f5ff;border-radius:8px;padding:12px;margin-bottom:12px">
       <div style="font-size:11px;font-weight:500;color:#3b5bdb;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">上乗せ・コーディネーション・ビザ</div>
       <div class="field-grid g4">
         <div class="field">
-          <label>プログラム上乗せ率（%）</label>
+          <label>プログラム/来年度上乗せ率（%）</label>
           <input type="number" value="${s.progMarkup||0}" min="0" max="100" oninput="updateSection(${s.id},'progMarkup',this.value)">
         </div>
         <div class="field">
@@ -717,15 +725,81 @@ function renderBsProgramBlock(b, i, sid) {
       </div>
       <div class="field"><label>価格確認日（公式ページで確認した日）</label><input type="date" value="${b.checked||""}" onchange="updateBsProgram(${b.id},'checked',this.value)"></div>
     </div>
+    <!-- 滞在費 -->
+    <div style="margin-top:12px;padding:10px 12px;background:#f8f6ff;border:0.5px solid #d9d2f0;border-radius:8px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:${(b.accoms||[]).length?8:0}px">
+        <span style="font-size:11px;font-weight:500;color:#5e4b8b;text-transform:uppercase;letter-spacing:0.05em">🏨 滞在費（任意）</span>
+        <button class="btn btn-sm" onclick="addBsAccom(${b.id})" style="font-size:11px;padding:3px 10px">＋ 滞在費を追加</button>
+      </div>
+      ${(b.accoms||[]).map((a,ai)=>{
+        const unitLbl={night:"泊",week:"週",month:"月"};
+        const up=parseFloat(a.unitPrice)||0, aq=parseFloat(a.qty)||0;
+        const amt=up*aq;
+        const isJ=a.mode==="jpy";
+        const sub=amt>0?(isJ?fmtJPY(amt):fmtC(amt,b.currency||"USD")):"—";
+        return `<div style="border-top:0.5px solid #e5e0f5;padding-top:8px;margin-top:8px">
+        <div class="field-grid g4">
+          <div class="field"><label>名称（例: ホテル、レジデンス）</label><input type="text" value="${esc(a.name)}" oninput="updateBsAccom(${b.id},${ai},'name',this.value)"></div>
+          <div class="field"><label>入力方法</label><select onchange="updateBsAccom(${b.id},${ai},'mode',this.value)">
+            <option value="local" ${!isJ?"selected":""}>原価（${b.currency||"USD"}）から計算</option>
+            <option value="jpy" ${isJ?"selected":""}>円で直接入力</option>
+          </select></div>
+          <div class="field"><label>単価（${isJ?"円":(b.currency||"USD")}／単位あたり）</label><input type="number" value="${a.unitPrice||""}" min="0" oninput="updateBsAccom(${b.id},${ai},'unitPrice',this.value)"></div>
+          <div class="field"><label>数量・単位</label>
+            <div style="display:flex;gap:6px">
+              <input type="number" value="${a.qty||""}" min="0" style="flex:1" oninput="updateBsAccom(${b.id},${ai},'qty',this.value)">
+              <select style="width:70px" onchange="updateBsAccom(${b.id},${ai},'unit',this.value)">
+                <option value="night" ${(a.unit||"night")==="night"?"selected":""}>泊</option>
+                <option value="week" ${a.unit==="week"?"selected":""}>週</option>
+                <option value="month" ${a.unit==="month"?"selected":""}>月</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
+          <button class="btn btn-sm btn-danger" onclick="removeBsAccom(${b.id},${ai})" style="font-size:11px;padding:3px 8px">滞在費を削除</button>
+          <span style="font-size:12px;color:#5e4b8b">小計: <b>${sub}</b>${amt>0?`（${up.toLocaleString()}/${unitLbl[a.unit||"night"]} × ${aq}${unitLbl[a.unit||"night"]}${isJ?"・円建て":""}）`:""}</span>
+        </div>
+      </div>`;}).join("")}
+    </div>
     <div class="subtotal-row"><span class="subtotal-label">小計</span><span class="subtotal-value" id="bs${b.id}-sub">${fee>0?fmtC(fee,b.currency||"USD"):"—"}</span></div>
   </div>`;
+}
+
+// ビジネススクール 滞在費 操作
+function _findBsProgram(bid) {
+  for (const s of schoolSections) {
+    const b = (s.bsPrograms||[]).find(x=>x.id===bid);
+    if (b) return b;
+  }
+  return null;
+}
+function addBsAccom(bid) {
+  const b = _findBsProgram(bid);
+  if (!b) return;
+  if (!b.accoms) b.accoms = [];
+  b.accoms.push({ name:"", mode:"local", unitPrice:"", qty:"", unit:"night" });
+  renderSchoolSections(); calcAll();
+}
+function removeBsAccom(bid, ai) {
+  const b = _findBsProgram(bid);
+  if (!b || !b.accoms) return;
+  b.accoms.splice(ai, 1);
+  renderSchoolSections(); calcAll();
+}
+function updateBsAccom(bid, ai, field, val) {
+  const b = _findBsProgram(bid);
+  if (!b || !b.accoms || !b.accoms[ai]) return;
+  b.accoms[ai][field] = val;
+  if (field==="mode"||field==="unit") renderSchoolSections();
+  calcAll();
 }
 
 function addBsProgramToSection(sid) {
   const s = schoolSections.find(x=>x.id===sid);
   if (!s) return;
   if (!s.bsPrograms) s.bsPrograms = [];
-  s.bsPrograms.push({ id:++bsIdx, name:"", currency:"USD", fee:"", start:"", end:"", commissionPct:0, url:"", checked:"" });
+  s.bsPrograms.push({ id:++bsIdx, name:"", currency:"USD", fee:"", start:"", end:"", commissionPct:0, url:"", checked:"", accoms:[] });
   renderSchoolSections(); calcAll();
 }
 function removeBsProgram(id) {
@@ -751,6 +825,7 @@ function updateBsProgram(id, field, val) {
 function updateSection(sid, field, val) {
   const s = schoolSections.find(x=>x.id===sid);
   if (!s) return;
+  if (field==="country"||field==="school"||field==="campus") { s.verified=false; } // 学校構成が変わったら再確認が必要
   if (field==="country") {
     s.country=val; s.school=""; s.campus="";
     // 各アイテムの国・学校もリセット
@@ -779,6 +854,14 @@ function updateSection(sid, field, val) {
     s[field] = parseFloat(val)||0;
   }
   renderSchoolSections(); calcAll();
+}
+
+// 目視確認チェック
+function updateSectionVerified(sid, checked) {
+  const s = schoolSections.find(x=>x.id===sid);
+  if (!s) return;
+  s.verified = !!checked;
+  renderSchoolSections();
 }
 
 // Price List URL 操作
@@ -1146,7 +1229,7 @@ function weeksOpts(selected) {
   return html;
 }
 
-function fmt(n) { return Math.round(Math.round(n)/10000)+"万円"; }
+function fmt(n) { return Math.ceil(Math.round(n)/10000)+"万円"; } // 万単位・繰り上げ（繰り下げなし）
 function fmtJPY(n) { return Math.round(n).toLocaleString("ja-JP")+"円"; }
 function fmtC(n, currency) {
   const syms={GBP:"£",CAD:"C$",USD:"$",EUR:"€",THB:"฿",NZD:"NZ$",SGD:"S$",AUD:"A$",CHF:"CHF ",JPY:"¥"};
@@ -1282,21 +1365,52 @@ function calcAll() {
       (s.bsPrograms||[]).forEach((p) => {
         const fee = parseFloat(p.fee)||0;
         const currency = p.currency||"USD";
+        const pname = p.name||"ビジネススクール プログラム";
+        const unitLbl = {night:"泊", week:"週", month:"月"};
+        // 滞在費（原価＝現地通貨 / 円建て）
+        let accomLocal = 0;
+        const accomLocalItems = [], accomJpyItems = [];
+        (p.accoms||[]).forEach(a => {
+          const up = parseFloat(a.unitPrice)||0, aq = parseFloat(a.qty)||0;
+          if (up<=0 || aq<=0) return;
+          const amt = up*aq;
+          const u = unitLbl[a.unit||"night"];
+          const nm = a.name||"滞在費";
+          if (a.mode==="jpy") {
+            accomJpyItems.push({ label:`滞在費（${pname}）: ${nm} ¥${up.toLocaleString("ja-JP")}/${u} × ${aq}${u}`, jpy:Math.round(amt), type:"bs-accom" });
+          } else {
+            accomLocal += amt;
+            accomLocalItems.push({ label:`${nm} ${fmtC(up,currency)}/${u} × ${aq}${u}`, local:amt, formula:`${up}*${aq}` });
+          }
+        });
         const el = document.getElementById("bs"+p.id+"-sub");
-        if (el) el.textContent = fee>0 ? fmtC(fee,currency) : "—";
-        if (fee<=0) return;
+        if (el) {
+          const localTotal = fee + accomLocal;
+          const jpyTotal = accomJpyItems.reduce((t,x)=>t+x.jpy,0);
+          el.textContent = (localTotal>0||jpyTotal>0)
+            ? `${localTotal>0?fmtC(localTotal,currency):""}${localTotal>0&&jpyTotal>0?" ＋ ":""}${jpyTotal>0?fmtJPY(jpyTotal)+"（円建て滞在費）":""}`
+            : "—";
+        }
+        // 円建て滞在費 → 円建て費用へ（粗利には含めない）
+        accomJpyItems.forEach(x=>allJpyAddons.push(x));
+        if (fee<=0 && accomLocal<=0) return;
         const w = (p.start&&p.end) ? calcWeeks(p.start,p.end) : null;
         const key = "__bschool_"+p.id+"__";
-        const pname = p.name||"ビジネススクール プログラム";
         schoolGroups[key] = { label:pname, yrLabel:"", currency, totalLocal:0, commissionLocal:0, items:[] };
         const grp = schoolGroups[key];
-        const lines = [{ label:`プログラム費（総額${w?`・${p.start}〜${p.end}・${w.total}週`:""}）`, local:fee }];
         let secLabel = `ビジネススクール: ${pname}`;
         if (p.url) secLabel += `｜出典: ${p.url}`;
         if (p.checked) secLabel += `（価格確認日: ${p.checked}）`;
-        grp.items.push({ section:secLabel, lines, subtotal:fee });
-        grp.totalLocal += fee;
-        grp.commissionLocal += fee * ((parseFloat(p.commissionPct)||0)/100);
+        if (fee>0) {
+          const lines = [{ label:`プログラム費（総額${w?`・${p.start}〜${p.end}・${w.total}週`:""}）`, local:fee }];
+          grp.items.push({ section:secLabel, lines, subtotal:fee });
+          grp.totalLocal += fee;
+          grp.commissionLocal += fee * ((parseFloat(p.commissionPct)||0)/100);
+        }
+        if (accomLocal>0) {
+          grp.items.push({ section:`滞在費: ${pname}`, lines:accomLocalItems, subtotal:accomLocal });
+          grp.totalLocal += accomLocal;
+        }
       });
     }
 
@@ -1511,7 +1625,7 @@ function calcAll() {
     html+=`<div class="section-divider">${l.label}</div>`;
     html+=`<div class="breakdown-line"><span>原価合計 (${l.currency})</span><span class="bv">${fmtC(l.local,l.currency)}</span></div>`;
     html+=`<div class="breakdown-line"><span>× TTS ${l.tts} → 実効レート ${l.effectiveFX.toFixed(2)}（TTS+${l.ttsMarkupPct||0}%）</span><span class="bv">${fmt(l.costJPY+l.ttsGainJPY)}</span></div>`;
-    if((l.progMarkupPct||0)>0)html+=`<div class="breakdown-line"><span>プログラム上乗せ +${l.progMarkupPct}%</span><span class="bv">${fmt(l.progGainJPY)}</span></div>`;
+    if((l.progMarkupPct||0)>0)html+=`<div class="breakdown-line"><span>プログラム/来年度上乗せ +${l.progMarkupPct}%</span><span class="bv">${fmt(l.progGainJPY)}</span></div>`;
     html+=`<div class="breakdown-line" style="font-weight:500"><span>→ 海外プログラム費用</span><span class="bv">${fmt(l.jpy)}</span></div>`;
     l.items.forEach(item=>{html+=`<div style="margin:6px 0 2px;font-size:11px;color:#999;text-transform:uppercase;">${item.section}</div>`;item.lines.forEach(ln=>{html+=`<div class="breakdown-line" style="padding-left:8px"><span>${ln.label}</span><span class="bv">${fmtC(ln.local,l.currency)}</span></div>`;});});
   });
@@ -1621,7 +1735,7 @@ function exportPDF() {
       html += `<div style="margin-bottom:6px">
         <div style="font-weight:600;color:#333;margin-bottom:2px">${l.label}</div>
         <div style="padding-left:8px">原価 ${fmtC(l.local,l.currency)} × TTS ${l.tts} → 実効レート ${(l.effectiveFX||l.tts).toFixed(2)} = ${fmt(l.costJPY+l.ttsGainJPY)}</div>
-        ${(l.progGainJPY||0)>0?`<div style="padding-left:8px">プログラム上乗せ +${l.progMarkupPct}% = ${fmt(l.progGainJPY)}</div>`:""}
+        ${(l.progGainJPY||0)>0?`<div style="padding-left:8px">プログラム/来年度上乗せ +${l.progMarkupPct}% = ${fmt(l.progGainJPY)}</div>`:""}
       </div>`;
     });
     html += `</div></div>`;
@@ -1736,6 +1850,21 @@ function migrateOldData() {
 
 function saveQuote() {
   syncTabSections();
+  // 目視確認チェック：未確認の学校があれば保存不可
+  const unverified = [];
+  tabs.forEach(t => {
+    (t.schoolSections||[]).forEach((s, si) => {
+      const hasContent = s.school || (s.bsPrograms||[]).length>0 || (s.courses||[]).some(c=>c.course) || (s.accoms||[]).some(a=>a.accom);
+      if (hasContent && !s.verified) {
+        const nm = s.school==="bschool" ? "ビジネススクール（手入力）" : (SCHOOLS[s.school]?.name || `学校 ${si+1}`);
+        unverified.push(`　・${getTabName(t)}：${nm}`);
+      }
+    });
+  });
+  if (unverified.length > 0) {
+    alert(`⚠️ 保存できません。\n\n以下の学校について「Price Listまたはウェブサイトと目視で確認しました」のチェックが入っていません：\n\n${unverified.join("\n")}\n\n価格を目視で照合のうえ、各学校セクションのチェックボックスをオンにしてから保存してください。`);
+    return;
+  }
   const client = document.getElementById("client-name").value || "（未設定）";
   const project = document.getElementById("project-name").value || "（未設定）";
   const date = document.getElementById("quote-date").value || new Date().toISOString().split("T")[0];
@@ -1871,6 +2000,7 @@ function exportCurrentExcel() {
     total:t.result.total, grossProfit:t.result.grossProfit,
     totalCommJPY:t.result.totalCommJPY||0, progMarkupPct:t.result.progMarkupPct||0,
     ttsMarkupPct:t.result.ttsMarkupPct||0, jpyAddons:t.result.jpyAddons||[],
+    links:_collectLinks(t.schoolSections),
   }));
   if (targets.length===0) { alert("先に計算してください"); return; }
   _exportToExcel(targets, `GETC_見積_${client}_${date}`);
@@ -1889,7 +2019,8 @@ function exportProjectExcel(id) {
       totalCommJPY:t.result.totalCommJPY||0,
       totalTTSMarkupJPY:t.result.totalTTSMarkupJPY||0,
       totalProgMarkupJPY:t.result.totalProgMarkupJPY||0,
-      jpyAddons:t.result.jpyAddons||[] });
+      jpyAddons:t.result.jpyAddons||[],
+      links:_collectLinks(t.schoolSections) });
   });
   if (targets.length===0) { alert("この案件に計算済みの見積がありません"); return; }
   _exportToExcel(targets, `GETC_見積_${p.client}_${p.project}`);
@@ -1906,7 +2037,8 @@ function exportExcel() {
         tabName:t.name||"案", freeeLines:t.result.freeeLines||[],
         coord:t.result.coord||0, visa:t.result.visa||0,
         total:t.result.total||0, grossProfit:t.result.grossProfit||0,
-        jpyAddons:t.result.jpyAddons||[] });
+        jpyAddons:t.result.jpyAddons||[],
+        links:_collectLinks(t.schoolSections) });
     });
   });
   if (targets.length===0) { alert("計算済みの案件がありません"); return; }
@@ -1930,18 +2062,46 @@ function _lineFormula(ln) {
   return null;
 }
 
+// 学校セクションから全リンク（Price List URL・BS出典URL）を収集
+function _collectLinks(sections) {
+  const links = [];
+  (sections||[]).forEach((s, si) => {
+    const nm = s.school==="bschool" ? "ビジネススクール（手入力）" : (SCHOOLS[s.school]?.name || `学校 ${si+1}`);
+    (s.priceListUrls||[]).forEach(u => {
+      if (u && u.trim()) links.push({ label:`${nm}｜Price List`, url:u.trim() });
+    });
+    (s.bsPrograms||[]).forEach(p => {
+      if (p.url && p.url.trim()) links.push({ label:`${p.name||"ビジネススクール プログラム"}｜出典${p.checked?`（価格確認日: ${p.checked}）`:""}`, url:p.url.trim() });
+    });
+  });
+  return links;
+}
+
 function _exportToExcel(targets, filename) {
-  // SheetJS で .xlsx を生成。列構成: A項目 / B外貨金額 / C通貨 / D計算レート / E円換算
-  // 外貨金額は 単価×週数 の数式、円換算は =ROUND(B行*D行,0) のセル参照数式。
+  // SheetJS で .xlsx を生成。列構成: A項目 / B外貨金額 / C通貨 / D計算レート / E円換算 / F円換算(万円・繰上げ)
+  // 外貨金額は 単価×週数 の数式、円換算は =ROUND(B行*D行,0)、万円は =ROUNDUP(E行/10000,0)。
   const rows = [];
   const formulas = [];          // {r, c, f}
+  const hyperlinks = [];        // {r, c, url}
   const push = (arr) => { rows.push(arr); return rows.length; };
+  const manCeil = n => Math.ceil(Math.round(n)/10000); // 万単位・繰り上げ
+  const addManF = (r, val) => { rows[r-1][5] = manCeil(val); formulas.push({ r:r-1, c:5, f:`ROUNDUP(E${r}/10000,0)` }); };
 
   targets.forEach((q, qi) => {
     if (qi > 0) { push([]); push([]); }
 
     push([`■ 見積書　${q.client}　${q.project}${q.tabName?`　[${q.tabName}]`:""}　${q.date}`]);
     push([]);
+
+    // 参照リンク（Price List / 出典URL）— クリックで開けるハイパーリンク
+    if (q.links && q.links.length > 0) {
+      push(["▼ 参照リンク（Price List / 出典URL）※クリックで開けます"]);
+      q.links.forEach(lk => {
+        const r = push([`　${lk.label}`, lk.url]);
+        hyperlinks.push({ r:r-1, c:1, url:lk.url });
+      });
+      push([]);
+    }
 
     const subtotalRefs = [];
     const jpyRefs = [];
@@ -1956,8 +2116,8 @@ function _exportToExcel(targets, filename) {
       const lProgPct = l.progMarkupPct ?? 0;
 
       push([`▼ ${l.label}`]);
-      push([`　TTS ${tts}　TTS上乗せ: ${lTtsPct}%　プログラム上乗せ: ${lProgPct}%　→ 計算レート: ${Math.round(effRate*100)/100}`]);
-      push(["　項目", "外貨金額", "通貨", `計算レート(TTS+${lTtsPct}%)`, "円換算"]);
+      push([`　TTS ${tts}　TTS上乗せ: ${lTtsPct}%　プログラム/来年度上乗せ: ${lProgPct}%　→ 計算レート: ${Math.round(effRate*100)/100}`]);
+      push(["　項目", "外貨金額", "通貨", `計算レート(TTS+${lTtsPct}%)`, "円換算", "円換算(万円・繰上げ)"]);
 
       const detailRows = [];
       l.items && l.items.forEach(item => {
@@ -1978,15 +2138,18 @@ function _exportToExcel(targets, filename) {
           detailRows.push(r);
           if (lf) formulas.push({ r: r-1, c: 1, f: lf });                 // 外貨金額 = 単価×週数
           formulas.push({ r: r-1, c: 4, f: `ROUND(B${r}*D${r},0)` });      // 円換算 = 外貨×計算レート
+          addManF(r, localAmt * effRate);                                   // 万円（繰り上げ）
         });
       });
 
       let progRow = null;
       if (l.ttsGainJPY > 0) {
-        push([`　TTS上乗せ差益 (+${lTtsPct}%)　※明細の計算レートに含まれるため小計には加算しない`, "", "", "", Math.round(l.ttsGainJPY)]);
+        const tgr = push([`　TTS上乗せ差益 (+${lTtsPct}%)　※明細の計算レートに含まれるため小計には加算しない`, "", "", "", Math.round(l.ttsGainJPY)]);
+        addManF(tgr, l.ttsGainJPY);
       }
       if (l.progGainJPY > 0) {
-        progRow = push([`　プログラム上乗せ (+${lProgPct}%)`, "", "", "", Math.round(l.progGainJPY)]);
+        progRow = push([`　プログラム/来年度上乗せ (+${lProgPct}%)`, "", "", "", Math.round(l.progGainJPY)]);
+        addManF(progRow, l.progGainJPY);
       }
 
       const sumArgs = detailRows.map(r => `E${r}`);
@@ -1995,6 +2158,7 @@ function _exportToExcel(targets, filename) {
       const sr = push([`　▶ ${l.label} 小計`, Math.round(l.local*100)/100, cur, Math.round(effRate*100)/100, Math.round(l.jpy)]);
       if (localArgs.length) formulas.push({ r: sr-1, c: 1, f: `SUM(${localArgs.join(",")})` });
       if (sumArgs.length)   formulas.push({ r: sr-1, c: 4, f: `SUM(${sumArgs.join(",")})` });
+      addManF(sr, l.jpy);
       subtotalRefs.push(`E${sr}`);
       push([]);
     });
@@ -2006,8 +2170,8 @@ function _exportToExcel(targets, filename) {
     q.jpyAddons && q.jpyAddons.forEach(a => { jpyLines.push([a.label, "", "JPY", 1, a.jpy]); });
     if (jpyLines.length > 0) {
       push(["▼ 円建て費用"]);
-      push(["　項目", "", "通貨", "", "金額（円）"]);
-      jpyLines.forEach(r => { const rn = push(r); jpyRefs.push(`E${rn}`); });
+      push(["　項目", "", "通貨", "", "金額（円）", "金額（万円・繰上げ）"]);
+      jpyLines.forEach(r => { const rn = push(r); jpyRefs.push(`E${rn}`); addManF(rn, r[4]); });
       push([]);
     }
 
@@ -2015,15 +2179,20 @@ function _exportToExcel(targets, filename) {
     const totalArgs = [...subtotalRefs, ...jpyRefs];
     const tr = push(["★ 見積合計", "", "", "", Math.round(q.total)]);
     if (totalArgs.length) formulas.push({ r: tr-1, c: 4, f: `SUM(${totalArgs.join(",")})` });
+    addManF(tr, q.total);
     const cr = push(["　うちコミッション（授業料×コミッション率）", "", "", "", Math.round(q.totalCommJPY||0)]);
+    addManF(cr, q.totalCommJPY||0);
     const mr = push(["　うちTTS上乗せ差益", "", "", "", Math.round(q.totalTTSMarkupJPY||0)]);
-    const pr = push(["　うちプログラム上乗せ益", "", "", "", Math.round(q.totalProgMarkupJPY||0)]);
+    addManF(mr, q.totalTTSMarkupJPY||0);
+    const pr = push(["　うちプログラム/来年度上乗せ益", "", "", "", Math.round(q.totalProgMarkupJPY||0)]);
+    addManF(pr, q.totalProgMarkupJPY||0);
     let cdr = null;
-    if ((q.coord||0) > 0) cdr = push(["　うちコーディネーション", "", "", "", q.coord]);
+    if ((q.coord||0) > 0) { cdr = push(["　うちコーディネーション", "", "", "", q.coord]); addManF(cdr, q.coord); }
     const gr = push(["★ 粗利合計", "", "", "", Math.round(q.grossProfit)]);
     const gpArgs = [`E${cr}`,`E${mr}`,`E${pr}`]; if (cdr) gpArgs.push(`E${cdr}`);
     const gpSum = Math.round(q.totalCommJPY||0)+Math.round(q.totalTTSMarkupJPY||0)+Math.round(q.totalProgMarkupJPY||0)+(cdr?(q.coord||0):0);
     if (Math.abs(gpSum-Math.round(q.grossProfit))<=2) formulas.push({ r: gr-1, c: 4, f: `SUM(${gpArgs.join(",")})` });
+    addManF(gr, q.grossProfit);
     push([]);
   });
 
@@ -2033,7 +2202,13 @@ function _exportToExcel(targets, filename) {
     if (!ws[addr]) ws[addr] = { t:"n", v:0 };
     ws[addr].f = f;
   });
-  ws["!cols"] = [{wch:64},{wch:12},{wch:6},{wch:16},{wch:16}];
+  // ハイパーリンク（クリックでPrice List・出典ページへ）
+  hyperlinks.forEach(({r,c,url}) => {
+    const addr = XLSX.utils.encode_cell({ r, c });
+    if (!ws[addr]) ws[addr] = { t:"s", v:url };
+    ws[addr].l = { Target: url, Tooltip: url };
+  });
+  ws["!cols"] = [{wch:64},{wch:12},{wch:6},{wch:16},{wch:16},{wch:18}];
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "見積");
   XLSX.writeFile(wb, `${filename}.xlsx`);
