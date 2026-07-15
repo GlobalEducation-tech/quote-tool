@@ -1017,6 +1017,8 @@ function renderCourseBlock(b, i, sid) {
   if(b.school&&b.campus){const yrLabel=getPriceYearLabel(b.school,b.campus,b.start);const isW=yrLabel.includes("⚠️");info+=`<span class="info-badge" style="background:${isW?"#fff3cd":"#e8f4fd"};color:${isW?"#856404":"#1565c0"}">📋 ${yrLabel}</span>`;}
   if(w){info+=`<span class="info-badge weeks">${w.total}週間</span>`;if(w.peak>0)info+=`<span class="info-badge peak">ハイシーズン ${w.peak}週</span>`;}
   const currency=b.school?getSchoolCurrency(b.school):"GBP";
+  const _selCourse=cd&&b.course?cd.courses[b.course]:null;
+  if(_selCourse?.note){info+=`<span class="info-badge" style="background:#fff8e1;color:#795548">📝 ${_selCourse.note}</span>`;}
   const courseType=cd&&b.course?cd.courses[b.course]?.type:"";
   const is1to1=courseType==="1to1",isWse1to1=courseType==="wse-1to1";
   const hoursField=is1to1?`<div class="field"><label>時間数/週</label><input type="number" value="${b.hours||20}" min="5" max="40" oninput="updateCourse(${b.id},'hours',this.value)"></div>`:isWse1to1?`<div class="field"><label>レッスン数/週</label><input type="number" value="${b.lessons||10}" min="1" max="21" oninput="updateCourse(${b.id},'lessons',this.value)"></div>`:"";
@@ -1031,7 +1033,7 @@ function renderCourseBlock(b, i, sid) {
     <div class="field-grid g2">
       <div class="field"><label>コース</label><select onchange="updateCourse(${b.id},'course',this.value)">${courseOpts}</select></div>
       <div class="field"><label>登録費</label><select onchange="updateCourse(${b.id},'regFee',this.value)">
-        <option value="auto" ${!b.regFee||b.regFee==="auto"?"selected":""}>自動（${cd?.regFee||85}）</option>
+        <option value="auto" ${!b.regFee||b.regFee==="auto"?"selected":""}>自動（${_selCourse&&_selCourse.regFee!==undefined?_selCourse.regFee:(cd?.regFee||85)}）</option>
         <option value="0" ${b.regFee==="0"?"selected":""}>なし</option>
       </select></div>
     </div>
@@ -1263,7 +1265,7 @@ function renderAddonBlock(b, i, sid) {
   const s = schoolSections.find(x=>x.id===sid);
   const hasGrandline = s && s.school === "grandline";
   const typeBase = ["transfer","materials","exam","action-learning","nyu-sps","ama-3day","ama-5day","jpy-other","other"];
-  const typeGrandline = hasGrandline ? ["gl-fieldwork","gl-dinner","gl-lunch","gl-speaking","gl-lesson","gl-night"] : [];
+  const typeGrandline = hasGrandline ? ["gl-fieldwork","gl-dinner","gl-lunch","gl-speaking","gl-lesson","gl-night","gl-arrange","gl-meal-breaks","gl-meal-air"] : [];
   const typeLabels = {
     transfer:"空港送迎", materials:"教材費", exam:"試験料",
     "action-learning":"アクションラーニングプロジェクト（¥150,000）",
@@ -1271,12 +1273,15 @@ function renderAddonBlock(b, i, sid) {
     "ama-3day": "AMA 3 Day（$3,200）",
     "ama-5day": "AMA 5 Day（$4,400）",
     "jpy-other":"その他（円建て）", other:"その他（外貨建て）",
-    "gl-fieldwork":"GL フィールドワーク（¥18,000/回）",
-    "gl-dinner":"GL ディナーセッション（¥15,000/回）",
-    "gl-lunch":"GL ランチセッション（¥15,000/回）",
-    "gl-speaking":"GL パブリックスピーキング（¥12,000/回）",
+    "gl-fieldwork":"GL リアルミーティング（¥18,000/回）",
+    "gl-dinner":"GL ディナーセッション（¥15,000/回）※2026年版価格表に記載なし・要確認",
+    "gl-lunch":"GL ランチセッション（¥15,000/回）※2026年版価格表に記載なし・要確認",
+    "gl-speaking":"GL パブリックスピーキング（¥15,000/回）",
     "gl-lesson":"GL 追加レッスン（¥3,000/時間）",
     "gl-night":"GL 延泊（¥7,000/日）",
+    "gl-arrange":"GL 現地手配料（¥50,000・入学金/初回SSP/卒業パーティ含む）",
+    "gl-meal-breaks":"GL 食費 Breaks（¥5,000/日）",
+    "gl-meal-air":"GL 食費 Air（¥7,000/日）",
   };
   const typeOpts = [...typeBase,...typeGrandline].map(t=>`<option value="${t}" ${b.type===t?"selected":""}>${typeLabels[t]}</option>`).join("");
   let extraHtml="";
@@ -1309,9 +1314,9 @@ function renderAddonBlock(b, i, sid) {
     extraHtml=`<div class="field-grid g2">
       <div class="field"><label>説明</label><input type="text" id="addon-desc-${b.id}" value="${(b.desc||'').replace(/"/g,'&quot;')}" placeholder="例：上乗せ、サポート費など" onchange="updateAddon(${b.id},'desc',this.value)"></div>
       <div class="field"><label>金額（円）</label><input type="number" value="${b.amountJPY||''}" min="0" placeholder="0" oninput="updateAddon(${b.id},'amountJPY',this.value)"></div></div>`;
-  } else if (["gl-fieldwork","gl-dinner","gl-lunch","gl-speaking","gl-lesson","gl-night"].includes(b.type)) {
-    const glUnitLabels={"gl-fieldwork":"回","gl-dinner":"回","gl-lunch":"回","gl-speaking":"回","gl-lesson":"時間","gl-night":"泊"};
-    const glPriceMap={"gl-fieldwork":18000,"gl-dinner":15000,"gl-lunch":15000,"gl-speaking":12000,"gl-lesson":3000,"gl-night":7000};
+  } else if (["gl-fieldwork","gl-dinner","gl-lunch","gl-speaking","gl-lesson","gl-night","gl-arrange","gl-meal-breaks","gl-meal-air"].includes(b.type)) {
+    const glUnitLabels={"gl-fieldwork":"回","gl-dinner":"回","gl-lunch":"回","gl-speaking":"回","gl-lesson":"時間","gl-night":"泊","gl-arrange":"回","gl-meal-breaks":"日","gl-meal-air":"日"};
+    const glPriceMap={"gl-fieldwork":18000,"gl-dinner":15000,"gl-lunch":15000,"gl-speaking":15000,"gl-lesson":3000,"gl-night":7000,"gl-arrange":50000,"gl-meal-breaks":5000,"gl-meal-air":7000};
     extraHtml=`<div class="field-grid g2">
       <div class="field"><label>単価</label><input type="text" value="¥${glPriceMap[b.type].toLocaleString()} / ${glUnitLabels[b.type]}" readonly style="background:#f5f5f3;color:#888"></div>
       <div class="field"><label>小計</label><input type="text" value="¥${(glPriceMap[b.type]*(parseFloat(b.qty)||1)).toLocaleString()}" readonly style="background:#f5f5f3;color:#888"></div></div>`;
@@ -1423,18 +1428,21 @@ function calcAll() {
       const w=b.start&&b.end?calcWeeks(b.start,b.end):null;
       const weeks=w?w.total:0;
       const peakWeeks=w?w.peak:0;
-      const useRegFee=b.regFee==="0"?0:(cd.regFee||85);
+      const useRegFee=b.regFee==="0"?0:(course.regFee!==undefined?course.regFee:(cd.regFee||85));
       let subLocal=0, commLocal=0;
       let subItems=[];
       if (course.type==="grandline-fixed") {
         const t=(course.priceTable&&course.priceTable[weeks])||(weeks*(course.priceTable?.[1]||0));
         subLocal+=t; commLocal+=t*course.commission;
         subItems.push({label:`${course.name}（${weeks}週）`,local:t});
+        // 2026年版価格表: SSP ¥30,000/24週ごと・ACR-I ¥30,000(60日以上)・ビザ延長 ¥30,000/30日ごと
         const sspCount=Math.floor(weeks/24);
-        if(sspCount>0){const ssp=sspCount*20000;subLocal+=ssp;subItems.push({label:`SSP費用 ¥20,000 × ${sspCount}回`,local:ssp,formula:`20000*${sspCount}`});}
-        if(weeks>=9){subLocal+=20000;subItems.push({label:`ACR-I ¥20,000（60日以上）`,local:20000});}
-        const vext=Math.floor(weeks/8.57)-1;
-        if(vext>0){const va=vext*20000;subLocal+=va;subItems.push({label:`ビザ延長 ¥20,000 × ${vext}回`,local:va,formula:`20000*${vext}`});}
+        if(sspCount>0){const ssp=sspCount*30000;subLocal+=ssp;subItems.push({label:`SSP費用 ¥30,000 × ${sspCount}回`,local:ssp,formula:`30000*${sspCount}`});}
+        if(weeks>=9){subLocal+=30000;subItems.push({label:`ACR-I ¥30,000（60日以上）`,local:30000});}
+        const vext=Math.max(0,Math.ceil((weeks*7-30)/30));
+        if(vext>0){const va=vext*30000;subLocal+=va;subItems.push({label:`ビザ延長 ¥30,000 × ${vext}回（30日ごと）`,local:va,formula:`30000*${vext}`});}
+      } else if(course.type==="fixed"){
+        const t=course.fixedPrice||0;subLocal+=t;commLocal+=t*course.commission;subItems.push({label:`${course.name}（固定料金）`,local:t});
       } else if(course.type==="rennert-fixed"){
         const t=course.fixedPrice;subLocal+=t;commLocal+=t*course.commission;subItems.push({label:`プライベートレッスン（パッケージ）`,local:t});
       } else if(course.type==="nese"){
@@ -1475,20 +1483,25 @@ function calcAll() {
       if(b.school==="manhattan"){subLocal+=75;subItems.push({label:`マテリアルフィー`,local:75});}
       if(b.school==="rennert"&&course.type!=="rennert-fixed"){subLocal+=69;subItems.push({label:`スタディマテリアル`,local:69});}
 
-      // 教材費の自動計算（school_data.jsのmaterialsFeeを使用）
-      if (cd.materialsFee && course.type!=="1to1" && course.type!=="wse-1to1") {
-        const mf = cd.materialsFee;
-        let matAmt = 0;
+      // 教材費の自動計算（コース側のmaterialsFeeがあれば優先、なければキャンパス側）
+      const _mfSrc = course.materialsFee || cd.materialsFee;
+      if (_mfSrc && course.type!=="1to1" && course.type!=="wse-1to1") {
+        const mf = _mfSrc;
+        let matAmt = 0, matFormula = null;
         if (mf.type === "fixed") {
           matAmt = mf.fee;
         } else if (mf.type === "bracket") {
           for (const br of mf.brackets) {
             if (weeks <= br.maxWeeks) { matAmt = br.fee; break; }
           }
+        } else if (mf.type === "perWeek") {
+          matAmt = mf.fee * weeks;
+          if (mf.cap) matAmt = Math.min(matAmt, mf.cap);
+          if (!mf.cap || matAmt < mf.cap) matFormula = `${mf.fee}*${weeks}`;
         }
         if (matAmt > 0) {
           subLocal += matAmt;
-          subItems.push({ label:`教材費（自動）`, local:matAmt });
+          subItems.push({ label:`教材費（自動）`, local:matAmt, ...(matFormula?{formula:matFormula}:{}) });
         }
       }
       const grp=getGroup(b.school,b.campus,b.start);
@@ -1548,8 +1561,8 @@ function calcAll() {
     s.addons.forEach((b, i) => {
       let subLocal=0,currency=getSchoolCurrency(s.school)||"GBP";let subItems=[];
       const qty=parseFloat(b.qty||1);
-      const glPrices={"gl-fieldwork":18000,"gl-dinner":15000,"gl-lunch":15000,"gl-speaking":12000,"gl-lesson":3000,"gl-night":7000};
-      const glLabels={"gl-fieldwork":"フィールドワーク","gl-dinner":"ディナーセッション","gl-lunch":"ランチセッション","gl-speaking":"パブリックスピーキング","gl-lesson":"追加レッスン","gl-night":"延泊"};
+      const glPrices={"gl-fieldwork":18000,"gl-dinner":15000,"gl-lunch":15000,"gl-speaking":15000,"gl-lesson":3000,"gl-night":7000,"gl-arrange":50000,"gl-meal-breaks":5000,"gl-meal-air":7000};
+      const glLabels={"gl-fieldwork":"リアルミーティング","gl-dinner":"ディナーセッション","gl-lunch":"ランチセッション","gl-speaking":"パブリックスピーキング","gl-lesson":"追加レッスン","gl-night":"延泊","gl-arrange":"現地手配料","gl-meal-breaks":"食費 Breaks","gl-meal-air":"食費 Air"};
       if(b.type==="action-learning"){const amtJPY=150000*qty;const el=document.getElementById("d"+b.id+"-sub");if(el)el.textContent=fmtJPY(amtJPY);b._jpyTotal=amtJPY;b._label=`アクションラーニングプロジェクト × ${qty}`;allJpyAddons.push({label:b._label,jpy:amtJPY,type:b.type});return;}
 
       // NYU SPS・AMA（USD建て・上乗せ可）
