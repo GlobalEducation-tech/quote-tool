@@ -589,6 +589,32 @@ const SCHOOLS = {
         },
         accom: { "none": { name:"宿泊込み（上記価格に含む）", low:0, peak:0 } },
         airports: {}
+      },
+      "online": {
+        name: "オンライン研修", country: "Online", regFee: 0, peakSupp: 0,
+        courses: {
+          "reg-10":  { name:"レギュラープログラム 10回",  type:"fixed", fixedPrice:15840,  commission:0.25, note:"2026年版価格表。取次手数料率25%" },
+          "reg-20":  { name:"レギュラープログラム 20回",  type:"fixed", fixedPrice:31680,  commission:0.25 },
+          "reg-30":  { name:"レギュラープログラム 30回",  type:"fixed", fixedPrice:39600,  commission:0.25 },
+          "reg-40":  { name:"レギュラープログラム 40回",  type:"fixed", fixedPrice:52800,  commission:0.25 },
+          "reg-50":  { name:"レギュラープログラム 50回",  type:"fixed", fixedPrice:66000,  commission:0.25 },
+          "reg-60":  { name:"レギュラープログラム 60回",  type:"fixed", fixedPrice:75240,  commission:0.25 },
+          "per-15":  { name:"パーソナライズドプログラム 15回",  type:"fixed", fixedPrice:56100,  commission:0.25 },
+          "per-20":  { name:"パーソナライズドプログラム 20回",  type:"fixed", fixedPrice:69300,  commission:0.25 },
+          "per-30":  { name:"パーソナライズドプログラム 30回",  type:"fixed", fixedPrice:105600, commission:0.25 },
+          "per-40":  { name:"パーソナライズドプログラム 40回",  type:"fixed", fixedPrice:138600, commission:0.25 },
+          "per-45":  { name:"パーソナライズドプログラム 45回",  type:"fixed", fixedPrice:141570, commission:0.25 },
+          "per-60":  { name:"パーソナライズドプログラム 60回",  type:"fixed", fixedPrice:173250, commission:0.25 },
+          "per-80":  { name:"パーソナライズドプログラム 80回",  type:"fixed", fixedPrice:221760, commission:0.25 },
+          "per-90":  { name:"パーソナライズドプログラム 90回",  type:"fixed", fixedPrice:246840, commission:0.25 },
+          "per-100": { name:"パーソナライズドプログラム 100回", type:"fixed", fixedPrice:256410, commission:0.25 },
+          "per-120": { name:"パーソナライズドプログラム 120回", type:"fixed", fixedPrice:277200, commission:0.25 },
+          "per-180": { name:"パーソナライズドプログラム 180回", type:"fixed", fixedPrice:392040, commission:0.25 },
+          "per-240": { name:"パーソナライズドプログラム 240回", type:"fixed", fixedPrice:510840, commission:0.25 },
+          "per-360": { name:"パーソナライズドプログラム 360回", type:"fixed", fixedPrice:748440, commission:0.25 },
+        },
+        accom: { "none": { name:"なし（オンライン）", low:0, peak:0 } },
+        airports: {}
       }
     }
   },
@@ -2087,6 +2113,189 @@ const SCHOOLS = {
       }
     }
   },
+  // ── SSLC Language College (Canada) ── 2026 Fee Information (Updated Nov 26, 2025)
+  sslc: {
+    name: "SSLC Language College",
+    currency: "CAD",
+    campuses: {
+      "vancouver": {
+        name: "Vancouver", country: "Canada", regFee: 180, peakSupp: 0,
+        // 教材費（15-25h/週コース共通スケール）。36週超は+$10/週（手動調整要）
+        materialsFee: { type:"bracket", brackets:[{maxWeeks:4,fee:120},{maxWeeks:11,fee:180},{maxWeeks:19,fee:290},{maxWeeks:27,fee:410},{maxWeeks:999,fee:490}] },
+        courses: {
+          "esl25": { name:"ESL 25h/週", type:"group", prices:[430,420,395], brackets:[1,12,24], extraPerWeek:395, commission:0.25, note:"2026年版・※コミッション率要確認・毎週月曜開始。手動追加費用: 医療保険$3/日・特別食$10/日・個室バス$80/週・TOEIC IP $90・Pathway申請$380・2人目家族登録$80/手配$160・Custodian Letter要問合せ" },
+          "esl20": { name:"ESL 20h/週", type:"group", prices:[385,375,350], brackets:[1,12,24], extraPerWeek:350, commission:0.25 },
+          "esl15": { name:"ESL 15h/週", type:"group", prices:[320,300,280], brackets:[1,12,24], extraPerWeek:280, commission:0.25 },
+          "esl10": { name:"ESL 10h/週（BE Part-time/CACCT 10hもこの料金）", type:"group", prices:[220,210,200], brackets:[1,12,24], extraPerWeek:200, commission:0.25,
+            materialsFee:{ type:"bracket", brackets:[{maxWeeks:4,fee:70},{maxWeeks:11,fee:90},{maxWeeks:19,fee:140},{maxWeeks:27,fee:200},{maxWeeks:999,fee:245}] } },
+          "esl5":  { name:"ESL 5h/週", type:"group", prices:[115,110,105], brackets:[1,12,24], extraPerWeek:105, commission:0.25,
+            materialsFee:{ type:"bracket", brackets:[{maxWeeks:4,fee:70},{maxWeeks:11,fee:90},{maxWeeks:19,fee:140},{maxWeeks:27,fee:200},{maxWeeks:999,fee:245}] } },
+          "pmm25":   { name:"PMM Power Speaking & Modern Media 25h/週（4週〜）", type:"group", prices:[430], brackets:[1], extraPerWeek:430, commission:0.25, materialsFee:{type:"fixed",fee:100} },
+          "ielts25": { name:"IELTS Test Preparation 25h/週（4週〜）",             type:"group", prices:[430], brackets:[1], extraPerWeek:430, commission:0.25, materialsFee:{type:"fixed",fee:210} },
+          "epe25":   { name:"EPE English for Post-Secondary Education 25h/週（4週〜・指定開始日）", type:"group", prices:[430], brackets:[1], extraPerWeek:430, commission:0.25, materialsFee:{type:"fixed",fee:280}, note:"開始日: 1/5, 2/2, 3/2, 3/30, 4/27, 5/25, 6/22, 7/20, 8/17, 9/14, 10/13, 11/9, 12/7" },
+          "be25":    { name:"BE Business English 25h/週（4週〜・季節開講）",      type:"group", prices:[430], brackets:[1], extraPerWeek:430, commission:0.25, materialsFee:{type:"fixed",fee:160} },
+          "me25":    { name:"ME Medical English 25h/週（4週〜・季節開講 6/29-8/21）", type:"group", prices:[510], brackets:[1], extraPerWeek:510, commission:0.25, materialsFee:{type:"fixed",fee:280} },
+          "elective15": { name:"ESL Elective (BE Part-time / CACCT / TOEIC) 15h/週（2週〜）", type:"group", prices:[335], brackets:[1], extraPerWeek:335, commission:0.25, materialsFee:{type:"fixed",fee:180} },
+          "children-esl": { name:"Children ESL 6-12歳（保護者同伴）", type:"group", prices:[495,470], brackets:[1,5], extraPerWeek:470, commission:0.25,
+            materialsFee:{ type:"bracket", brackets:[{maxWeeks:4,fee:130},{maxWeeks:999,fee:175}] }, note:"ECF: 1/5-2/27, 7/6-8/28" },
+          "winter-camp-hs":   { name:"Junior Winter Camp ホームステイ付 13-17歳（1/5-1/30・2-4週）", type:"grandline-fixed", priceTable:[0,0,3380,4525,5650], commission:0.25, note:"登録費$180が自動加算されます（要確認）" },
+          "winter-camp-day":  { name:"Junior Winter Camp 宿泊なし 13-17歳（1/5-1/30・2-4週）",       type:"grandline-fixed", priceTable:[0,0,2150,2950,3730], commission:0.25 },
+          "summer-camp-hs":   { name:"Good Time Summer ホームステイ付 13-17歳（7/6-8/22・2-4週+Extra週$1,400）", type:"grandline-fixed", priceTable:[0,0,3500,4700,5800,7200,8600], commission:0.25 },
+          "summer-camp-day":  { name:"Good Time Summer 宿泊なし 13-17歳（7/6-8/22・2-4週+Extra週$1,025）",       type:"grandline-fixed", priceTable:[0,0,2100,2800,3500,4525,5550], commission:0.25 },
+        },
+        accom: {
+          "none": { name:"なし", low:0, peak:0 },
+          "hs-private-full":     { name:"ホームステイ 個室・3食（19歳以上）",  low:345, peak:375, placementFee:260 },
+          "hs-private-half":     { name:"ホームステイ 個室・2食（19歳以上）",  low:330, peak:360, placementFee:260 },
+          "hs-shared-full":      { name:"ホームステイ 相部屋・3食（19歳以上）", low:320, peak:350, placementFee:260 },
+          "hs-shared-half":      { name:"ホームステイ 相部屋・2食（19歳以上）", low:310, peak:340, placementFee:260 },
+          "hs-u18-private-full": { name:"ホームステイ 個室・3食（18歳以下）",  low:370, peak:395, placementFee:260 },
+          "hs-u18-private-half": { name:"ホームステイ 個室・2食（18歳以下）",  low:355, peak:385, placementFee:260 },
+          "hs-u18-shared-full":  { name:"ホームステイ 相部屋・3食（18歳以下）", low:345, peak:375, placementFee:260 },
+          "hs-u18-shared-half":  { name:"ホームステイ 相部屋・2食（18歳以下）", low:335, peak:365, placementFee:260 },
+        },
+        airports: { "Pick Up": 150, "Drop Off": 130, "往復": 280, "UM Pick Up (未成年単独)": 215, "UM Drop Off (未成年単独)": 220, "航空カウンターDrop-off (Teens)": 200 }
+      },
+      "victoria": {
+        name: "Victoria", country: "Canada", regFee: 180, peakSupp: 0,
+        materialsFee: { type:"bracket", brackets:[{maxWeeks:4,fee:120},{maxWeeks:11,fee:180},{maxWeeks:19,fee:290},{maxWeeks:27,fee:410},{maxWeeks:999,fee:490}] },
+        courses: {
+          "esl25": { name:"ESL 25h/週", type:"group", prices:[430,420,395], brackets:[1,12,24], extraPerWeek:395, commission:0.25, note:"2026年版。※コミッション率要確認" },
+          "esl20": { name:"ESL 20h/週", type:"group", prices:[385,375,350], brackets:[1,12,24], extraPerWeek:350, commission:0.25 },
+          "esl15": { name:"ESL 15h/週", type:"group", prices:[320,300,280], brackets:[1,12,24], extraPerWeek:280, commission:0.25 },
+          "ielts25": { name:"IELTS Test Preparation 25h/週（4週〜）", type:"group", prices:[430], brackets:[1], extraPerWeek:430, commission:0.25, materialsFee:{type:"fixed",fee:210} },
+          "summer-camp-hs":  { name:"Good Time Summer ホームステイ付 13-17歳（7/6-8/22・2-4週+Extra週$1,220）", type:"grandline-fixed", priceTable:[0,0,3300,4500,5600,6820,8040], commission:0.25 },
+          "summer-camp-day": { name:"Good Time Summer 宿泊なし 13-17歳（7/6-8/22・2-4週+Extra週$785）",         type:"grandline-fixed", priceTable:[0,0,1900,2500,3200,3985,4770], commission:0.25 },
+        },
+        accom: {
+          "none": { name:"なし", low:0, peak:0 },
+          "hs-adult-private-full": { name:"【Victoria表】ホームステイ 個室・3食（成人）", low:335, peak:365, placementFee:260 },
+          "hs-teen-private-full":  { name:"【Victoria表】ホームステイ 個室・3食（ティーン）", low:350, peak:375, placementFee:260 },
+          "hs-private-full":  { name:"【Van&VIC 19+表】ホームステイ 個室・3食 ※Victoria適用要確認",  low:345, peak:375, placementFee:260 },
+          "hs-private-half":  { name:"【Van&VIC 19+表】ホームステイ 個室・2食 ※Victoria適用要確認",  low:330, peak:360, placementFee:260 },
+          "hs-shared-full":   { name:"【Van&VIC 19+表】ホームステイ 相部屋・3食 ※Victoria適用要確認", low:320, peak:350, placementFee:260 },
+          "hs-shared-half":   { name:"【Van&VIC 19+表】ホームステイ 相部屋・2食 ※Victoria適用要確認", low:310, peak:340, placementFee:260 },
+        },
+        airports: { "Pick Up": 150, "Drop Off": 130, "往復": 280, "UM Pick Up (未成年単独)": 215, "UM Drop Off (未成年単独)": 220, "航空カウンターDrop-off (Teens)": 200 }
+      }
+    }
+  },
+
+  // ── CCEL - Canadian College of English Language (Vancouver) ── 2026 Fees Schedule
+  ccel: {
+    name: "CCEL (Canadian College of English Language)",
+    currency: "CAD",
+    campuses: {
+      "vancouver": {
+        name: "Vancouver", country: "Canada", regFee: 180, peakSupp: 0,
+        materialsFee: { type:"perWeek", fee:10 },
+        courses: {
+          "fti38": { name:"Full-Time Intensive 38レッスン/週", type:"group", prices:[440,420,400,390], brackets:[1,12,24,36], extraPerWeek:390, commission:0.25, note:"2026年版・※コミッション率要確認・教材費$10/週自動。Smrt ESL/EAP(8週ごと開始)/IELTS/BE(4週ごと開始)/Healthはクラスオプション。手動追加費用: 医療保険$85/月・Custodianship$250" },
+          "ft28":  { name:"Full-Time 28レッスン/週",           type:"group", prices:[390,370,350,340], brackets:[1,12,24,36], extraPerWeek:340, commission:0.25 },
+          "pt18":  { name:"Part-Time 18レッスン/週",           type:"group", prices:[300], brackets:[1], extraPerWeek:300, commission:0.25 },
+          "pl-5":   { name:"Private Lessons 5時間パック（登録費・教材費込）",   type:"fixed", fixedPrice:450,  commission:0.25, note:"登録費セレクトで「なし」を選択してください（パックに込み）" },
+          "pl-10":  { name:"Private Lessons 10時間パック（登録費・教材費込）",  type:"fixed", fixedPrice:850,  commission:0.25, note:"登録費「なし」を選択" },
+          "pl-20":  { name:"Private Lessons 20時間パック（登録費・教材費込）",  type:"fixed", fixedPrice:1600, commission:0.25, note:"登録費「なし」を選択" },
+          "spl-5":  { name:"Semi-Private Lessons 5時間パック/人（2-3名・込み）",  type:"fixed", fixedPrice:250, commission:0.25, note:"登録費「なし」を選択" },
+          "spl-10": { name:"Semi-Private Lessons 10時間パック/人（2-3名・込み）", type:"fixed", fixedPrice:450, commission:0.25, note:"登録費「なし」を選択" },
+          "spl-20": { name:"Semi-Private Lessons 20時間パック/人（2-3名・込み）", type:"fixed", fixedPrice:800, commission:0.25, note:"登録費「なし」を選択" },
+        },
+        accom: {
+          "none": { name:"なし", low:0, peak:0 },
+          "hs-single":     { name:"ホームステイ 個室（ハイシーズン5/30-8/30は$330/週）", low:310, peak:330, placementFee:230 },
+          "hs-single-u17": { name:"ホームステイ 個室 16-17歳（通年$380/週）",             low:380, peak:380, placementFee:230 },
+          "res-shared": { name:"レジデンス 相部屋（$1,100/月・4週換算$275/週・最短1ヶ月）",   low:275,   peak:275,   placementFee:230 },
+          "res-single": { name:"レジデンス 個室（$1,450/月・4週換算$362.5/週・最短1ヶ月）",  low:362.5, peak:362.5, placementFee:230 },
+          "res-studio": { name:"レジデンス Studio（$2,200/月・4週換算$550/週・2名可）",      low:550,   peak:550,   placementFee:230 },
+        },
+        airports: { "Pick Up": 140, "Drop Off (Return)": 240 }
+      },
+      "online": {
+        name: "CCEL Live オンライン", country: "Online", regFee: 50, peakSupp: 0,
+        materialsFee: { type:"perWeek", fee:10 },
+        courses: {
+          "live": { name:"CCEL Live Online（グループ・90分/日 月-金）", type:"group", prices:[70], brackets:[1], extraPerWeek:70, commission:0.25, note:"$70/週+教材$10/週+登録費$50。※コミッション率要確認" },
+        },
+        accom: { "none": { name:"なし（オンライン）", low:0, peak:0 } },
+        airports: {}
+      }
+    }
+  },
+
+  // ── Canadian College (Vancouver・キャリアカレッジ) ── 2026 Fees Schedule
+  canadian_college: {
+    name: "Canadian College (キャリアカレッジ)",
+    currency: "CAD",
+    campuses: {
+      "vancouver": {
+        name: "Vancouver", country: "Canada", regFee: 350, peakSupp: 0,
+        courses: {
+          "bm-coop-dip":   { name:"Business Management & Co-op Diploma（18ヶ月・総額）",        type:"fixed", fixedPrice:16575, commission:0.25, note:"2026年版・Tuition+Exam+Book総額・登録費$350自動。開始日: 1/5, 4/6, 7/6, 10/5。※コミッション率要確認。手動追加費用: 医療保険$85/月・Custodianship$250" },
+          "bm-coop-cert":  { name:"Business Management & Co-op Certificate（12ヶ月・総額）",     type:"fixed", fixedPrice:11150, commission:0.25 },
+          "bm-cert":       { name:"Business Management Certificate（9ヶ月・総額）",              type:"fixed", fixedPrice:16275, commission:0.25 },
+          "ib-cert":       { name:"International Business Certificate（6ヶ月・総額）",           type:"fixed", fixedPrice:11190, commission:0.25 },
+          "ba-cert":       { name:"Business Administration Certificate（3ヶ月・総額）",          type:"fixed", fixedPrice:5425,  commission:0.25 },
+          "trade-coop-dip":  { name:"International Trade & Co-op Diploma（24ヶ月・総額）",       type:"fixed", fixedPrice:22510, commission:0.25 },
+          "trade-coop-cert": { name:"Trade Management & Co-op Certificate（12ヶ月・総額）",      type:"fixed", fixedPrice:11405, commission:0.25 },
+          "trade-intense":   { name:"International Trade Training Intense Certificate（6ヶ月・総額）", type:"fixed", fixedPrice:11360, commission:0.25 },
+          "fitt-cert":       { name:"FITT International Trade Certificate（3ヶ月・総額）",       type:"fixed", fixedPrice:5765,  commission:0.25 },
+          "hosp-coop-dip":   { name:"Hospitality Management & Co-op Diploma（24ヶ月・総額）",    type:"fixed", fixedPrice:22720, commission:0.25 },
+          "hosp-coop-cert":  { name:"Hospitality Management & Co-op Certificate（12ヶ月・総額）", type:"fixed", fixedPrice:11555, commission:0.25 },
+          "hosp-ms-coop":    { name:"Hospitality Marketing & Sales with Co-op Certificate（6ヶ月・総額）", type:"fixed", fixedPrice:7035, commission:0.25 },
+          "hotel-cert":      { name:"International Hotel Management Certificate（3ヶ月・総額）", type:"fixed", fixedPrice:6780,  commission:0.25 },
+          "hosp-ms-cert":    { name:"Hospitality Marketing & Sales Certificate（3ヶ月・総額）",  type:"fixed", fixedPrice:6735,  commission:0.25 },
+          "it-coop-dip":     { name:"Information Technology & Co-op Diploma（24ヶ月・総額）",    type:"fixed", fixedPrice:22000, commission:0.25 },
+          "it-dip":          { name:"Information Technology Diploma（12ヶ月・総額）",            type:"fixed", fixedPrice:21700, commission:0.25 },
+          "pm-coop-dip":     { name:"Project Management Co-op & Diploma（24ヶ月・総額）",        type:"fixed", fixedPrice:22000, commission:0.25 },
+          "dm-coop-dip":     { name:"Digital Marketing & Co-op Diploma（24ヶ月・総額）",         type:"fixed", fixedPrice:22000, commission:0.25 },
+          "dm-dip":          { name:"Digital Marketing Diploma（12ヶ月・総額）",                 type:"fixed", fixedPrice:21700, commission:0.25 },
+          "single-fitt":     { name:"Single Course: International Trade (FITT)（3ヶ月・総額）",  type:"fixed", fixedPrice:1170, commission:0.25 },
+          "single-ahlei":    { name:"Single Course: Hospitality (AHLEI)（3ヶ月・総額）",         type:"fixed", fixedPrice:1130, commission:0.25 },
+          "single-other":    { name:"Single Course: その他（3ヶ月・総額）",                      type:"fixed", fixedPrice:1085, commission:0.25 },
+          "esl-fti38": { name:"ESL Full-Time Intensive 38レッスン/週（登録費$180自動）", type:"group", prices:[440,420,400,390], brackets:[1,12,24,36], extraPerWeek:390, commission:0.25, regFee:180, note:"ESLの登録費は$180（本科$350と異なる・自動適用）" },
+          "esl-ft28":  { name:"ESL Full-Time 28レッスン/週（登録費$180自動）",           type:"group", prices:[390,370,350,340], brackets:[1,12,24,36], extraPerWeek:340, commission:0.25, regFee:180 },
+        },
+        accom: {
+          "none": { name:"なし", low:0, peak:0 },
+          "hs-single":  { name:"ホームステイ 個室（ハイシーズン5/30-8/30は$330/週・18歳以上）", low:310, peak:330, placementFee:230 },
+          "res-shared": { name:"レジデンス 相部屋（$1,100/月・4週換算$275/週・最短1ヶ月）",  low:275,   peak:275,   placementFee:230 },
+          "res-single": { name:"レジデンス 個室（$1,450/月・4週換算$362.5/週・最短1ヶ月）", low:362.5, peak:362.5, placementFee:230 },
+          "res-studio": { name:"レジデンス Studio（$2,200/月・4週換算$550/週・2名可）",     low:550,   peak:550,   placementFee:230 },
+        },
+        airports: { "Pick Up": 140, "Drop Off (Return)": 240 }
+      }
+    }
+  },
+
+  // ── CLLC (Halifax / Ottawa / Toronto) ── 2026 Tuition & Fees
+  cllc: {
+    name: "CLLC",
+    currency: "CAD",
+    campuses: {
+      "onsite": {
+        name: "Halifax / Ottawa / Toronto", country: "Canada", regFee: 200, peakSupp: 0,
+        courses: {
+          "intensive25": { name:"Intensive 25h/週（33レッスン）", type:"group", prices:[395,375,365,355], brackets:[1,11,22,33], extraPerWeek:355, commission:0.25,
+            materialsFee:{ type:"bracket", brackets:[{maxWeeks:10,fee:190},{maxWeeks:20,fee:380},{maxWeeks:30,fee:570},{maxWeeks:40,fee:760},{maxWeeks:999,fee:950}] },
+            note:"2026年版・※コミッション率要確認・教材費$190/レベル(10週)自動加算。ボリュームディスカウント適用には開始4週前までの全額支払要。手動追加費用: 医療保険$30/週・Custodianship$140" },
+          "semi15": { name:"Semi-Intensive 15h/週（20レッスン）", type:"group", prices:[265,250,245,240], brackets:[1,11,22,33], extraPerWeek:240, commission:0.25,
+            materialsFee:{ type:"bracket", brackets:[{maxWeeks:10,fee:95},{maxWeeks:20,fee:190},{maxWeeks:30,fee:285},{maxWeeks:40,fee:380},{maxWeeks:999,fee:475}] } },
+          "accelerated35": { name:"Accelerated 35h/週（46レッスン）", type:"group", prices:[605], brackets:[1], extraPerWeek:605, commission:0.25,
+            materialsFee:{ type:"bracket", brackets:[{maxWeeks:10,fee:190},{maxWeeks:20,fee:380},{maxWeeks:30,fee:570},{maxWeeks:40,fee:760},{maxWeeks:999,fee:950}] },
+            note:"教材費はIntensive基準+追加費用あり（要確認）" },
+          "pathway1": { name:"Pathway 1（Level 6 GE・10週ブロック単位）", type:"group", prices:[395], brackets:[1], extraPerWeek:395, commission:0.25,
+            materialsFee:{ type:"bracket", brackets:[{maxWeeks:10,fee:190},{maxWeeks:20,fee:380},{maxWeeks:999,fee:570}] }, note:"10週ブロック販売" },
+          "pathway2": { name:"Pathway 2（Level 7 UPP・10週ブロック単位）", type:"group", prices:[505], brackets:[1], extraPerWeek:505, commission:0.25,
+            materialsFee:{ type:"bracket", brackets:[{maxWeeks:10,fee:190},{maxWeeks:20,fee:380},{maxWeeks:999,fee:570}] }, note:"10週ブロック販売" },
+        },
+        accom: {
+          "none": { name:"なし", low:0, peak:0 },
+          "homestay": { name:"ホームステイ 3食/日（$350/週・申込料$205込加算）", low:350, peak:350, placementFee:205 },
+        },
+        airports: { "Pick Up": 135, "Drop Off": 135 }
+      }
+    }
+  },
 };
 
 // 個人レッスン単価（1レッスンあたり、現地通貨）
@@ -2105,7 +2314,11 @@ const PRIVATE_LESSON_PRICES = {
   "languages_international": { "auckland": null },
   "cisl":                    { "san-diego": 95 },
   "inlingua_sg":             { "singapore": 108 },
-  "grandline":               { "philippines": null },
+  "grandline":               { "philippines": null, "online": null },
+  "sslc":                    { "vancouver": 90, "victoria": 90 },
+  "ccel":                    { "vancouver": null },
+  "canadian_college":        { "vancouver": null },
+  "cllc":                    { "onsite": null },
   "ih_bangkok":              { "bangkok": 1350 },
   "lsi_portsmouth":          { "portsmouth": 78 },
   "uci_dce":                 { "irvine": null },
