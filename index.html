@@ -96,6 +96,7 @@ h1 { font-size: 20px; font-weight: 500; margin-bottom: 24px; color: #1a1a18; }
 .compare-table tr.total-row td { border-top:1.5px solid #1a1a18; font-weight:600; font-size:13px; }
 .compare-table tr.profit-row td { background:#f0fdf4; color:#166534; font-weight:500; }</style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.min.js"></script><!-- セル色付け対応版。読み込み失敗時は上のxlsxで動作継続（ハイライトのみ無効） -->
 </head>
 <body>
 <!-- ═══ パスワードゲート ═══
@@ -291,6 +292,147 @@ SCHOOLS.bschool = {
 };
 PRIVATE_LESSON_PRICES.bschool = { "custom": null };
 let bsIdx = 0;
+
+// ===================== コミッション一覧（契約書ベース） =====================
+// n:学校名 / t:条件 / r:全体に一律適用できる率（小数。複数パターン等はnull） / m:true=計算パターンが2つ以上（要確認・ハイライト対象）
+// r!=null かつ m:false の学校は、school_data.js の commission をこの率で自動上書きします（適用内容はコンソールに出力）。
+const COMMISSION_LIST = [
+ // 語学学校
+ {n:"Academia Columbus", t:"クラス20%・宿泊20%・インターン40%・追加宿泊10%", r:null, m:true},
+ {n:"Accent International Language Consultancy", t:"授業料20%（Accent Virtualのみ10%）", r:null, m:true},
+ {n:"Anglo-Continental", t:"コース費用20%（Aviation/CELTA/FELTは15%）", r:null, m:true},
+ {n:"Boston School of Modern Languages", t:"グループ30%・個人10%（BSML紹介リードは10%）", r:null, m:true},
+ {n:"Bridge English", t:"グループ25%・個人15%", r:null, m:true},
+ {n:"Canadian College of English Language", t:"支払総授業料の30%", r:0.30, m:false},
+ {n:"Canadian Language Learning College", t:"NET授業料の30%", r:0.30, m:false},
+ {n:"Capital School of English", t:"授業料の30%", r:0.30, m:false},
+ {n:"Cavendish School of English", t:"大人25%・ジュニアは季節別固定額（冬£50〜夏£100/週）", r:null, m:true},
+ {n:"Converse International School of Languages", t:"大人30%・ジュニアパッケージ30%・オンライン15%", r:null, m:true},
+ {n:"easyMandarin", t:"Intensive等30%・Private20%・宿泊10%", r:null, m:true},
+ {n:"EC English", t:"授業料25%・English Plus15%(加10%)・Club50+15%・Volunteer/W&S10%(加20%)・Virtual25%・宿泊0%", r:null, m:true},
+ {n:"ECKERSLEY OXFORD", t:"全大人コース授業料の25%", r:0.25, m:false},
+ {n:"ELS Language Centers", t:"Regular25%（Tutoring15%）・Executive/Youth20%", r:null, m:true},
+ {n:"English in Chester", t:"広告記載授業料の25%", r:0.25, m:false},
+ {n:"English Language College Australia", t:"授業料の25%", r:0.25, m:false},
+ {n:"English Language Company Malaysia", t:"授業料の20%", r:0.20, m:false},
+ {n:"Fast Forward Language Institute", t:"ホームステイ滞在: 授業料+宿泊の15%／ホテル滞在等: 授業料のみ15%", r:null, m:true},
+ {n:"GITC", t:"GITC30%（授業料・寮費）／Enderun Colleges20%", r:null, m:true},
+ {n:"Enderun Colleges", t:"GITC30%（授業料・寮費）／Enderun Colleges20%", r:null, m:true},
+ {n:"Globe English Centre", t:"コース費用の20%", r:0.20, m:false},
+ {n:"Grand Line", t:"語学留学・オンライン研修とも25%", r:0.25, m:false},
+ {n:"HARVEN SCHOOL OF ENGLISH", t:"大人（授業料のみ）25%・ジュニア短期（パッケージ）25%", r:null, m:true},
+ {n:"IELS Malta", t:"大人個人20%・大学Fdn15%・就労体験15%・レジャー15%・YLパッケージ20%", r:null, m:true},
+ {n:"ILSC", t:"Language/Vocational授業料25%・ジュニア/TVOパッケージ20%・TVO個人20%", r:null, m:true},
+ {n:"Greystone College", t:"Language/Vocational授業料25%・ジュニア/TVOパッケージ20%・TVO個人20%", r:null, m:true},
+ {n:"inlingua Singapore", t:"従量制: 〜600h S$1.80/h、〜1600h S$2.30/h、超 S$2.80/h・個人 S$2.30/h", r:null, m:true},
+ {n:"inlingua Sprachcenter Berlin", t:"グループ(Plus Package)授業料25%（12ヶ月で120週超は30%）", r:null, m:true},
+ {n:"inlingua Cheltenham", t:"契約書本文に率の記載なし（別紙参照）", r:null, m:false},
+ {n:"inlingua Washington DC", t:"授業料の30%", r:0.30, m:false},
+ {n:"International Center for Language Studies", t:"Intensive/Business/TOEFL/WIN30%・HILT/Distance/Private10%", r:null, m:true},
+ {n:"International House Bangkok", t:"コース費用25%（1〜10人目）・30%（11人目以降）", r:null, m:true},
+ {n:"International House Chiang Mai", t:"コース費用25%（1〜10人目）・30%（11人目以降）", r:null, m:true},
+ {n:"International House Dublin", t:"General English（授業料+登録料）20%・Foundation15%", r:null, m:true},
+ {n:"International House London", t:"General/Executive/Teacher/ModernLang20%・CELTA/DELTA10%・YL/個人15%", r:null, m:true},
+ {n:"International House Mexico", t:"授業料25%・宿泊費（ホテル除く）10%", r:null, m:true},
+ {n:"International House Santa Monica", t:"授業料および費用の20%", r:0.20, m:false},
+ {n:"International Language Academy of Canada", t:"General English: 小売価格の25%", r:0.25, m:false},
+ {n:"International Language Institute of Massachusetts", t:"授業料の25%", r:0.25, m:false},
+ {n:"InTuition Languages", t:"Step1/2/Online20%・Step3/特別はAgreed Discount", r:null, m:true},
+ {n:"KAPITO Sprachschule", t:"コース料金の20%", r:0.20, m:false},
+ {n:"Kaplan International Languages", t:"English25%・Junior20%(UK/IRE/CAN)/15%(US)", r:null, m:true},
+ {n:"Kingsway English Centre", t:"General/Business/1to1 20%・Online/Management10%・Summerパッケージ15%", r:null, m:true},
+ {n:"Languages International", t:"授業料の20%", r:0.20, m:false},
+ {n:"LCI Houston", t:"授業料の20%", r:0.20, m:false},
+ {n:"LSC Language Studies Canada", t:"登録/授業/Co-op/宿泊手配25%・Private/Co-op有給20%", r:null, m:true},
+ {n:"Language Specialists International", t:"University Pre-Sessionalを除く全コース25%", r:null, m:true},
+ {n:"LTL Language School", t:"OnSite/Culture/Flexi25%・TailoredOnline/Semester/SummerCamp15%", r:null, m:true},
+ {n:"Mandarin House", t:"授業料20%・プログラムパッケージ13%", r:null, m:true},
+ {n:"Manhattan Language", t:"米国外申込25%・延長/転校/個人20%", r:null, m:true},
+ {n:"MeRISE English Academy", t:"全コース基本料金の20%", r:0.20, m:false},
+ {n:"OISE Oxford", t:"大人コース（パッケージ）の25%", r:0.25, m:false},
+ {n:"Ole Spanish & Culture", t:"授業料20%・ホームステイ10%", r:null, m:true},
+ {n:"Q Language", t:"1週〜2ヶ月20%・3〜12ヶ月25%", r:null, m:true},
+ {n:"QQ English", t:"授業宿泊費合計の28%", r:0.28, m:false},
+ {n:"Regent Schools", t:"大人（授業料）/ジュニア（パッケージ）/HomeTuition（パッケージ）25%", r:null, m:true},
+ {n:"School of English Studies Folkestone", t:"授業料のみ25%", r:0.25, m:false},
+ {n:"Speakeasy Sprachschule", t:"コース総額の20%", r:0.20, m:false},
+ {n:"Sprott Shaw Language College", t:"新規/再登録25%・Vacation/Virtual20%・English4work $30固定", r:null, m:true},
+ {n:"St George International India", t:"20%", r:0.20, m:false},
+ {n:"St Giles International", t:"授業料25%・JuniorSummer個人15%/グループ20%・CELTA UK10%/US15%・保険25%", r:null, m:true},
+ {n:"Study Group", t:"Embassy English25%（加30%）・Summer個人20%・StudyCare15%", r:null, m:true},
+ {n:"Embassy English", t:"Embassy English25%（加30%）・Summer個人20%・StudyCare15%", r:null, m:true},
+ {n:"Tamwood Careers", t:"Hospitality/Tourism/Business25%・Global Startup20%", r:null, m:true},
+ {n:"The Devon School of English", t:"授業料+登録料+宿泊手配料の合計の25%", r:0.25, m:false},
+ {n:"The English Language Centre", t:"授業料の25%", r:0.25, m:false},
+ {n:"THE LANGUAGE ACADEMY", t:"公開授業料の30%", r:0.30, m:false},
+ {n:"The London School of English", t:"コース費用の20%", r:0.20, m:false},
+ {n:"Torquay International School", t:"コース費用の25%", r:0.25, m:false},
+ {n:"Wimbledon School of English", t:"授業料および登録料の25%", r:0.25, m:false},
+ {n:"Wisconsin ESL Institute", t:"NET授業料の20%（8週間の学習）", r:0.20, m:false},
+ {n:"Worldwide School of English", t:"推奨小売（RRP）授業料の25%", r:0.25, m:false},
+ {n:"Alice", t:"事前に甲乙間で合意・決定", r:null, m:false},
+ {n:"English Language Center", t:"全プログラム20%（Boston/LA/Santa Barbara）", r:0.20, m:false},
+ {n:"NESE", t:"全プログラム20%", r:0.20, m:false},
+ {n:"The New England School of English", t:"全プログラム20%", r:0.20, m:false},
+ // 大学・進学準備
+ {n:"CBL International", t:"大学レベル: 授業料20%／高校生向け: 参加費全体の20%", r:null, m:true},
+ {n:"INTO University Partnerships", t:"UK Academic12.5%/DirectEntry10%・UK English25%/20%・US Pathway12.5%等", r:null, m:true},
+ {n:"UC Berkeley Extension", t:"BGAP等: 新規$1,500/継続$600・CollegeFdn$1,500・EveningCert$600（固定額）", r:null, m:true},
+ {n:"UCLA Extension", t:"出願料およびプログラム費用の15%", r:0.15, m:false},
+ {n:"University of California, Irvine", t:"English/Cert/Summer等15%・STAR/ASAP10%", r:null, m:true},
+ {n:"UC San Diego Extension", t:"授業料および出願料の15%", r:0.15, m:false},
+ {n:"The University of Texas at Arlington", t:"授業料の15%", r:0.15, m:false},
+ {n:"Widener University", t:"1学生につき$1,000固定", r:null, m:false},
+ // ビジネススクール
+ {n:"Carnegie Mellon University", t:"プログラム費用の15%（オープンエンロールメント）", r:0.15, m:false},
+ {n:"CKGSB", t:"額面価格から20%割引", r:null, m:false},
+ {n:"ESMT Berlin", t:"プログラム費用10%割引", r:null, m:false},
+ {n:"ESSEC Business School", t:"コースあたり15%", r:0.15, m:false},
+ {n:"IESE Business School", t:"Open/Focused9%・Custom2-4%・Executive: 3名まで9%/4名以降14%", r:null, m:true},
+ {n:"IMD", t:"Open Programs10%（目標達成で年間ボーナス5%）", r:0.10, m:false},
+ {n:"London Business School", t:"Open programmes 10%", r:0.10, m:false},
+ {n:"Northwestern University", t:"AMP/EDP送客数: 1-5名10%・6-10名12.5%・11名〜15%", r:null, m:true},
+ {n:"Kellogg", t:"AMP/EDP送客数: 1-5名10%・6-10名12.5%・11名〜15%", r:null, m:true},
+ {n:"Wharton School", t:"GMP/AFP/AMP/EDP登録につき7%", r:0.07, m:false},
+ // その他
+ {n:"4stay", t:"4stayの純収益の50%", r:null, m:false},
+ {n:"Global Experiences", t:"プログラム費用の10%", r:0.10, m:false},
+ {n:"Intercultural Business Center", t:"カテゴリ別固定額（例: Category A 300,000円）", r:null, m:false},
+ {n:"London Business Training & Consulting", t:"10%", r:0.10, m:false},
+ {n:"Sara's Homestay", t:"Homestay10%・Residence/HighSchool5%・SummerImmersion20%", r:null, m:true},
+];
+// 自動マッチが外れる/曖昧な学校は、SCHOOLSキー → 一覧のnを手動指定（例: { lse: "The London School of English" }）
+const COMMISSION_KEY_MAP = {};
+(function applyCommissionList(){
+  if (typeof SCHOOLS === "undefined") return;
+  const norm = s => String(s||"").toLowerCase().replace(/[^a-z0-9\u3040-\u30ff\u4e00-\u9fff]/g,"");
+  const findEntry = (name, key) => {
+    if (COMMISSION_KEY_MAP[key]) { const t=norm(COMMISSION_KEY_MAP[key]); return COMMISSION_LIST.find(e=>norm(e.n)===t)||null; }
+    const nn = norm(name); if(!nn) return null;
+    let best=null, bestLen=0;
+    for (const e of COMMISSION_LIST) {
+      const en = norm(e.n);
+      if (en===nn) return e;                                   // 完全一致を最優先
+      const shorter = Math.min(en.length, nn.length);
+      if (shorter>=10 && (en.includes(nn)||nn.includes(en)) && shorter>bestLen) { best=e; bestLen=shorter; }
+    }
+    return best;
+  };
+  Object.entries(SCHOOLS).forEach(([k,sv])=>{
+    if (k==="bschool") return;
+    const e = findEntry(sv.name, k);
+    if (!e) { console.info(`[コミッション一覧] 未マッチ: ${k}（${sv.name}）→ COMMISSION_KEY_MAP で対応付けできます`); return; }
+    sv._commInfo = { text:e.t, multi:!!e.m, rate:(e.r??null) };
+    if (e.r!=null && !e.m) {   // 一律1パターンの学校のみ、一覧の率で上書き
+      Object.values(sv.campuses||{}).forEach(c=>Object.values(c.courses||{}).forEach(cs=>{
+        if (typeof cs.commission==="number" && cs.commission!==e.r)
+          console.info(`[コミッション一覧] ${sv.name}: commission ${cs.commission} → ${e.r} に修正（契約書一覧に基づく）`);
+        cs.commission = e.r;
+      }));
+    }
+  });
+})();
+
 
 // PRICE_YEAR管理
 const PRICE_YEARS = {};
@@ -609,20 +751,12 @@ function renderSchoolSection(s, si) {
       }
     </div>
 
-    <!-- 目視確認チェック（保存に必須） -->
-    <div style="margin-bottom:12px;padding:10px 12px;background:${s.verified?'#e8f5e9':'#fff5f5'};border:1px solid ${s.verified?'#a5d6a7':'#f5c6c3'};border-radius:8px">
-      <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;font-weight:500;color:${s.verified?'#166534':'#c0392b'}">
-        <input type="checkbox" ${s.verified?'checked':''} onchange="updateSectionVerified(${s.id},this.checked)" style="width:16px;height:16px;flex-shrink:0">
-        ${s.verified?'✅':'⚠️'} Price Listまたは学校ウェブサイトと目視で確認しました（チェックがないと見積書を保存できません）
-      </label>
-    </div>
-
     <!-- 上乗せ・コーディネーション・ビザ -->
     <div style="background:#f0f5ff;border-radius:8px;padding:12px;margin-bottom:12px">
       <div style="font-size:11px;font-weight:500;color:#3b5bdb;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">上乗せ・コーディネーション・ビザ</div>
       <div class="field-grid g4">
         <div class="field">
-          <label>プログラム/来年度上乗せ率（%）</label>
+          <label>プログラム上乗せ率（%）</label>
           <input type="number" value="${s.progMarkup||0}" min="0" max="100" oninput="updateSection(${s.id},'progMarkup',this.value)">
         </div>
         <div class="field">
@@ -725,81 +859,15 @@ function renderBsProgramBlock(b, i, sid) {
       </div>
       <div class="field"><label>価格確認日（公式ページで確認した日）</label><input type="date" value="${b.checked||""}" onchange="updateBsProgram(${b.id},'checked',this.value)"></div>
     </div>
-    <!-- 滞在費 -->
-    <div style="margin-top:12px;padding:10px 12px;background:#f8f6ff;border:0.5px solid #d9d2f0;border-radius:8px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:${(b.accoms||[]).length?8:0}px">
-        <span style="font-size:11px;font-weight:500;color:#5e4b8b;text-transform:uppercase;letter-spacing:0.05em">🏨 滞在費（任意）</span>
-        <button class="btn btn-sm" onclick="addBsAccom(${b.id})" style="font-size:11px;padding:3px 10px">＋ 滞在費を追加</button>
-      </div>
-      ${(b.accoms||[]).map((a,ai)=>{
-        const unitLbl={night:"泊",week:"週",month:"月"};
-        const up=parseFloat(a.unitPrice)||0, aq=parseFloat(a.qty)||0;
-        const amt=up*aq;
-        const isJ=a.mode==="jpy";
-        const sub=amt>0?(isJ?fmtJPY(amt):fmtC(amt,b.currency||"USD")):"—";
-        return `<div style="border-top:0.5px solid #e5e0f5;padding-top:8px;margin-top:8px">
-        <div class="field-grid g4">
-          <div class="field"><label>名称（例: ホテル、レジデンス）</label><input type="text" value="${esc(a.name)}" oninput="updateBsAccom(${b.id},${ai},'name',this.value)"></div>
-          <div class="field"><label>入力方法</label><select onchange="updateBsAccom(${b.id},${ai},'mode',this.value)">
-            <option value="local" ${!isJ?"selected":""}>原価（${b.currency||"USD"}）から計算</option>
-            <option value="jpy" ${isJ?"selected":""}>円で直接入力</option>
-          </select></div>
-          <div class="field"><label>単価（${isJ?"円":(b.currency||"USD")}／単位あたり）</label><input type="number" value="${a.unitPrice||""}" min="0" oninput="updateBsAccom(${b.id},${ai},'unitPrice',this.value)"></div>
-          <div class="field"><label>数量・単位</label>
-            <div style="display:flex;gap:6px">
-              <input type="number" value="${a.qty||""}" min="0" style="flex:1" oninput="updateBsAccom(${b.id},${ai},'qty',this.value)">
-              <select style="width:70px" onchange="updateBsAccom(${b.id},${ai},'unit',this.value)">
-                <option value="night" ${(a.unit||"night")==="night"?"selected":""}>泊</option>
-                <option value="week" ${a.unit==="week"?"selected":""}>週</option>
-                <option value="month" ${a.unit==="month"?"selected":""}>月</option>
-              </select>
-            </div>
-          </div>
-        </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
-          <button class="btn btn-sm btn-danger" onclick="removeBsAccom(${b.id},${ai})" style="font-size:11px;padding:3px 8px">滞在費を削除</button>
-          <span style="font-size:12px;color:#5e4b8b">小計: <b>${sub}</b>${amt>0?`（${up.toLocaleString()}/${unitLbl[a.unit||"night"]} × ${aq}${unitLbl[a.unit||"night"]}${isJ?"・円建て":""}）`:""}</span>
-        </div>
-      </div>`;}).join("")}
-    </div>
     <div class="subtotal-row"><span class="subtotal-label">小計</span><span class="subtotal-value" id="bs${b.id}-sub">${fee>0?fmtC(fee,b.currency||"USD"):"—"}</span></div>
   </div>`;
-}
-
-// ビジネススクール 滞在費 操作
-function _findBsProgram(bid) {
-  for (const s of schoolSections) {
-    const b = (s.bsPrograms||[]).find(x=>x.id===bid);
-    if (b) return b;
-  }
-  return null;
-}
-function addBsAccom(bid) {
-  const b = _findBsProgram(bid);
-  if (!b) return;
-  if (!b.accoms) b.accoms = [];
-  b.accoms.push({ name:"", mode:"local", unitPrice:"", qty:"", unit:"night" });
-  renderSchoolSections(); calcAll();
-}
-function removeBsAccom(bid, ai) {
-  const b = _findBsProgram(bid);
-  if (!b || !b.accoms) return;
-  b.accoms.splice(ai, 1);
-  renderSchoolSections(); calcAll();
-}
-function updateBsAccom(bid, ai, field, val) {
-  const b = _findBsProgram(bid);
-  if (!b || !b.accoms || !b.accoms[ai]) return;
-  b.accoms[ai][field] = val;
-  if (field==="mode"||field==="unit") renderSchoolSections();
-  calcAll();
 }
 
 function addBsProgramToSection(sid) {
   const s = schoolSections.find(x=>x.id===sid);
   if (!s) return;
   if (!s.bsPrograms) s.bsPrograms = [];
-  s.bsPrograms.push({ id:++bsIdx, name:"", currency:"USD", fee:"", start:"", end:"", commissionPct:0, url:"", checked:"", accoms:[] });
+  s.bsPrograms.push({ id:++bsIdx, name:"", currency:"USD", fee:"", start:"", end:"", commissionPct:0, url:"", checked:"" });
   renderSchoolSections(); calcAll();
 }
 function removeBsProgram(id) {
@@ -825,7 +893,6 @@ function updateBsProgram(id, field, val) {
 function updateSection(sid, field, val) {
   const s = schoolSections.find(x=>x.id===sid);
   if (!s) return;
-  if (field==="country"||field==="school"||field==="campus") { s.verified=false; } // 学校構成が変わったら再確認が必要
   if (field==="country") {
     s.country=val; s.school=""; s.campus="";
     // 各アイテムの国・学校もリセット
@@ -854,14 +921,6 @@ function updateSection(sid, field, val) {
     s[field] = parseFloat(val)||0;
   }
   renderSchoolSections(); calcAll();
-}
-
-// 目視確認チェック
-function updateSectionVerified(sid, checked) {
-  const s = schoolSections.find(x=>x.id===sid);
-  if (!s) return;
-  s.verified = !!checked;
-  renderSchoolSections();
 }
 
 // Price List URL 操作
@@ -1017,8 +1076,6 @@ function renderCourseBlock(b, i, sid) {
   if(b.school&&b.campus){const yrLabel=getPriceYearLabel(b.school,b.campus,b.start);const isW=yrLabel.includes("⚠️");info+=`<span class="info-badge" style="background:${isW?"#fff3cd":"#e8f4fd"};color:${isW?"#856404":"#1565c0"}">📋 ${yrLabel}</span>`;}
   if(w){info+=`<span class="info-badge weeks">${w.total}週間</span>`;if(w.peak>0)info+=`<span class="info-badge peak">ハイシーズン ${w.peak}週</span>`;}
   const currency=b.school?getSchoolCurrency(b.school):"GBP";
-  const _selCourse=cd&&b.course?cd.courses[b.course]:null;
-  if(_selCourse?.note){info+=`<span class="info-badge" style="background:#fff8e1;color:#795548">📝 ${_selCourse.note}</span>`;}
   const courseType=cd&&b.course?cd.courses[b.course]?.type:"";
   const is1to1=courseType==="1to1",isWse1to1=courseType==="wse-1to1";
   const hoursField=is1to1?`<div class="field"><label>時間数/週</label><input type="number" value="${b.hours||20}" min="5" max="40" oninput="updateCourse(${b.id},'hours',this.value)"></div>`:isWse1to1?`<div class="field"><label>レッスン数/週</label><input type="number" value="${b.lessons||10}" min="1" max="21" oninput="updateCourse(${b.id},'lessons',this.value)"></div>`:"";
@@ -1033,7 +1090,7 @@ function renderCourseBlock(b, i, sid) {
     <div class="field-grid g2">
       <div class="field"><label>コース</label><select onchange="updateCourse(${b.id},'course',this.value)">${courseOpts}</select></div>
       <div class="field"><label>登録費</label><select onchange="updateCourse(${b.id},'regFee',this.value)">
-        <option value="auto" ${!b.regFee||b.regFee==="auto"?"selected":""}>自動（${_selCourse&&_selCourse.regFee!==undefined?_selCourse.regFee:(cd?.regFee||85)}）</option>
+        <option value="auto" ${!b.regFee||b.regFee==="auto"?"selected":""}>自動（${cd?.regFee||85}）</option>
         <option value="0" ${b.regFee==="0"?"selected":""}>なし</option>
       </select></div>
     </div>
@@ -1231,7 +1288,11 @@ function weeksOpts(selected) {
   return html;
 }
 
-function fmt(n) { return Math.ceil(Math.round(n)/10000)+"万円"; } // 万単位・繰り上げ（繰り下げなし）
+// 万円に繰り上げて円表記（例: 1,101,924 → 1,110,000円）
+function fmt(n) { return (Math.ceil(Math.round(n)/10000)*10000).toLocaleString("ja-JP")+"円"; }
+// TTS上乗せ率の正規化: 100以上が入力/保存されている場合（例: 110 = 「TTS×110%」の意味）は超過分を上乗せ率とみなす
+// → 110 は +10% (×1.10) に補正。かつての「計算レート452.4円」バグ（×2.10と二重解釈）の再発防止。
+function normTtsPct(v){ v=parseFloat(v); if(isNaN(v)||v<0) return 0; return v>=100 ? v-100 : v; }
 function fmtJPY(n) { return Math.round(n).toLocaleString("ja-JP")+"円"; }
 function fmtC(n, currency) {
   const syms={GBP:"£",CAD:"C$",USD:"$",EUR:"€",THB:"฿",NZD:"NZ$",SGD:"S$",AUD:"A$",CHF:"CHF ",JPY:"¥"};
@@ -1265,7 +1326,7 @@ function renderAddonBlock(b, i, sid) {
   const s = schoolSections.find(x=>x.id===sid);
   const hasGrandline = s && s.school === "grandline";
   const typeBase = ["transfer","materials","exam","action-learning","nyu-sps","ama-3day","ama-5day","jpy-other","other"];
-  const typeGrandline = hasGrandline ? ["gl-fieldwork","gl-dinner","gl-lunch","gl-speaking","gl-lesson","gl-night","gl-arrange","gl-meal-breaks","gl-meal-air"] : [];
+  const typeGrandline = hasGrandline ? ["gl-fieldwork","gl-dinner","gl-lunch","gl-speaking","gl-lesson","gl-night"] : [];
   const typeLabels = {
     transfer:"空港送迎", materials:"教材費", exam:"試験料",
     "action-learning":"アクションラーニングプロジェクト（¥150,000）",
@@ -1273,15 +1334,12 @@ function renderAddonBlock(b, i, sid) {
     "ama-3day": "AMA 3 Day（$3,200）",
     "ama-5day": "AMA 5 Day（$4,400）",
     "jpy-other":"その他（円建て）", other:"その他（外貨建て）",
-    "gl-fieldwork":"GL リアルミーティング（¥18,000/回）",
-    "gl-dinner":"GL ディナーセッション（¥15,000/回）※2026年版価格表に記載なし・要確認",
-    "gl-lunch":"GL ランチセッション（¥15,000/回）※2026年版価格表に記載なし・要確認",
-    "gl-speaking":"GL パブリックスピーキング（¥15,000/回）",
+    "gl-fieldwork":"GL フィールドワーク（¥18,000/回）",
+    "gl-dinner":"GL ディナーセッション（¥15,000/回）",
+    "gl-lunch":"GL ランチセッション（¥15,000/回）",
+    "gl-speaking":"GL パブリックスピーキング（¥12,000/回）",
     "gl-lesson":"GL 追加レッスン（¥3,000/時間）",
     "gl-night":"GL 延泊（¥7,000/日）",
-    "gl-arrange":"GL 現地手配料（¥50,000・入学金/初回SSP/卒業パーティ含む）",
-    "gl-meal-breaks":"GL 食費 Breaks（¥5,000/日）",
-    "gl-meal-air":"GL 食費 Air（¥7,000/日）",
   };
   const typeOpts = [...typeBase,...typeGrandline].map(t=>`<option value="${t}" ${b.type===t?"selected":""}>${typeLabels[t]}</option>`).join("");
   let extraHtml="";
@@ -1314,9 +1372,9 @@ function renderAddonBlock(b, i, sid) {
     extraHtml=`<div class="field-grid g2">
       <div class="field"><label>説明</label><input type="text" id="addon-desc-${b.id}" value="${(b.desc||'').replace(/"/g,'&quot;')}" placeholder="例：上乗せ、サポート費など" onchange="updateAddon(${b.id},'desc',this.value)"></div>
       <div class="field"><label>金額（円）</label><input type="number" value="${b.amountJPY||''}" min="0" placeholder="0" oninput="updateAddon(${b.id},'amountJPY',this.value)"></div></div>`;
-  } else if (["gl-fieldwork","gl-dinner","gl-lunch","gl-speaking","gl-lesson","gl-night","gl-arrange","gl-meal-breaks","gl-meal-air"].includes(b.type)) {
-    const glUnitLabels={"gl-fieldwork":"回","gl-dinner":"回","gl-lunch":"回","gl-speaking":"回","gl-lesson":"時間","gl-night":"泊","gl-arrange":"回","gl-meal-breaks":"日","gl-meal-air":"日"};
-    const glPriceMap={"gl-fieldwork":18000,"gl-dinner":15000,"gl-lunch":15000,"gl-speaking":15000,"gl-lesson":3000,"gl-night":7000,"gl-arrange":50000,"gl-meal-breaks":5000,"gl-meal-air":7000};
+  } else if (["gl-fieldwork","gl-dinner","gl-lunch","gl-speaking","gl-lesson","gl-night"].includes(b.type)) {
+    const glUnitLabels={"gl-fieldwork":"回","gl-dinner":"回","gl-lunch":"回","gl-speaking":"回","gl-lesson":"時間","gl-night":"泊"};
+    const glPriceMap={"gl-fieldwork":18000,"gl-dinner":15000,"gl-lunch":15000,"gl-speaking":12000,"gl-lesson":3000,"gl-night":7000};
     extraHtml=`<div class="field-grid g2">
       <div class="field"><label>単価</label><input type="text" value="¥${glPriceMap[b.type].toLocaleString()} / ${glUnitLabels[b.type]}" readonly style="background:#f5f5f3;color:#888"></div>
       <div class="field"><label>小計</label><input type="text" value="¥${(glPriceMap[b.type]*(parseFloat(b.qty)||1)).toLocaleString()}" readonly style="background:#f5f5f3;color:#888"></div></div>`;
@@ -1349,7 +1407,7 @@ function calcAll() {
 
   schoolSections.forEach((s, si) => {
     const progMarkupPct = parseFloat(s.progMarkup)||0;
-    const ttsMarkupPct  = parseFloat(s.ttsMarkup??10);
+    const ttsMarkupPct  = normTtsPct(s.ttsMarkup??10);
     const schoolGroups = {};
 
     function getGroup(schoolKey, campusKey, startDate) {
@@ -1359,7 +1417,8 @@ function calcAll() {
         const yrLabel = getPriceYearLabel(schoolKey, campusKey, startDate);
         schoolGroups[key] = {
           label: getSchoolGroupLabel(schoolKey, campusKey),
-          yrLabel, currency, totalLocal:0, commissionLocal:0, items:[]
+          yrLabel, currency, totalLocal:0, commissionLocal:0, items:[],
+          commInfo: (SCHOOLS[schoolKey] && SCHOOLS[schoolKey]._commInfo) || null
         };
       }
       return schoolGroups[key];
@@ -1370,52 +1429,21 @@ function calcAll() {
       (s.bsPrograms||[]).forEach((p) => {
         const fee = parseFloat(p.fee)||0;
         const currency = p.currency||"USD";
-        const pname = p.name||"ビジネススクール プログラム";
-        const unitLbl = {night:"泊", week:"週", month:"月"};
-        // 滞在費（原価＝現地通貨 / 円建て）
-        let accomLocal = 0;
-        const accomLocalItems = [], accomJpyItems = [];
-        (p.accoms||[]).forEach(a => {
-          const up = parseFloat(a.unitPrice)||0, aq = parseFloat(a.qty)||0;
-          if (up<=0 || aq<=0) return;
-          const amt = up*aq;
-          const u = unitLbl[a.unit||"night"];
-          const nm = a.name||"滞在費";
-          if (a.mode==="jpy") {
-            accomJpyItems.push({ label:`滞在費（${pname}）: ${nm} ¥${up.toLocaleString("ja-JP")}/${u} × ${aq}${u}`, jpy:Math.round(amt), type:"bs-accom" });
-          } else {
-            accomLocal += amt;
-            accomLocalItems.push({ label:`${nm} ${fmtC(up,currency)}/${u} × ${aq}${u}`, local:amt, formula:`${up}*${aq}` });
-          }
-        });
         const el = document.getElementById("bs"+p.id+"-sub");
-        if (el) {
-          const localTotal = fee + accomLocal;
-          const jpyTotal = accomJpyItems.reduce((t,x)=>t+x.jpy,0);
-          el.textContent = (localTotal>0||jpyTotal>0)
-            ? `${localTotal>0?fmtC(localTotal,currency):""}${localTotal>0&&jpyTotal>0?" ＋ ":""}${jpyTotal>0?fmtJPY(jpyTotal)+"（円建て滞在費）":""}`
-            : "—";
-        }
-        // 円建て滞在費 → 円建て費用へ（粗利には含めない）
-        accomJpyItems.forEach(x=>allJpyAddons.push(x));
-        if (fee<=0 && accomLocal<=0) return;
+        if (el) el.textContent = fee>0 ? fmtC(fee,currency) : "—";
+        if (fee<=0) return;
         const w = (p.start&&p.end) ? calcWeeks(p.start,p.end) : null;
         const key = "__bschool_"+p.id+"__";
+        const pname = p.name||"ビジネススクール プログラム";
         schoolGroups[key] = { label:pname, yrLabel:"", currency, totalLocal:0, commissionLocal:0, items:[] };
         const grp = schoolGroups[key];
+        const lines = [{ label:`プログラム費（総額${w?`・${p.start}〜${p.end}・${w.total}週`:""}）`, local:fee }];
         let secLabel = `ビジネススクール: ${pname}`;
         if (p.url) secLabel += `｜出典: ${p.url}`;
         if (p.checked) secLabel += `（価格確認日: ${p.checked}）`;
-        if (fee>0) {
-          const lines = [{ label:`プログラム費（総額${w?`・${p.start}〜${p.end}・${w.total}週`:""}）`, local:fee }];
-          grp.items.push({ section:secLabel, lines, subtotal:fee });
-          grp.totalLocal += fee;
-          grp.commissionLocal += fee * ((parseFloat(p.commissionPct)||0)/100);
-        }
-        if (accomLocal>0) {
-          grp.items.push({ section:`滞在費: ${pname}`, lines:accomLocalItems, subtotal:accomLocal });
-          grp.totalLocal += accomLocal;
-        }
+        grp.items.push({ section:secLabel, lines, subtotal:fee });
+        grp.totalLocal += fee;
+        grp.commissionLocal += fee * ((parseFloat(p.commissionPct)||0)/100);
       });
     }
 
@@ -1428,21 +1456,18 @@ function calcAll() {
       const w=b.start&&b.end?calcWeeks(b.start,b.end):null;
       const weeks=w?w.total:0;
       const peakWeeks=w?w.peak:0;
-      const useRegFee=b.regFee==="0"?0:(course.regFee!==undefined?course.regFee:(cd.regFee||85));
+      const useRegFee=b.regFee==="0"?0:(cd.regFee||85);
       let subLocal=0, commLocal=0;
       let subItems=[];
       if (course.type==="grandline-fixed") {
         const t=(course.priceTable&&course.priceTable[weeks])||(weeks*(course.priceTable?.[1]||0));
         subLocal+=t; commLocal+=t*course.commission;
         subItems.push({label:`${course.name}（${weeks}週）`,local:t});
-        // 2026年版価格表: SSP ¥30,000/24週ごと・ACR-I ¥30,000(60日以上)・ビザ延長 ¥30,000/30日ごと
         const sspCount=Math.floor(weeks/24);
-        if(sspCount>0){const ssp=sspCount*30000;subLocal+=ssp;subItems.push({label:`SSP費用 ¥30,000 × ${sspCount}回`,local:ssp,formula:`30000*${sspCount}`});}
-        if(weeks>=9){subLocal+=30000;subItems.push({label:`ACR-I ¥30,000（60日以上）`,local:30000});}
-        const vext=Math.max(0,Math.ceil((weeks*7-30)/30));
-        if(vext>0){const va=vext*30000;subLocal+=va;subItems.push({label:`ビザ延長 ¥30,000 × ${vext}回（30日ごと）`,local:va,formula:`30000*${vext}`});}
-      } else if(course.type==="fixed"){
-        const t=course.fixedPrice||0;subLocal+=t;commLocal+=t*course.commission;subItems.push({label:`${course.name}（固定料金）`,local:t});
+        if(sspCount>0){const ssp=sspCount*20000;subLocal+=ssp;subItems.push({label:`SSP費用 ¥20,000 × ${sspCount}回`,local:ssp,formula:`20000*${sspCount}`});}
+        if(weeks>=9){subLocal+=20000;subItems.push({label:`ACR-I ¥20,000（60日以上）`,local:20000});}
+        const vext=Math.floor(weeks/8.57)-1;
+        if(vext>0){const va=vext*20000;subLocal+=va;subItems.push({label:`ビザ延長 ¥20,000 × ${vext}回`,local:va,formula:`20000*${vext}`});}
       } else if(course.type==="rennert-fixed"){
         const t=course.fixedPrice;subLocal+=t;commLocal+=t*course.commission;subItems.push({label:`プライベートレッスン（パッケージ）`,local:t});
       } else if(course.type==="nese"){
@@ -1483,25 +1508,20 @@ function calcAll() {
       if(b.school==="manhattan"){subLocal+=75;subItems.push({label:`マテリアルフィー`,local:75});}
       if(b.school==="rennert"&&course.type!=="rennert-fixed"){subLocal+=69;subItems.push({label:`スタディマテリアル`,local:69});}
 
-      // 教材費の自動計算（コース側のmaterialsFeeがあれば優先、なければキャンパス側）
-      const _mfSrc = course.materialsFee || cd.materialsFee;
-      if (_mfSrc && course.type!=="1to1" && course.type!=="wse-1to1") {
-        const mf = _mfSrc;
-        let matAmt = 0, matFormula = null;
+      // 教材費の自動計算（school_data.jsのmaterialsFeeを使用）
+      if (cd.materialsFee && course.type!=="1to1" && course.type!=="wse-1to1") {
+        const mf = cd.materialsFee;
+        let matAmt = 0;
         if (mf.type === "fixed") {
           matAmt = mf.fee;
         } else if (mf.type === "bracket") {
           for (const br of mf.brackets) {
             if (weeks <= br.maxWeeks) { matAmt = br.fee; break; }
           }
-        } else if (mf.type === "perWeek") {
-          matAmt = mf.fee * weeks;
-          if (mf.cap) matAmt = Math.min(matAmt, mf.cap);
-          if (!mf.cap || matAmt < mf.cap) matFormula = `${mf.fee}*${weeks}`;
         }
         if (matAmt > 0) {
           subLocal += matAmt;
-          subItems.push({ label:`教材費（自動）`, local:matAmt, ...(matFormula?{formula:matFormula}:{}) });
+          subItems.push({ label:`教材費（自動）`, local:matAmt });
         }
       }
       const grp=getGroup(b.school,b.campus,b.start);
@@ -1561,8 +1581,8 @@ function calcAll() {
     s.addons.forEach((b, i) => {
       let subLocal=0,currency=getSchoolCurrency(s.school)||"GBP";let subItems=[];
       const qty=parseFloat(b.qty||1);
-      const glPrices={"gl-fieldwork":18000,"gl-dinner":15000,"gl-lunch":15000,"gl-speaking":15000,"gl-lesson":3000,"gl-night":7000,"gl-arrange":50000,"gl-meal-breaks":5000,"gl-meal-air":7000};
-      const glLabels={"gl-fieldwork":"リアルミーティング","gl-dinner":"ディナーセッション","gl-lunch":"ランチセッション","gl-speaking":"パブリックスピーキング","gl-lesson":"追加レッスン","gl-night":"延泊","gl-arrange":"現地手配料","gl-meal-breaks":"食費 Breaks","gl-meal-air":"食費 Air"};
+      const glPrices={"gl-fieldwork":18000,"gl-dinner":15000,"gl-lunch":15000,"gl-speaking":12000,"gl-lesson":3000,"gl-night":7000};
+      const glLabels={"gl-fieldwork":"フィールドワーク","gl-dinner":"ディナーセッション","gl-lunch":"ランチセッション","gl-speaking":"パブリックスピーキング","gl-lesson":"追加レッスン","gl-night":"延泊"};
       if(b.type==="action-learning"){const amtJPY=150000*qty;const el=document.getElementById("d"+b.id+"-sub");if(el)el.textContent=fmtJPY(amtJPY);b._jpyTotal=amtJPY;b._label=`アクションラーニングプロジェクト × ${qty}`;allJpyAddons.push({label:b._label,jpy:amtJPY,type:b.type});return;}
 
       // NYU SPS・AMA（USD建て・上乗せ可）
@@ -1597,7 +1617,7 @@ function calcAll() {
       const commJPY=Math.round(grp.commissionLocal*tts);
       grandTotalJPY+=programFee;totalCommJPY+=commJPY;
       totalProgMarkupJPY+=Math.round(progGainJPY);totalTTSMarkupJPY+=Math.round(ttsGainJPY);
-      freeeLines.push({label:`海外プログラム費用（${grp.label}）`,jpy:programFee,currency:grp.currency,local:grp.totalLocal,tts,effectiveFX,costJPY,ttsGainJPY,progGainJPY,items:grp.items,commJPY,progMarkupPct,ttsMarkupPct});
+      freeeLines.push({label:`海外プログラム費用（${grp.label}）`,jpy:programFee,currency:grp.currency,local:grp.totalLocal,tts,effectiveFX,costJPY,ttsGainJPY,progGainJPY,items:grp.items,commJPY,progMarkupPct,ttsMarkupPct,commInfo:grp.commInfo||null});
     });
 
     // コーディネーション・ビザ（セクションごと）
@@ -1637,8 +1657,9 @@ function calcAll() {
   freeeLines.filter(l=>!l.isJPY).forEach(l=>{
     html+=`<div class="section-divider">${l.label}</div>`;
     html+=`<div class="breakdown-line"><span>原価合計 (${l.currency})</span><span class="bv">${fmtC(l.local,l.currency)}</span></div>`;
+    if(l.commInfo)html+=`<div class="breakdown-line"><span style="color:${l.commInfo.multi?'#b45309':'#999'}">コミッション条件: ${l.commInfo.text}${l.commInfo.multi?'　◆複数パターンあり（適用率を要確認）':''}</span></div>`;
     html+=`<div class="breakdown-line"><span>× TTS ${l.tts} → 実効レート ${l.effectiveFX.toFixed(2)}（TTS+${l.ttsMarkupPct||0}%）</span><span class="bv">${fmt(l.costJPY+l.ttsGainJPY)}</span></div>`;
-    if((l.progMarkupPct||0)>0)html+=`<div class="breakdown-line"><span>プログラム/来年度上乗せ +${l.progMarkupPct}%</span><span class="bv">${fmt(l.progGainJPY)}</span></div>`;
+    if((l.progMarkupPct||0)>0)html+=`<div class="breakdown-line"><span>プログラム上乗せ +${l.progMarkupPct}%</span><span class="bv">${fmt(l.progGainJPY)}</span></div>`;
     html+=`<div class="breakdown-line" style="font-weight:500"><span>→ 海外プログラム費用</span><span class="bv">${fmt(l.jpy)}</span></div>`;
     l.items.forEach(item=>{html+=`<div style="margin:6px 0 2px;font-size:11px;color:#999;text-transform:uppercase;">${item.section}</div>`;item.lines.forEach(ln=>{html+=`<div class="breakdown-line" style="padding-left:8px"><span>${ln.label}</span><span class="bv">${fmtC(ln.local,l.currency)}</span></div>`;});});
   });
@@ -1656,7 +1677,7 @@ function calcAll() {
     coordSchools:schoolSections.filter(s=>s.coord>0).length,
     visaNote:visaHasExtra,totalCommJPY,totalProgMarkupJPY,totalTTSMarkupJPY,
     progMarkupPct: schoolSections.map(s=>parseFloat(s.progMarkup)||0).join("/"),
-    ttsMarkupPct:  schoolSections.map(s=>parseFloat(s.ttsMarkup??10)).join("/"),
+    ttsMarkupPct:  schoolSections.map(s=>normTtsPct(s.ttsMarkup??10)).join("/"),
     client:document.getElementById("client-name").value,
     project:document.getElementById("project-name").value,
     quoteDate:document.getElementById("quote-date").value,
@@ -1748,7 +1769,7 @@ function exportPDF() {
       html += `<div style="margin-bottom:6px">
         <div style="font-weight:600;color:#333;margin-bottom:2px">${l.label}</div>
         <div style="padding-left:8px">原価 ${fmtC(l.local,l.currency)} × TTS ${l.tts} → 実効レート ${(l.effectiveFX||l.tts).toFixed(2)} = ${fmt(l.costJPY+l.ttsGainJPY)}</div>
-        ${(l.progGainJPY||0)>0?`<div style="padding-left:8px">プログラム/来年度上乗せ +${l.progMarkupPct}% = ${fmt(l.progGainJPY)}</div>`:""}
+        ${(l.progGainJPY||0)>0?`<div style="padding-left:8px">プログラム上乗せ +${l.progMarkupPct}% = ${fmt(l.progGainJPY)}</div>`:""}
       </div>`;
     });
     html += `</div></div>`;
@@ -1863,21 +1884,6 @@ function migrateOldData() {
 
 function saveQuote() {
   syncTabSections();
-  // 目視確認チェック：未確認の学校があれば保存不可
-  const unverified = [];
-  tabs.forEach(t => {
-    (t.schoolSections||[]).forEach((s, si) => {
-      const hasContent = s.school || (s.bsPrograms||[]).length>0 || (s.courses||[]).some(c=>c.course) || (s.accoms||[]).some(a=>a.accom);
-      if (hasContent && !s.verified) {
-        const nm = s.school==="bschool" ? "ビジネススクール（手入力）" : (SCHOOLS[s.school]?.name || `学校 ${si+1}`);
-        unverified.push(`　・${getTabName(t)}：${nm}`);
-      }
-    });
-  });
-  if (unverified.length > 0) {
-    alert(`⚠️ 保存できません。\n\n以下の学校について「Price Listまたはウェブサイトと目視で確認しました」のチェックが入っていません：\n\n${unverified.join("\n")}\n\n価格を目視で照合のうえ、各学校セクションのチェックボックスをオンにしてから保存してください。`);
-    return;
-  }
   const client = document.getElementById("client-name").value || "（未設定）";
   const project = document.getElementById("project-name").value || "（未設定）";
   const date = document.getElementById("quote-date").value || new Date().toISOString().split("T")[0];
@@ -2009,11 +2015,12 @@ function exportCurrentExcel() {
   const date=document.getElementById("quote-date").value||new Date().toISOString().split("T")[0];
   const targets=tabs.filter(t=>t.result).map(t=>({
     client, project, date, tabName:getTabName(t),
-    freeeLines:t.result.freeeLines, coord:t.result.coord, visa:t.result.visa,
-    total:t.result.total, grossProfit:t.result.grossProfit,
+    freeeLines:t.result.freeeLines||[], coord:t.result.coord||0, visa:t.result.visa||0,
+    total:t.result.total||0, grossProfit:t.result.grossProfit||0,
     totalCommJPY:t.result.totalCommJPY||0, progMarkupPct:t.result.progMarkupPct||0,
     ttsMarkupPct:t.result.ttsMarkupPct||0, jpyAddons:t.result.jpyAddons||[],
-    links:_collectLinks(t.schoolSections),
+    totalTTSMarkupJPY:t.result.totalTTSMarkupJPY||0, totalProgMarkupJPY:t.result.totalProgMarkupJPY||0,
+    coordSchools:t.result.coordSchools||0,
   }));
   if (targets.length===0) { alert("先に計算してください"); return; }
   _exportToExcel(targets, `GETC_見積_${client}_${date}`);
@@ -2032,8 +2039,8 @@ function exportProjectExcel(id) {
       totalCommJPY:t.result.totalCommJPY||0,
       totalTTSMarkupJPY:t.result.totalTTSMarkupJPY||0,
       totalProgMarkupJPY:t.result.totalProgMarkupJPY||0,
-      jpyAddons:t.result.jpyAddons||[],
-      links:_collectLinks(t.schoolSections) });
+      coordSchools:t.result.coordSchools||0,
+      jpyAddons:t.result.jpyAddons||[] });
   });
   if (targets.length===0) { alert("この案件に計算済みの見積がありません"); return; }
   _exportToExcel(targets, `GETC_見積_${p.client}_${p.project}`);
@@ -2050,8 +2057,11 @@ function exportExcel() {
         tabName:t.name||"案", freeeLines:t.result.freeeLines||[],
         coord:t.result.coord||0, visa:t.result.visa||0,
         total:t.result.total||0, grossProfit:t.result.grossProfit||0,
-        jpyAddons:t.result.jpyAddons||[],
-        links:_collectLinks(t.schoolSections) });
+        totalCommJPY:t.result.totalCommJPY||0,
+        totalTTSMarkupJPY:t.result.totalTTSMarkupJPY||0,
+        totalProgMarkupJPY:t.result.totalProgMarkupJPY||0,
+        coordSchools:t.result.coordSchools||0,
+        jpyAddons:t.result.jpyAddons||[] });
     });
   });
   if (targets.length===0) { alert("計算済みの案件がありません"); return; }
@@ -2075,62 +2085,47 @@ function _lineFormula(ln) {
   return null;
 }
 
-// 学校セクションから全リンク（Price List URL・BS出典URL）を収集
-function _collectLinks(sections) {
-  const links = [];
-  (sections||[]).forEach((s, si) => {
-    const nm = s.school==="bschool" ? "ビジネススクール（手入力）" : (SCHOOLS[s.school]?.name || `学校 ${si+1}`);
-    (s.priceListUrls||[]).forEach(u => {
-      if (u && u.trim()) links.push({ label:`${nm}｜Price List`, url:u.trim() });
-    });
-    (s.bsPrograms||[]).forEach(p => {
-      if (p.url && p.url.trim()) links.push({ label:`${p.name||"ビジネススクール プログラム"}｜出典${p.checked?`（価格確認日: ${p.checked}）`:""}`, url:p.url.trim() });
-    });
-  });
-  return links;
-}
-
 function _exportToExcel(targets, filename) {
-  // SheetJS で .xlsx を生成。列構成: A項目 / B外貨金額 / C通貨 / D計算レート / E円換算 / F円換算(万円・繰上げ)
-  // 外貨金額は 単価×週数 の数式、円換算は =ROUND(B行*D行,0)、万円は =ROUNDUP(E行/10000,0)。
+  // 列構成: A項目 / B外貨金額 / C通貨 / D計算レート / E金額（円・万円繰上げ）
+  // ・D = ROUND(TTS×(1+上乗せ率),2) の数式（例: TTS215.43×1.10=236.97）
+  // ・E = ROUNDUP(B×D/10000,0)*10000（万円に繰り上げて円表記 例: 1,110,000円）
+  // ・TTS差益／プログラム/来年度上乗せは明細行に含めず、別行に数式で出力
+  // ・コミッション体系が2パターン以上の学校は「▼」行を黄色ハイライト＋◆印
   const rows = [];
-  const formulas = [];          // {r, c, f}
-  const hyperlinks = [];        // {r, c, url}
+  const formulas = [];   // {r,c,f}
+  const yenCells = [];   // '#,##0"円"' 書式を当てるセル {r,c}
+  const hlRows = [];     // 黄色ハイライト行（0始まり）
   const push = (arr) => { rows.push(arr); return rows.length; };
-  const manCeil = n => Math.ceil(Math.round(n)/10000); // 万単位・繰り上げ
-  const addManF = (r, val) => { rows[r-1][5] = manCeil(val); formulas.push({ r:r-1, c:5, f:`ROUNDUP(E${r}/10000,0)` }); };
+  const ceilMan = v => Math.ceil((v||0)/10000)*10000;
 
   targets.forEach((q, qi) => {
     if (qi > 0) { push([]); push([]); }
 
     push([`■ 見積書　${q.client}　${q.project}${q.tabName?`　[${q.tabName}]`:""}　${q.date}`]);
+    if ((q.freeeLines||[]).some(l=>!l.isJPY && l.commInfo && l.commInfo.multi))
+      push([`※「◆」印＝コミッション体系が2パターン以上ある学校（▼行を黄色ハイライト・適用率を要確認）`]);
     push([]);
 
-    // 参照リンク（Price List / 出典URL）— クリックで開けるハイパーリンク
-    if (q.links && q.links.length > 0) {
-      push(["▼ 参照リンク（Price List / 出典URL）※クリックで開けます"]);
-      q.links.forEach(lk => {
-        const r = push([`　${lk.label}`, lk.url]);
-        hyperlinks.push({ r:r-1, c:1, url:lk.url });
-      });
-      push([]);
-    }
-
-    const subtotalRefs = [];
-    const jpyRefs = [];
+    const subtotalRefs = [], jpyRefs = [], ttsGainRefs = [], progGainRefs = [];
+    let cachedTotal = 0, cachedTts = 0, cachedProg = 0;
 
     q.freeeLines && q.freeeLines.forEach(l => {
       if (l.isJPY) return;
 
       const cur = l.currency || "GBP";
       const tts = l.tts || 1;
-      const effRate = l.effectiveFX || tts;
-      const lTtsPct = l.ttsMarkupPct ?? 0;
-      const lProgPct = l.progMarkupPct ?? 0;
+      const lTtsPct = normTtsPct(l.ttsMarkupPct ?? 0);     // 110と保存されていても+10%に補正
+      const factor = Math.round((1 + lTtsPct/100)*10000)/10000;
+      const rate = Math.round(tts*factor*100)/100;
+      const lProgPct = parseFloat(l.progMarkupPct)||0;
+      const multi = !!(l.commInfo && l.commInfo.multi);
+      const rateFormula = `ROUND(${tts}*${factor},2)`;
 
-      push([`▼ ${l.label}`]);
-      push([`　TTS ${tts}　TTS上乗せ: ${lTtsPct}%　プログラム/来年度上乗せ: ${lProgPct}%　→ 計算レート: ${Math.round(effRate*100)/100}`]);
-      push(["　項目", "外貨金額", "通貨", `計算レート(TTS+${lTtsPct}%)`, "円換算", "円換算(万円・繰上げ)"]);
+      const hr = push([`▼ ${l.label}${multi?"　◆コミッション複数パターンあり（要確認）":""}`]);
+      if (multi) hlRows.push(hr-1);
+      if (l.commInfo) push([`　コミッション条件: ${l.commInfo.text}`]);
+      push([`　TTS ${tts}　TTS上乗せ: +${lTtsPct}%　→ 計算レート: ${rate}（= ${tts} × ${factor}）${lProgPct>0?`　※プログラム/来年度上乗せ(+${lProgPct}%)は明細レートに含めず下段で別途加算`:""}`]);
+      push(["　項目", "外貨金額", "通貨", `計算レート(TTS×${Math.round(factor*100)}%)`, "金額（円・万円繰上げ）"]);
 
       const detailRows = [];
       l.items && l.items.forEach(item => {
@@ -2143,69 +2138,85 @@ function _exportToExcel(targets, filename) {
             const m = String(lbl).match(/^宿泊\s*×\s*(\d+)週$/);
             if (m) lbl = `宿泊 ${lf.split("*")[0]}/週 × ${m[1]}週`;
           }
-          const r = push([
-            `　　${lbl}`, localAmt, cur,
-            Math.round(effRate * 100) / 100,
-            Math.round(localAmt * effRate),
-          ]);
+          const r = push([`　　${lbl}`, localAmt, cur, rate, ceilMan(localAmt*rate)]);
           detailRows.push(r);
-          if (lf) formulas.push({ r: r-1, c: 1, f: lf });                 // 外貨金額 = 単価×週数
-          formulas.push({ r: r-1, c: 4, f: `ROUND(B${r}*D${r},0)` });      // 円換算 = 外貨×計算レート
-          addManF(r, localAmt * effRate);                                   // 万円（繰り上げ）
+          if (lf) formulas.push({ r:r-1, c:1, f:lf });                              // 外貨金額 = 単価×週数
+          formulas.push({ r:r-1, c:3, f:rateFormula });                             // 計算レート = TTS×係数
+          formulas.push({ r:r-1, c:4, f:`ROUNDUP(B${r}*D${r}/10000,0)*10000` });    // 万円繰上げの円額
+          yenCells.push({ r:r-1, c:4 });
         });
       });
 
-      let progRow = null;
-      if (l.ttsGainJPY > 0) {
-        const tgr = push([`　TTS上乗せ差益 (+${lTtsPct}%)　※明細の計算レートに含まれるため小計には加算しない`, "", "", "", Math.round(l.ttsGainJPY)]);
-        addManF(tgr, l.ttsGainJPY);
+      const localArgs = detailRows.map(r=>`B${r}`);
+      const localSum = localArgs.length ? `SUM(${localArgs.join(",")})` : "0";
+      const eRefs = detailRows.map(r=>`E${r}`);
+      let cachedSub = detailRows.reduce((s,r)=>s+(rows[r-1][4]||0),0);
+
+      if (detailRows.length && lTtsPct>0) {
+        const v = ceilMan((l.local||0)*tts*lTtsPct/100);
+        const gr = push([`　TTS上乗せ差益（TTSの+${lTtsPct}%分）　※明細の計算レートに含まれるため小計には加算しない`, "", "", "", v]);
+        formulas.push({ r:gr-1, c:4, f:`ROUNDUP(${localSum}*${tts}*${lTtsPct/100}/10000,0)*10000` });
+        yenCells.push({ r:gr-1, c:4 }); ttsGainRefs.push(`E${gr}`); cachedTts += v;
       }
-      if (l.progGainJPY > 0) {
-        progRow = push([`　プログラム/来年度上乗せ (+${lProgPct}%)`, "", "", "", Math.round(l.progGainJPY)]);
-        addManF(progRow, l.progGainJPY);
+      if (detailRows.length && lProgPct>0) {
+        const v = ceilMan((l.local||0)*rate*lProgPct/100);
+        const pr2 = push([`　プログラム/来年度上乗せ (+${lProgPct}%)　※上の明細行には含まれていません`, "", "", "", v]);
+        formulas.push({ r:pr2-1, c:4, f:`ROUNDUP(${localSum}*${rateFormula}*${lProgPct/100}/10000,0)*10000` });
+        yenCells.push({ r:pr2-1, c:4 }); progGainRefs.push(`E${pr2}`); eRefs.push(`E${pr2}`);
+        cachedProg += v; cachedSub += v;
       }
 
-      const sumArgs = detailRows.map(r => `E${r}`);
-      if (progRow) sumArgs.push(`E${progRow}`);
-      const localArgs = detailRows.map(r => `B${r}`);
-      const sr = push([`　▶ ${l.label} 小計`, Math.round(l.local*100)/100, cur, Math.round(effRate*100)/100, Math.round(l.jpy)]);
-      if (localArgs.length) formulas.push({ r: sr-1, c: 1, f: `SUM(${localArgs.join(",")})` });
-      if (sumArgs.length)   formulas.push({ r: sr-1, c: 4, f: `SUM(${sumArgs.join(",")})` });
-      addManF(sr, l.jpy);
-      subtotalRefs.push(`E${sr}`);
+      const sr = push([`　▶ ${l.label} 小計`, Math.round((l.local||0)*100)/100, cur, rate, cachedSub]);
+      if (detailRows.length) {
+        formulas.push({ r:sr-1, c:1, f:localSum });
+        formulas.push({ r:sr-1, c:3, f:rateFormula });
+      }
+      if (eRefs.length) formulas.push({ r:sr-1, c:4, f:`SUM(${eRefs.join(",")})` });
+      yenCells.push({ r:sr-1, c:4 });
+      subtotalRefs.push(`E${sr}`); cachedTotal += cachedSub;
       push([]);
     });
 
     // 円建て費用
     const jpyLines = [];
-    if ((q.coord||0) > 0) jpyLines.push([`コーディネーション費用（${q.coordSchools}校）`, "", "JPY", 1, q.coord]);
-    if ((q.visa||0) > 0)  jpyLines.push([`ビザ申請費用`, "", "JPY", 1, q.visa]);
-    q.jpyAddons && q.jpyAddons.forEach(a => { jpyLines.push([a.label, "", "JPY", 1, a.jpy]); });
+    if ((q.coord||0) > 0) {
+      const n = q.coordSchools || (q.freeeLines||[]).filter(l=>l.isJPY&&String(l.label).includes("コーディネーション")).length;
+      jpyLines.push([`コーディネーション費用${n?`（${n}校）`:""}`, q.coord, "JPY", 1, ceilMan(q.coord)]);
+    }
+    if ((q.visa||0) > 0)  jpyLines.push([`ビザ申請費用`, q.visa, "JPY", 1, ceilMan(q.visa)]);
+    q.jpyAddons && q.jpyAddons.forEach(a => { jpyLines.push([a.label, a.jpy, "JPY", 1, ceilMan(a.jpy)]); });
     if (jpyLines.length > 0) {
       push(["▼ 円建て費用"]);
-      push(["　項目", "", "通貨", "", "金額（円）", "金額（万円・繰上げ）"]);
-      jpyLines.forEach(r => { const rn = push(r); jpyRefs.push(`E${rn}`); addManF(rn, r[4]); });
+      push(["　項目", "金額", "通貨", "レート", "金額（円・万円繰上げ）"]);
+      jpyLines.forEach(rr => { const rn = push(rr); jpyRefs.push(`E${rn}`);
+        formulas.push({ r:rn-1, c:4, f:`ROUNDUP(B${rn}*D${rn}/10000,0)*10000` });
+        yenCells.push({ r:rn-1, c:4 }); cachedTotal += rr[4]; });
       push([]);
     }
 
     // 合計・粗利
     const totalArgs = [...subtotalRefs, ...jpyRefs];
-    const tr = push(["★ 見積合計", "", "", "", Math.round(q.total)]);
-    if (totalArgs.length) formulas.push({ r: tr-1, c: 4, f: `SUM(${totalArgs.join(",")})` });
-    addManF(tr, q.total);
-    const cr = push(["　うちコミッション（授業料×コミッション率）", "", "", "", Math.round(q.totalCommJPY||0)]);
-    addManF(cr, q.totalCommJPY||0);
-    const mr = push(["　うちTTS上乗せ差益", "", "", "", Math.round(q.totalTTSMarkupJPY||0)]);
-    addManF(mr, q.totalTTSMarkupJPY||0);
-    const pr = push(["　うちプログラム/来年度上乗せ益", "", "", "", Math.round(q.totalProgMarkupJPY||0)]);
-    addManF(pr, q.totalProgMarkupJPY||0);
+    const tr = push(["★ 見積合計", "", "", "", cachedTotal]);
+    if (totalArgs.length) formulas.push({ r:tr-1, c:4, f:`SUM(${totalArgs.join(",")})` });
+    yenCells.push({ r:tr-1, c:4 });
+
+    const commV = ceilMan(q.totalCommJPY||0);
+    const cr = push(["　うちコミッション（授業料×コミッション率）", "", "", "", commV]);
+    yenCells.push({ r:cr-1, c:4 });
+    const mr = push(["　うちTTS上乗せ差益", "", "", "", cachedTts || ceilMan(q.totalTTSMarkupJPY||0)]);
+    if (ttsGainRefs.length) formulas.push({ r:mr-1, c:4, f:`SUM(${ttsGainRefs.join(",")})` });
+    yenCells.push({ r:mr-1, c:4 });
+    const pr = push(["　うちプログラム/来年度上乗せ益", "", "", "", cachedProg || ceilMan(q.totalProgMarkupJPY||0)]);
+    if (progGainRefs.length) formulas.push({ r:pr-1, c:4, f:`SUM(${progGainRefs.join(",")})` });
+    yenCells.push({ r:pr-1, c:4 });
     let cdr = null;
-    if ((q.coord||0) > 0) { cdr = push(["　うちコーディネーション", "", "", "", q.coord]); addManF(cdr, q.coord); }
-    const gr = push(["★ 粗利合計", "", "", "", Math.round(q.grossProfit)]);
+    if ((q.coord||0) > 0) { cdr = push(["　うちコーディネーション", "", "", "", ceilMan(q.coord)]); yenCells.push({ r:cdr-1, c:4 }); }
+
     const gpArgs = [`E${cr}`,`E${mr}`,`E${pr}`]; if (cdr) gpArgs.push(`E${cdr}`);
-    const gpSum = Math.round(q.totalCommJPY||0)+Math.round(q.totalTTSMarkupJPY||0)+Math.round(q.totalProgMarkupJPY||0)+(cdr?(q.coord||0):0);
-    if (Math.abs(gpSum-Math.round(q.grossProfit))<=2) formulas.push({ r: gr-1, c: 4, f: `SUM(${gpArgs.join(",")})` });
-    addManF(gr, q.grossProfit);
+    const cachedGp = commV + (rows[mr-1][4]||0) + (rows[pr-1][4]||0) + (cdr?(rows[cdr-1][4]||0):0);
+    const gr2 = push(["★ 粗利合計", "", "", "", cachedGp]);
+    formulas.push({ r:gr2-1, c:4, f:`SUM(${gpArgs.join(",")})` });
+    yenCells.push({ r:gr2-1, c:4 });
     push([]);
   });
 
@@ -2215,13 +2226,18 @@ function _exportToExcel(targets, filename) {
     if (!ws[addr]) ws[addr] = { t:"n", v:0 };
     ws[addr].f = f;
   });
-  // ハイパーリンク（クリックでPrice List・出典ページへ）
-  hyperlinks.forEach(({r,c,url}) => {
+  yenCells.forEach(({r,c}) => {
     const addr = XLSX.utils.encode_cell({ r, c });
-    if (!ws[addr]) ws[addr] = { t:"s", v:url };
-    ws[addr].l = { Target: url, Tooltip: url };
+    if (ws[addr]) ws[addr].z = '#,##0"円"';
   });
-  ws["!cols"] = [{wch:64},{wch:12},{wch:6},{wch:16},{wch:16},{wch:18}];
+  // 複数パターン学校の▼行を黄色ハイライト（xlsx-js-style読込時のみ有効。未読込でも◆印テキストで判別可能）
+  const HL = { fill:{ patternType:"solid", fgColor:{ rgb:"FFF3CD" } }, font:{ bold:true } };
+  hlRows.forEach(r0 => { for (let c=0;c<5;c++){
+    const addr = XLSX.utils.encode_cell({ r:r0, c });
+    if (!ws[addr]) ws[addr] = { t:"s", v:"" };
+    ws[addr].s = HL;
+  }});
+  ws["!cols"] = [{wch:64},{wch:12},{wch:6},{wch:20},{wch:20}];
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "見積");
   XLSX.writeFile(wb, `${filename}.xlsx`);
