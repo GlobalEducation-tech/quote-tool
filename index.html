@@ -473,7 +473,7 @@ function onNationalityChange() {
     content.innerHTML=`<input type="text" id="person-country" placeholder="例：韓国" style="width:100%;padding:7px 10px;border:0.5px solid #ddddd8;border-radius:6px;font-size:13px;height:34px">`;
   } else if (val==="unknown") {
     lbl.textContent="　";
-    content.innerHTML=`<div style="font-size:12px;color:#856404;background:#fff3cd;padding:7px 10px;border-radius:6px;line-height:1.5">国籍不明の場合、ビザ申請費用は<br>外国籍（¥300,000）で計算してください</div>`;
+    content.innerHTML=`<div style="font-size:12px;color:#856404;background:#fff3cd;padding:7px 10px;border-radius:6px;line-height:1.5">国籍不明の場合、ビザ申請費用は<br>外国籍（¥400,000）で計算してください</div>`;
   } else {
     lbl.textContent="　";
     content.innerHTML="";
@@ -781,12 +781,10 @@ function renderSchoolSection(s, si) {
           <input type="number" value="${s.ttsMarkup??10}" min="0" max="20" oninput="updateSection(${s.id},'ttsMarkup',this.value)">
         </div>
         <div class="field">
-          <label>追加上乗せ 名目（見積書に表示）</label>
-          <input type="text" value="${(s.flatMarkupLabel||"追加上乗せ").replace(/"/g,'&quot;')}" placeholder="例：追加上乗せ、手配料" onchange="updateSection(${s.id},'flatMarkupLabel',this.value)">
-        </div>
-        <div class="field">
-          <label>追加上乗せ 金額（円）※粗利に計上・マイナス可</label>
-          <input type="number" value="${s.flatMarkup||0}" step="any" oninput="updateSection(${s.id},'flatMarkup',this.value)">
+          <label>追加上乗せ（円）※自由入力・粗利に計上・マイナス可</label>
+          <input type="text" inputmode="numeric" value="${s.flatMarkup?Number(s.flatMarkup).toLocaleString("ja-JP"):""}" placeholder="例：100000"
+            oninput="updateSection(${s.id},'flatMarkup',this.value.replace(/[,，\s円]/g,''))"
+            onchange="this.value=(parseFloat(this.value.replace(/[,，\s円]/g,''))||0).toLocaleString('ja-JP')">
         </div>
         <div class="field">
           <label>コーディネーション</label>
@@ -805,8 +803,8 @@ function renderSchoolSection(s, si) {
             <option value="0" ${s.visaType==="0"?"selected":""}>なし</option>
             <option value="200000" ${s.visaType==="200000"?"selected":""}>米国・日本国籍（¥200,000）</option>
             <option value="250000" ${s.visaType==="250000"?"selected":""}>NZ・日本国籍（¥250,000）</option>
-            <option value="300000" ${s.visaType==="300000"?"selected":""}>米国・外国籍（¥300,000）</option>
-            <option value="300000b" ${s.visaType==="300000b"?"selected":""}>その他・外国籍（¥300,000+実費）</option>
+            <option value="400000" ${s.visaType==="400000"||s.visaType==="300000"?"selected":""}>米国・外国籍（¥400,000）</option>
+            <option value="400000b" ${s.visaType==="400000b"||s.visaType==="300000b"?"selected":""}>その他・外国籍（¥400,000+実費）</option>
           </select>
         </div>
       </div>
@@ -941,7 +939,7 @@ function updateSection(sid, field, val) {
     s.privLessons.forEach(b=>{b.campus=val;b.pricePerLesson=PRIVATE_LESSON_PRICES[s.school]?.[val]||null;});
   } else if (field==="coord"||field==="visaType") {
     s[field] = field==="coord" ? parseInt(val)||0 : val;
-    s.visa = field==="visaType" ? (val==="300000b"?300000:parseInt(val)||0) : s.visa;
+    s.visa = field==="visaType" ? (String(val).endsWith("b")?parseInt(val)||0:parseInt(val)||0) : s.visa;
   } else {
     s[field] = parseFloat(val)||0;
   }
@@ -1647,11 +1645,13 @@ function calcAll() {
 
     // コーディネーション・ビザ（セクションごと）
     const sFlat=Math.round(parseFloat(s.flatMarkup)||0);
-    if(sFlat!==0){const _fl=(s.flatMarkupLabel||"追加上乗せ").trim()||"追加上乗せ";
-      allJpyAddons.push({label:schoolSections.length>1?`${_fl}（学校 ${si+1}）`:_fl,jpy:sFlat,type:"flat-markup"});}
+    if(sFlat!==0){allJpyAddons.push({label:schoolSections.length>1?`追加上乗せ（学校 ${si+1}）`:"追加上乗せ",jpy:sFlat,type:"flat-markup"});}
     if(s.coord>0){totalCoord+=s.coord;freeeLines.push({label:`コーディネーション費用（学校 ${si+1}）`,jpy:s.coord,isJPY:true});}
-    const sVisa=s.visaType==="300000b"?300000:(parseInt(s.visaType)||0);
-    if(sVisa>0){totalVisa+=sVisa;if(s.visaType==="300000b")visaHasExtra=true;freeeLines.push({label:`ビザ申請費用（学校 ${si+1}）${s.visaType==="300000b"?" *":""}`,jpy:sVisa,isJPY:true});}
+    // 外国籍（米国・その他）は2026年8月改定で¥400,000。旧保存データ（¥300,000）も新料金に読み替える。
+    let sVisa=parseInt(s.visaType)||0;
+    const visaB=String(s.visaType||"").endsWith("b");
+    if(s.visaType==="300000"||s.visaType==="300000b")sVisa=400000;
+    if(sVisa>0){totalVisa+=sVisa;if(visaB)visaHasExtra=true;freeeLines.push({label:`ビザ申請費用（学校 ${si+1}）${visaB?" *":""}`,jpy:sVisa,isJPY:true});}
   }); // end schoolSections.forEach
 
   // 円建てAdd-ons
