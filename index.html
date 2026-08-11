@@ -675,7 +675,7 @@ function addSchoolSection() {
   schoolSections.push({
     id: ++ssIdx,
     country: "", school: "", campus: "",
-    progMarkup: 0, ttsMarkup: 10, flatMarkup: 0,
+    progMarkup: 0, ttsMarkup: 10, flatMarkup: 0, flatMarkupLabel: "追加上乗せ",
     coord: 150000, visa: 0, visaType: "0",
     priceListUrls: [],
     courses: [], accoms: [], privLessons: [], addons: [], bsPrograms: [],
@@ -781,8 +781,12 @@ function renderSchoolSection(s, si) {
           <input type="number" value="${s.ttsMarkup??10}" min="0" max="20" oninput="updateSection(${s.id},'ttsMarkup',this.value)">
         </div>
         <div class="field">
-          <label>追加上乗せ（円）※粗利に計上</label>
-          <input type="number" value="${s.flatMarkup||0}" min="0" step="1000" oninput="updateSection(${s.id},'flatMarkup',this.value)">
+          <label>追加上乗せ 名目（見積書に表示）</label>
+          <input type="text" value="${(s.flatMarkupLabel||"追加上乗せ").replace(/"/g,'&quot;')}" placeholder="例：追加上乗せ、手配料" onchange="updateSection(${s.id},'flatMarkupLabel',this.value)">
+        </div>
+        <div class="field">
+          <label>追加上乗せ 金額（円）※粗利に計上・マイナス可</label>
+          <input type="number" value="${s.flatMarkup||0}" step="any" oninput="updateSection(${s.id},'flatMarkup',this.value)">
         </div>
         <div class="field">
           <label>コーディネーション</label>
@@ -1643,7 +1647,8 @@ function calcAll() {
 
     // コーディネーション・ビザ（セクションごと）
     const sFlat=Math.round(parseFloat(s.flatMarkup)||0);
-    if(sFlat>0){allJpyAddons.push({label:`追加上乗せ（学校 ${si+1}）`,jpy:sFlat,type:"flat-markup"});}
+    if(sFlat!==0){const _fl=(s.flatMarkupLabel||"追加上乗せ").trim()||"追加上乗せ";
+      allJpyAddons.push({label:schoolSections.length>1?`${_fl}（学校 ${si+1}）`:_fl,jpy:sFlat,type:"flat-markup"});}
     if(s.coord>0){totalCoord+=s.coord;freeeLines.push({label:`コーディネーション費用（学校 ${si+1}）`,jpy:s.coord,isJPY:true});}
     const sVisa=s.visaType==="300000b"?300000:(parseInt(s.visaType)||0);
     if(sVisa>0){totalVisa+=sVisa;if(s.visaType==="300000b")visaHasExtra=true;freeeLines.push({label:`ビザ申請費用（学校 ${si+1}）${s.visaType==="300000b"?" *":""}`,jpy:sVisa,isJPY:true});}
@@ -1999,16 +2004,71 @@ function clearAllQuotes() {
   renderSavedQuotes();
 }
 
+// ===== 案件のファイル共有（Google Drive等での受け渡し用） =====
+function _downloadJSON(obj, filename) {
+  const blob = new Blob([JSON.stringify(obj, null, 1)], { type:"application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = filename;
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+}
+function exportProjectFile(id) {
+  const p = loadProjects().find(x=>x.id===id);
+  if (!p) return;
+  _downloadJSON({ type:"getc-quote-project", version:1, exportedAt:new Date().toISOString(), projects:[p] },
+    `GETC案件_${p.client}_${p.project}_${new Date().toISOString().split("T")[0]}.json`);
+}
+function exportAllProjectsFile() {
+  const ps = loadProjects();
+  if (ps.length===0) { alert("保存済みの案件がありません"); return; }
+  _downloadJSON({ type:"getc-quote-project", version:1, exportedAt:new Date().toISOString(), projects:ps },
+    `GETC案件_全件_${new Date().toISOString().split("T")[0]}.json`);
+}
+function importProjectFile() {
+  const inp = document.createElement("input");
+  inp.type = "file"; inp.accept = ".json,application/json";
+  inp.onchange = () => {
+    const f = inp.files && inp.files[0]; if (!f) return;
+    const rd = new FileReader();
+    rd.onload = () => {
+      try {
+        const data = JSON.parse(rd.result);
+        if (data.type!=="getc-quote-project" || !Array.isArray(data.projects)) { alert("この見積ツールの案件ファイルではありません"); return; }
+        const projects = loadProjects();
+        let added=0, replaced=0;
+        data.projects.forEach(np => {
+          const i = projects.findIndex(p=>p.client===np.client && p.project===np.project);
+          if (i>=0) {
+            if (confirm(`「${np.client} / ${np.project}」は既に保存されています。読み込んだ内容で置き換えますか？\n（キャンセルすると別の案件として追加します）`)) {
+              np.id = projects[i].id; projects[i] = np; replaced++;
+            } else { np.id = Date.now()+Math.floor(Math.random()*1000); np.project = np.project+"（読込）"; projects.push(np); added++; }
+          } else {
+            if (projects.some(p=>p.id===np.id)) np.id = Date.now()+Math.floor(Math.random()*1000);
+            projects.push(np); added++;
+          }
+        });
+        saveProjects(projects); renderSavedQuotes();
+        alert(`読み込み完了：追加 ${added}件・置き換え ${replaced}件`);
+      } catch(e) { alert("ファイルの読み込みに失敗しました: "+e.message); }
+    };
+    rd.readAsText(f);
+  };
+  inp.click();
+}
+
 function renderSavedQuotes() {
   const el=document.getElementById("saved-quotes-list");
   const projects=loadProjects();
   if (projects.length===0) {
-    el.innerHTML=`<div style="font-size:13px;color:#999;text-align:center;padding:8px 0">保存済みの案件はありません</div>`;
+    el.innerHTML=`<div style="font-size:13px;color:#999;text-align:center;padding:8px 0">保存済みの案件はありません</div>
+      <div style="display:flex;justify-content:center"><button class="btn btn-sm" onclick="importProjectFile()">📂 ファイルから読み込み</button></div>`;
     return;
   }
   el.innerHTML=`
-    <div style="margin-bottom:8px;display:flex;gap:8px">
+    <div style="margin-bottom:8px;display:flex;gap:8px;flex-wrap:wrap">
       <button class="btn btn-sm" onclick="exportExcel()">📥 全件をExcel出力</button>
+      <button class="btn btn-sm" onclick="exportAllProjectsFile()">📤 全件をファイルへ書き出し</button>
+      <button class="btn btn-sm" onclick="importProjectFile()">📂 ファイルから読み込み</button>
     </div>`+
   projects.map(p=>{
     const savedAt=p.savedAt?new Date(p.savedAt).toLocaleDateString("ja-JP"):p.date;
@@ -2026,6 +2086,7 @@ function renderSavedQuotes() {
         <div style="display:flex;gap:6px;flex-shrink:0">
           <button class="btn btn-sm btn-primary" onclick="loadProject(${p.id})">開く</button>
           <button class="btn btn-sm" onclick="exportProjectExcel(${p.id})">📥 Excel</button>
+          <button class="btn btn-sm" onclick="exportProjectFile(${p.id})">📤 共有用ファイル</button>
           <button class="btn btn-sm btn-danger" onclick="deleteQuote(${p.id})">削除</button>
         </div>
       </div>
