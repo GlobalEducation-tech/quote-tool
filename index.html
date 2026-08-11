@@ -735,6 +735,23 @@ function renderSchoolSection(s, si) {
       <div class="field"><label>学校</label><select onchange="updateSection(${s.id},'school',this.value)">${schoolOpts}</select></div>
       ${campKeys.length>1 ? `<div class="field"><label>キャンパス</label><select onchange="updateSection(${s.id},'campus',this.value)">${campOpts}</select></div>` : `<div class="field"><label>キャンパス</label><select onchange="updateSection(${s.id},'campus',this.value)">${campOpts}</select></div>`}
     </div>
+    ${(() => {
+      if (!s.school || s.school==="bschool" || !SCHOOLS[s.school]) return "";
+      const ci = SCHOOLS[s.school]._commInfo;
+      // school_data.js のコース定義から実際に使われる率を収集
+      const rateSet = new Set();
+      Object.values(SCHOOLS[s.school].campuses||{}).forEach(c=>Object.values(c.courses||{}).forEach(cs=>{
+        if (typeof cs.commission==="number" && cs.commission>0) rateSet.add(Math.round(cs.commission*1000)/10);
+      }));
+      const rates = [...rateSet].sort((a,b)=>a-b);
+      const rateTxt = rates.length ? rates.map(r=>r+"%").join(" / ") : "—";
+      const isMulti = ci && ci.multi;
+      const bg = isMulti ? "#fff3cd" : "#e8f6ee";
+      const fg = isMulti ? "#856404" : "#166534";
+      return `<div style="margin:-2px 0 10px;padding:7px 10px;background:${bg};border-radius:6px;font-size:12px;color:${fg};line-height:1.6">
+        💰 <b>コミッション率: ${rateTxt}</b>${ci?`　｜契約条件: ${ci.text}`:""}${isMulti?`<br>◆ この学校はコミッション体系が2パターン以上あります。適用率をご確認ください。`:""}
+      </div>`;
+    })()}
     <!-- Price List URL（複数追加可） -->
     <div style="margin-bottom:10px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
@@ -2108,7 +2125,10 @@ function _exportToExcel(targets, filename) {
   const formulas = [];   // {r,c,f}
   const yenCells = [];   // '#,##0"円"' 書式を当てるセル {r,c}
   const pctCells = [];   // '0.0%' 書式を当てるセル {r,c}
-  const hlRows = [];     // 黄色ハイライト行（0始まり）
+  const hlRows = [];     // 黄色ハイライト行（0始まり・コミッション複数パターン警告）
+  const secRows = [];    // 青（薄）: ▼セクション見出し行
+  const totalRows = [];  // 青（濃・白字）: ★見積合計行
+  const profitRows = []; // 緑: ★粗利合計・粗利率行
   const push = (arr) => { rows.push(arr); return rows.length; };
   const ceilMan = v => Math.ceil((v||0)/10000)*10000;
 
@@ -2136,7 +2156,7 @@ function _exportToExcel(targets, filename) {
       const rateFormula = `ROUND(${tts}*${factor},2)`;
 
       const hr = push([`▼ ${l.label}${multi?"　◆コミッション複数パターンあり（要確認）":""}`]);
-      if (multi) hlRows.push(hr-1);
+      if (multi) hlRows.push(hr-1); else secRows.push(hr-1);
       const ratesTxt = (l.commRates&&l.commRates.length) ? l.commRates.map(r=>r+"%").join("/") : "";
       if (ratesTxt || l.commInfo) push([`　コミッション率: ${ratesTxt||"—"}（授業料に適用）${l.commInfo?`　｜契約条件: ${l.commInfo.text}`:""}`]);
       push([`　TTS ${tts}　TTS上乗せ: +${lTtsPct}%　→ 計算レート: ${rate}（= ${tts} × ${factor}）${lProgPct>0?`　※プログラム/来年度上乗せ(+${lProgPct}%)は明細レートに含めず下段で別途加算`:""}`]);
@@ -2202,7 +2222,7 @@ function _exportToExcel(targets, filename) {
     q.jpyAddons && q.jpyAddons.forEach(a => { jpyLines.push({ row:[a.label, a.jpy, "JPY", 1, ceilMan(a.jpy)], isAddon:true }); });
     const addonRefs = [];
     if (jpyLines.length > 0) {
-      push(["▼ 円建て費用"]);
+      const jh = push(["▼ 円建て費用"]); secRows.push(jh-1);
       push(["　項目", "金額", "通貨", "レート", "金額（円・万円繰上げ）"]);
       jpyLines.forEach(jl => { const rn = push(jl.row); jpyRefs.push(`E${rn}`);
         if (jl.isAddon) addonRefs.push(`E${rn}`);
@@ -2213,7 +2233,7 @@ function _exportToExcel(targets, filename) {
 
     // 合計・粗利
     const totalArgs = [...subtotalRefs, ...jpyRefs];
-    const tr = push(["★ 見積合計", "", "", "", cachedTotal]);
+    const tr = push(["★ 見積合計", "", "", "", cachedTotal]); totalRows.push(tr-1);
     if (totalArgs.length) formulas.push({ r:tr-1, c:4, f:`SUM(${totalArgs.join(",")})` });
     yenCells.push({ r:tr-1, c:4 });
 
@@ -2234,10 +2254,10 @@ function _exportToExcel(targets, filename) {
     // 粗利 = コミッション + コーディネーション + 追加上乗せ等。TTS差益・プログラム/来年度上乗せは含めない（下は参考表示）。
     const gpArgs = [`E${cr}`]; if (cdr) gpArgs.push(`E${cdr}`); if (ar) gpArgs.push(`E${ar}`);
     const cachedGp = commV + (cdr?(rows[cdr-1][4]||0):0) + (ar?addonV:0);
-    const gr2 = push(["★ 粗利合計（コミッション＋コーディネーション＋追加上乗せ等）", "", "", "", cachedGp]);
+    const gr2 = push(["★ 粗利合計（コミッション＋コーディネーション＋追加上乗せ等）", "", "", "", cachedGp]); profitRows.push(gr2-1);
     formulas.push({ r:gr2-1, c:4, f:`SUM(${gpArgs.join(",")})` });
     yenCells.push({ r:gr2-1, c:4 });
-    const rr = push(["★ 粗利率（粗利÷見積合計）", "", "", "", cachedTotal>0 ? cachedGp/cachedTotal : 0]);
+    const rr = push(["★ 粗利率（粗利÷見積合計）", "", "", "", cachedTotal>0 ? cachedGp/cachedTotal : 0]); profitRows.push(rr-1);
     formulas.push({ r:rr-1, c:4, f:`IF(E${tr}=0,0,E${gr2}/E${tr})` });
     pctCells.push({ r:rr-1, c:4 });
     const mr = push(["　（参考）TTS上乗せ差益　※粗利には含めない", "", "", "", cachedTts || ceilMan(q.totalTTSMarkupJPY||0)]);
@@ -2263,13 +2283,20 @@ function _exportToExcel(targets, filename) {
     const addr = XLSX.utils.encode_cell({ r, c });
     if (ws[addr]) ws[addr].z = "0.0%";
   });
-  // 複数パターン学校の▼行を黄色ハイライト（xlsx-js-style読込時のみ有効。未読込でも◆印テキストで判別可能）
-  const HL = { fill:{ patternType:"solid", fgColor:{ rgb:"FFF3CD" } }, font:{ bold:true } };
-  hlRows.forEach(r0 => { for (let c=0;c<5;c++){
+  // 行の色付け（xlsx-js-style読込時のみ有効。未読込でもテキストで判別可能）
+  const HL     = { fill:{ patternType:"solid", fgColor:{ rgb:"FFF3CD" } }, font:{ bold:true } };                              // 黄: コミッション複数パターン警告
+  const SEC    = { fill:{ patternType:"solid", fgColor:{ rgb:"D6E4F7" } }, font:{ bold:true, color:{ rgb:"1F4E79" } } };      // 薄青: ▼セクション見出し
+  const TOTAL  = { fill:{ patternType:"solid", fgColor:{ rgb:"1F4E79" } }, font:{ bold:true, color:{ rgb:"FFFFFF" } } };      // 濃青×白字: ★見積合計
+  const PROFIT = { fill:{ patternType:"solid", fgColor:{ rgb:"DCFCE7" } }, font:{ bold:true, color:{ rgb:"166534" } } };      // 緑: ★粗利合計・粗利率
+  const paintRow = (r0, st) => { for (let c=0;c<5;c++){
     const addr = XLSX.utils.encode_cell({ r:r0, c });
     if (!ws[addr]) ws[addr] = { t:"s", v:"" };
-    ws[addr].s = HL;
-  }});
+    ws[addr].s = st;   // 数値書式(.z)はそのまま活きる
+  }};
+  secRows.forEach(r0 => paintRow(r0, SEC));
+  totalRows.forEach(r0 => paintRow(r0, TOTAL));
+  profitRows.forEach(r0 => paintRow(r0, PROFIT));
+  hlRows.forEach(r0 => paintRow(r0, HL));
   ws["!cols"] = [{wch:64},{wch:12},{wch:6},{wch:20},{wch:20}];
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "見積");
