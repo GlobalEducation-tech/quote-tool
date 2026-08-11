@@ -1431,6 +1431,7 @@ function calcAll() {
   schoolSections.forEach((s, si) => {
     const progMarkupPct = parseFloat(s.progMarkup)||0;
     const ttsMarkupPct  = normTtsPct(s.ttsMarkup??10);
+    const sFlat = Math.round(parseFloat(s.flatMarkup)||0);   // 追加上乗せ（円）: 先頭グループの海外プログラム費用に内包
     const schoolGroups = {};
 
     function getGroup(schoolKey, campusKey, startDate) {
@@ -1645,7 +1646,6 @@ function calcAll() {
     });
 
     // コーディネーション・ビザ（セクションごと）
-    const sFlat=Math.round(parseFloat(s.flatMarkup)||0);
     if(sFlat!==0&&Object.keys(schoolGroups).length===0){
       // 学校が未設定の場合のみ円建て行として計上（金額が消えないようにするための保険）
       allJpyAddons.push({label:schoolSections.length>1?`追加上乗せ（学校 ${si+1}）`:"追加上乗せ",jpy:sFlat,type:"flat-markup"});
@@ -1703,7 +1703,7 @@ function calcAll() {
   });
   html+=`<div class="section-divider">粗利内訳</div>`;
   {const _allRates=[...new Set(freeeLines.filter(l=>!l.isJPY).flatMap(l=>l.commRates||[]))];
-  html+=`<div class="breakdown-line"><span>コミッション（授業料 × ${_allRates.length?_allRates.map(r=>r+"%").join("/"):"コミッション率"}）</span><span class="bv" style="color:#166534">${fmt(totalCommJPY)}</span></div>`;}
+  html+=`<div class="breakdown-line"><span>コミッション（授業料 × ${_allRates.length?_allRates.map(r=>r+"%").join("/"):"コミッション率"}・TTS換算）</span><span class="bv" style="color:#166534">${fmt(totalCommJPY)}</span></div>`;}
   if(totalFlatMarkupJPY!==0)html+=`<div class="breakdown-line"><span>追加上乗せ（海外プログラム費用に内包）</span><span class="bv" style="color:#166534">${totalFlatMarkupJPY.toLocaleString("ja-JP")}円</span></div>`;
   if(totalCoord>0)html+=`<div class="breakdown-line"><span>コーディネーション費用合計</span><span class="bv" style="color:#166534">${fmt(totalCoord)}</span></div>`;
   allJpyAddons.filter(a=>(a.jpy||0)>0).forEach(a=>{html+=`<div class="breakdown-line"><span>${a.label}</span><span class="bv" style="color:#166534">${fmt(a.jpy)}</span></div>`;});
@@ -2315,7 +2315,7 @@ function _exportToExcel(targets, filename) {
     yenCells.push({ r:tr-1, c:4 });
 
     const _allRates = [...new Set((q.freeeLines||[]).filter(l=>!l.isJPY).flatMap(l=>l.commRates||[]))];
-    const commLbl = _allRates.length===1 ? `　うちコミッション（授業料×${_allRates[0]}%）` : (_allRates.length>1 ? `　うちコミッション（授業料×${_allRates.map(r=>r+"%").join("/")}）` : "　うちコミッション（授業料×コミッション率）");
+    const commLbl = _allRates.length===1 ? `　うちコミッション（授業料×${_allRates[0]}%・TTS換算）` : (_allRates.length>1 ? `　うちコミッション（授業料×${_allRates.map(r=>r+"%").join("/")}・TTS換算）` : "　うちコミッション（授業料×コミッション率・TTS換算）");
     const commV = ceilMan(q.totalCommJPY||0);
     const cr = push([commLbl, "", "", "", commV]);
     yenCells.push({ r:cr-1, c:4 });
