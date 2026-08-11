@@ -274,6 +274,7 @@ else{document.addEventListener("DOMContentLoaded",()=>{const i=document.getEleme
         <button class="btn" onclick="saveQuote()" style="flex:1;background:#166534;color:#fff;border-color:#166534">この見積もりを保存</button>
         <button class="btn" onclick="exportPDF()" style="flex:1;background:#1565c0;color:#fff;border-color:#1565c0">📄 PDFで出力</button>
       </div>
+      <div style="margin-top:10px;padding:8px 12px;background:#eef3fb;border:0.5px solid #c7d7f8;border-radius:6px;font-size:12px;color:#1f4e79;line-height:1.6">📦 <b>標準運用:</b> 出力したExcel・共有用ファイルは、必ず <b>BOXの案件フォルダ</b> にアップロードして共有してください。</div>
     </div>
   </div>
 
@@ -942,6 +943,8 @@ function updateSection(sid, field, val) {
     s.visa = field==="visaType" ? (String(val).endsWith("b")?parseInt(val)||0:parseInt(val)||0) : s.visa;
   } else {
     s[field] = parseFloat(val)||0;
+    // 入力中の全体再描画はカーソルが外れて入力できなくなるため、数値入力系は再計算のみ行う
+    if (field==="flatMarkup"||field==="progMarkup"||field==="ttsMarkup") { calcAll(); return; }
   }
   renderSchoolSections(); calcAll();
 }
@@ -1375,10 +1378,7 @@ function renderAddonBlock(b, i, sid) {
     if(cd) airportOpts+=Object.entries(cd.airports).map(([k,v])=>`<option value="${k}" ${b.airport===k?"selected":""}>${k} (${sym}${v})</option>`).join("");
     extraHtml=`<div class="field-grid g2">
       <div class="field"><label>空港</label><select onchange="updateAddon(${b.id},'airport',this.value)">${airportOpts}</select></div>
-      <div class="field"><label>片道 / 往復</label><select onchange="updateAddon(${b.id},'dir',this.value)">
-        <option value="1way" ${b.dir==="1way"?"selected":""}>片道</option>
-        <option value="return" ${b.dir==="return"?"selected":""}>往復</option>
-      </select></div></div>`;
+      <div class="field"><label>&nbsp;</label><div style="font-size:11px;color:#888;padding-top:8px">※往復の場合は「数量」を2にしてください</div></div></div>`;
   } else if (b.type==="action-learning") {
     extraHtml=`<div class="field-grid g2">
       <div class="field"><label>単価</label><input type="text" value="¥150,000（固定）" readonly style="background:#f5f5f3;color:#888"></div>
@@ -1424,7 +1424,7 @@ function calcAll() {
   if (schoolSections.length===0) { document.getElementById("result-section").style.display="none"; return; }
 
   const freeeLines = [];
-  let grandTotalJPY=0, totalCommJPY=0, totalProgMarkupJPY=0, totalTTSMarkupJPY=0;
+  let grandTotalJPY=0, totalCommJPY=0, totalProgMarkupJPY=0, totalTTSMarkupJPY=0, totalFlatMarkupJPY=0;
   let totalCoord=0, totalVisa=0, visaHasExtra=false;
   const allJpyAddons=[];
 
@@ -1630,22 +1630,27 @@ function calcAll() {
     });
 
     // schoolGroupsをfreeeLineに変換（このセクション分）
-    Object.entries(schoolGroups).forEach(([key,grp]) => {
+    Object.entries(schoolGroups).forEach(([key,grp], gi) => {
       const tts=getFxRate(grp.currency);
       const effectiveFX=tts*(1+ttsMarkupPct/100);
       const costJPY=grp.totalLocal*tts;
       const ttsGainJPY=grp.totalLocal*(effectiveFX-tts);
       const progGainJPY=costJPY*(progMarkupPct/100);
-      const programFee=Math.round(costJPY+ttsGainJPY+progGainJPY);
+      const flatJPY = gi===0 ? sFlat : 0;   // 追加上乗せは海外プログラム費用（先頭グループ）に内包し、粗利に計上
+      const programFee=Math.round(costJPY+ttsGainJPY+progGainJPY+flatJPY);
       const commJPY=Math.round(grp.commissionLocal*tts);
       grandTotalJPY+=programFee;totalCommJPY+=commJPY;
-      totalProgMarkupJPY+=Math.round(progGainJPY);totalTTSMarkupJPY+=Math.round(ttsGainJPY);
-      freeeLines.push({label:`海外プログラム費用（${grp.label}）`,jpy:programFee,currency:grp.currency,local:grp.totalLocal,tts,effectiveFX,costJPY,ttsGainJPY,progGainJPY,items:grp.items,commJPY,progMarkupPct,ttsMarkupPct,commInfo:grp.commInfo||null,commRates:grp.commRates||[]});
+      totalProgMarkupJPY+=Math.round(progGainJPY);totalTTSMarkupJPY+=Math.round(ttsGainJPY);totalFlatMarkupJPY+=flatJPY;
+      freeeLines.push({label:`海外プログラム費用（${grp.label}）`,jpy:programFee,currency:grp.currency,local:grp.totalLocal,tts,effectiveFX,costJPY,ttsGainJPY,progGainJPY,flatMarkupJPY:flatJPY,items:grp.items,commJPY,progMarkupPct,ttsMarkupPct,commInfo:grp.commInfo||null,commRates:grp.commRates||[]});
     });
 
     // コーディネーション・ビザ（セクションごと）
     const sFlat=Math.round(parseFloat(s.flatMarkup)||0);
-    if(sFlat!==0){allJpyAddons.push({label:schoolSections.length>1?`追加上乗せ（学校 ${si+1}）`:"追加上乗せ",jpy:sFlat,type:"flat-markup"});}
+    if(sFlat!==0&&Object.keys(schoolGroups).length===0){
+      // 学校が未設定の場合のみ円建て行として計上（金額が消えないようにするための保険）
+      allJpyAddons.push({label:schoolSections.length>1?`追加上乗せ（学校 ${si+1}）`:"追加上乗せ",jpy:sFlat,type:"flat-markup"});
+      totalFlatMarkupJPY+=sFlat;
+    }
     if(s.coord>0){totalCoord+=s.coord;freeeLines.push({label:`コーディネーション費用（学校 ${si+1}）`,jpy:s.coord,isJPY:true});}
     // 外国籍（米国・その他）は2026年8月改定で¥400,000。旧保存データ（¥300,000）も新料金に読み替える。
     let sVisa=parseInt(s.visaType)||0;
@@ -1661,9 +1666,10 @@ function calcAll() {
   const jpyOtherTotal=allJpyAddons.filter(a=>a.type==="jpy-other").reduce((s,a)=>s+a.jpy,0);
   const actionLearningTotal=allJpyAddons.filter(a=>a.type==="action-learning").reduce((s,a)=>s+a.jpy,0);
   const glOptTotal=allJpyAddons.filter(a=>a.type&&a.type.startsWith("gl-")).reduce((s,a)=>s+a.jpy,0);
-  const flatMarkupTotal=allJpyAddons.filter(a=>a.type==="flat-markup").reduce((s,a)=>s+a.jpy,0);
-  // 粗利 = コミッション + コーディネーション + 円建てAdd-ons（追加上乗せ含む）。TTS上乗せ差益・プログラム/来年度上乗せ益は含めない。
-  const grossProfit=totalCommJPY+totalCoord+jpyOtherTotal+actionLearningTotal+glOptTotal+flatMarkupTotal;
+  // 粗利 = コミッション + コーディネーション + 追加上乗せ + 円建てAdd-ons。TTS上乗せ差益・プログラム/来年度上乗せ益は含めない。
+  // ※追加上乗せは海外プログラム費用に内包して見積合計へ算入済み（totalFlatMarkupJPY）
+  const _fallbackFlat=allJpyAddons.filter(a=>a.type==="flat-markup").reduce((s,a)=>s+a.jpy,0);
+  const grossProfit=totalCommJPY+totalCoord+jpyOtherTotal+actionLearningTotal+glOptTotal+totalFlatMarkupJPY;
   const grossProfitRate = (grandTotalJPY+totalCoord+totalVisa)>0 ? grossProfit/(grandTotalJPY+totalCoord+totalVisa) : 0;
 
   if(freeeLines.length===0){document.getElementById("result-section").style.display="none";return;}
@@ -1691,12 +1697,14 @@ function calcAll() {
     if(l.commInfo)html+=`<div class="breakdown-line"><span style="color:${l.commInfo.multi?'#b45309':'#999'}">コミッション条件: ${l.commInfo.text}${l.commInfo.multi?'　◆複数パターンあり（適用率を要確認）':''}</span></div>`;
     html+=`<div class="breakdown-line"><span>× TTS ${l.tts} → 実効レート ${l.effectiveFX.toFixed(2)}（TTS+${l.ttsMarkupPct||0}%）</span><span class="bv">${fmt(l.costJPY+l.ttsGainJPY)}</span></div>`;
     if((l.progMarkupPct||0)>0)html+=`<div class="breakdown-line"><span>プログラム上乗せ +${l.progMarkupPct}%</span><span class="bv">${fmt(l.progGainJPY)}</span></div>`;
+    if((l.flatMarkupJPY||0)!==0)html+=`<div class="breakdown-line"><span>追加上乗せ（円・粗利計上）</span><span class="bv">${l.flatMarkupJPY.toLocaleString("ja-JP")}円</span></div>`;
     html+=`<div class="breakdown-line" style="font-weight:500"><span>→ 海外プログラム費用</span><span class="bv">${fmt(l.jpy)}</span></div>`;
     l.items.forEach(item=>{html+=`<div style="margin:6px 0 2px;font-size:11px;color:#999;text-transform:uppercase;">${item.section}</div>`;item.lines.forEach(ln=>{html+=`<div class="breakdown-line" style="padding-left:8px"><span>${ln.label}</span><span class="bv">${fmtC(ln.local,l.currency)}</span></div>`;});});
   });
   html+=`<div class="section-divider">粗利内訳</div>`;
   {const _allRates=[...new Set(freeeLines.filter(l=>!l.isJPY).flatMap(l=>l.commRates||[]))];
   html+=`<div class="breakdown-line"><span>コミッション（授業料 × ${_allRates.length?_allRates.map(r=>r+"%").join("/"):"コミッション率"}）</span><span class="bv" style="color:#166534">${fmt(totalCommJPY)}</span></div>`;}
+  if(totalFlatMarkupJPY!==0)html+=`<div class="breakdown-line"><span>追加上乗せ（海外プログラム費用に内包）</span><span class="bv" style="color:#166534">${totalFlatMarkupJPY.toLocaleString("ja-JP")}円</span></div>`;
   if(totalCoord>0)html+=`<div class="breakdown-line"><span>コーディネーション費用合計</span><span class="bv" style="color:#166534">${fmt(totalCoord)}</span></div>`;
   allJpyAddons.filter(a=>(a.jpy||0)>0).forEach(a=>{html+=`<div class="breakdown-line"><span>${a.label}</span><span class="bv" style="color:#166534">${fmt(a.jpy)}</span></div>`;});
   if(totalTTSMarkupJPY>0)html+=`<div class="breakdown-line"><span style="color:#999">（参考）TTS上乗せ差益 ※粗利には含めない</span><span class="bv" style="color:#999">${fmt(totalTTSMarkupJPY)}</span></div>`;
@@ -1710,7 +1718,7 @@ function calcAll() {
   window._lastResult={
     freeeLines,coord:totalCoord,visa:totalVisa,total:totalAll,grossProfit,
     coordSchools:schoolSections.filter(s=>s.coord>0).length,
-    visaNote:visaHasExtra,totalCommJPY,totalProgMarkupJPY,totalTTSMarkupJPY,
+    visaNote:visaHasExtra,totalCommJPY,totalProgMarkupJPY,totalTTSMarkupJPY,totalFlatMarkupJPY,
     progMarkupPct: schoolSections.map(s=>parseFloat(s.progMarkup)||0).join("/"),
     ttsMarkupPct:  schoolSections.map(s=>normTtsPct(s.ttsMarkup??10)).join("/"),
     client:document.getElementById("client-name").value,
@@ -1805,6 +1813,7 @@ function exportPDF() {
         <div style="font-weight:600;color:#333;margin-bottom:2px">${l.label}</div>
         <div style="padding-left:8px">原価 ${fmtC(l.local,l.currency)} × TTS ${l.tts} → 実効レート ${(l.effectiveFX||l.tts).toFixed(2)} = ${fmt(l.costJPY+l.ttsGainJPY)}</div>
         ${(l.progGainJPY||0)>0?`<div style="padding-left:8px">プログラム上乗せ +${l.progMarkupPct}% = ${fmt(l.progGainJPY)}</div>`:""}
+        ${(l.flatMarkupJPY||0)!==0?`<div style="padding-left:8px">追加上乗せ = ${l.flatMarkupJPY.toLocaleString("ja-JP")}円</div>`:""}
       </div>`;
     });
     html += `</div></div>`;
@@ -2069,7 +2078,8 @@ function renderSavedQuotes() {
       <button class="btn btn-sm" onclick="exportExcel()">📥 全件をExcel出力</button>
       <button class="btn btn-sm" onclick="exportAllProjectsFile()">📤 全件をファイルへ書き出し</button>
       <button class="btn btn-sm" onclick="importProjectFile()">📂 ファイルから読み込み</button>
-    </div>`+
+    </div>
+    <div style="margin-bottom:8px;padding:7px 10px;background:#eef3fb;border:0.5px solid #c7d7f8;border-radius:6px;font-size:11px;color:#1f4e79">📦 標準運用: 出力したExcel・共有用ファイルは必ずBOXの案件フォルダへアップロードしてください</div>`+
   projects.map(p=>{
     const savedAt=p.savedAt?new Date(p.savedAt).toLocaleDateString("ja-JP"):p.date;
     return `<div style="border:0.5px solid #e0e0dc;border-radius:10px;padding:12px 14px;margin-bottom:8px;background:#fafafa">
@@ -2201,8 +2211,8 @@ function _exportToExcel(targets, filename) {
       push([`※「◆」印＝コミッション体系が2パターン以上ある学校（▼行を黄色ハイライト・適用率を要確認）`]);
     push([]);
 
-    const subtotalRefs = [], jpyRefs = [], ttsGainRefs = [], progGainRefs = [];
-    let cachedTotal = 0, cachedTts = 0, cachedProg = 0;
+    const subtotalRefs = [], jpyRefs = [], ttsGainRefs = [], progGainRefs = [], flatRefs = [];
+    let cachedTotal = 0, cachedTts = 0, cachedProg = 0, cachedFlat = 0;
 
     q.freeeLines && q.freeeLines.forEach(l => {
       if (l.isJPY) return;
@@ -2261,6 +2271,12 @@ function _exportToExcel(targets, filename) {
         yenCells.push({ r:pr2-1, c:4 }); progGainRefs.push(`E${pr2}`); eRefs.push(`E${pr2}`);
         cachedProg += v; cachedSub += v;
       }
+      if ((l.flatMarkupJPY||0)!==0) {
+        const v = ceilMan(l.flatMarkupJPY);
+        const fr = push([`　追加上乗せ（円）　※粗利に計上・上の明細行には含まれていません`, "", "", "", v]);
+        yenCells.push({ r:fr-1, c:4 }); flatRefs.push(`E${fr}`); eRefs.push(`E${fr}`);
+        cachedFlat += v; cachedSub += v;
+      }
 
       const sr = push([`　▶ ${l.label} 小計`, Math.round((l.local||0)*100)/100, cur, rate, cachedSub]);
       if (detailRows.length) {
@@ -2306,10 +2322,10 @@ function _exportToExcel(targets, filename) {
     let cdr = null;
     if ((q.coord||0) > 0) { cdr = push(["　うちコーディネーション", "", "", "", ceilMan(q.coord)]); yenCells.push({ r:cdr-1, c:4 }); }
     let ar = null;
-    const addonV = (q.jpyAddons||[]).reduce((s,a)=>s+ceilMan(a.jpy||0),0);
-    if (addonRefs.length) {
+    const addonV = (q.jpyAddons||[]).reduce((s,a)=>s+ceilMan(a.jpy||0),0) + cachedFlat;
+    if (addonRefs.length || flatRefs.length) {
       ar = push(["　うち追加上乗せ・円建てAdd-ons", "", "", "", addonV]);
-      formulas.push({ r:ar-1, c:4, f:`SUM(${addonRefs.join(",")})` });
+      formulas.push({ r:ar-1, c:4, f:`SUM(${[...flatRefs,...addonRefs].join(",")})` });
       yenCells.push({ r:ar-1, c:4 });
     }
     // 粗利 = コミッション + コーディネーション + 追加上乗せ等。TTS差益・プログラム/来年度上乗せは含めない（下は参考表示）。
