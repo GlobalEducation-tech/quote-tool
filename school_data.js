@@ -17,7 +17,7 @@
 // 例: { "stgiles": { "london-central": [2026, 2027] } }
 const PRICE_YEARS_OVERRIDE = {};
 
-const CURRENCIES = { stgiles: "GBP", lse: "GBP" };
+const CURRENCIES = { stgiles: "GBP", lse: "GBP", tli: "CNY" };
 
 const SCHOOLS = {
   stgiles: {
@@ -2296,10 +2296,41 @@ const SCHOOLS = {
       }
     }
   },
+
+  // =====================================================================
+  // TLI 北京校（中国語センター）
+  // 出典: TLI学费价格教材以及课程介绍.pdf（受講料一覧・2026年8月登録）
+  // ※料金は「週単価」ではなく「コマ/レッスン/回」単価。週数欄には回数・コマ数を入力する。
+  // ※コミッション率: 契約未確認のため 0% で計算（要確認 📝）
+  // =====================================================================
+  tli: {
+    name: "TLI（Taipei Language Institute）北京校",
+    currency: "CNY",
+    campuses: {
+      "beijing": {
+        name: "北京（朝陽区・中日青年交流中心）", country: "China", regFee: 150, peakSupp: 0,
+        courses: {
+          "onsite-1to1":   { name:"マンツーマン（校内・50分/コマ）150元/コマ ※週数欄＝コマ数", type:"group", prices:[150], brackets:[1], commission:0, note:"📝コミッション率未確認のため0%で計算。教材: オリジナルテキスト130元/冊（全4冊）は教材費Add-onで追加。" },
+          "onsite-small":  { name:"少人数クラス（2〜4名・校内）90元/レッスン ※週数欄＝レッスン数", type:"group", prices:[90],  brackets:[1], commission:0 },
+          "onsite-group":  { name:"グループクラス（5〜10名・校内）70元/レッスン ※週数欄＝レッスン数", type:"group", prices:[70],  brackets:[1], commission:0 },
+          "visit-1to1-1":  { name:"出張マンツーマン 1コマ/回（交通費込）220元/回 ※週数欄＝回数", type:"group", prices:[220], brackets:[1], commission:0 },
+          "visit-1to1-2":  { name:"出張マンツーマン 2コマ/回（交通費込）350元/回 ※週数欄＝回数", type:"group", prices:[350], brackets:[1], commission:0 },
+          "visit-1to1-3":  { name:"出張マンツーマン 3コマ/回（交通費込）500元/回 ※週数欄＝回数", type:"group", prices:[500], brackets:[1], commission:0 },
+          "visit-small":   { name:"出張少人数クラス（2〜4名）90元/レッスン ※週数欄＝レッスン数", type:"group", prices:[90],  brackets:[1], commission:0, note:"📝交通費50元/回は含まれません。Add-on「その他（外貨建て）」で回数分を追加してください。" },
+          "visit-group":   { name:"出張グループクラス（5〜10名）70元/レッスン ※週数欄＝レッスン数", type:"group", prices:[70],  brackets:[1], commission:0, note:"📝交通費50元/回は含まれません。Add-on「その他（外貨建て）」で回数分を追加してください。" },
+        },
+        accom: {
+          "none": { name:"なし", low:0, peak:0 },
+        },
+        airports: {}
+      }
+    }
+  },
 };
 
 // 個人レッスン単価（1レッスンあたり、現地通貨）
 const PRIVATE_LESSON_PRICES = {
+  "tli": { "beijing": null },
   "stgiles": { "london-central":84, "brighton":63, "cambridge":76, "eastbourne":76, "london-highgate":77 },
   "lse":     { "holland-park":105 },
   "wse":     { "wimbledon":90 },

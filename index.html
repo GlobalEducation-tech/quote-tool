@@ -218,6 +218,7 @@ else{document.addEventListener("DOMContentLoaded",()=>{const i=document.getEleme
         <div class="field"><label>SGD / JPY（TTS）</label><input type="number" id="fx-sgd" value="115" min="50" max="300" oninput="calcAll()"></div>
         <div class="field"><label>AUD / JPY（TTS）</label><input type="number" id="fx-aud" value="100" min="50" max="200" step="0.1" oninput="calcAll()"></div>
         <div class="field"><label>CHF / JPY（TTS）</label><input type="number" id="fx-chf" value="185" min="80" max="350" step="0.1" oninput="calcAll()"></div>
+        <div class="field"><label>CNY / JPY（TTS）</label><input type="number" id="fx-cny" value="21" min="5" max="60" step="0.01" oninput="calcAll()"></div>
       </div>
     </div>
   </div>
@@ -852,7 +853,7 @@ function renderSchoolSection(s, si) {
 
 // ===================== ビジネススクール手入力 =====================
 function renderBsProgramBlock(b, i, sid) {
-  const curOpts = ["USD","GBP","EUR","CHF","CAD","AUD","SGD","NZD"]
+  const curOpts = ["USD","GBP","EUR","CHF","CAD","AUD","SGD","NZD","CNY"]
     .map(c=>`<option value="${c}" ${(b.currency||"USD")===c?"selected":""}>${c}</option>`).join("");
   const w = (b.start&&b.end) ? calcWeeks(b.start,b.end) : null;
   const weeksLabel = w ? `${w.total}週` : "—";
@@ -1177,7 +1178,7 @@ function addPrivLesson() {}      // ダミー
 function renderPrivLessonBlock(b, i, sid) {
   const s = schoolSections.find(x=>x.id===sid);
   const currency = getSchoolCurrency(b.school||s?.school||"");
-  const sym = {GBP:"£",USD:"$",CAD:"C$",EUR:"€",THB:"฿",NZD:"NZ$",SGD:"S$",JPY:"¥"}[currency]||"";
+  const sym = {GBP:"£",USD:"$",CAD:"C$",EUR:"€",THB:"฿",NZD:"NZ$",SGD:"S$",CNY:"元",JPY:"¥"}[currency]||"";
   const defaultPrice = (PRIVATE_LESSON_PRICES[b.school]?.[b.campus]) || (PRIVATE_LESSON_PRICES[b.school]?.[s?.campus]) || null;
   if (defaultPrice && !b.pricePerLesson) b.pricePerLesson = defaultPrice;
   const priceVal = b.pricePerLesson || defaultPrice || "";
@@ -1216,6 +1217,7 @@ function getFxRate(currency) {
     SGD: parseFloat(document.getElementById("fx-sgd")?.value)||115,
     AUD: parseFloat(document.getElementById("fx-aud")?.value)||100,
     CHF: parseFloat(document.getElementById("fx-chf")?.value)||185,
+    CNY: parseFloat(document.getElementById("fx-cny")?.value)||21,
     JPY: 1,
   };
   return rates[currency] || 1;
@@ -1321,7 +1323,7 @@ function fmt(n) { return (Math.ceil(Math.round(n)/10000)*10000).toLocaleString("
 function normTtsPct(v){ v=parseFloat(v); if(isNaN(v)||v<0) return 0; return v>=100 ? v-100 : v; }
 function fmtJPY(n) { return Math.round(n).toLocaleString("ja-JP")+"円"; }
 function fmtC(n, currency) {
-  const syms={GBP:"£",CAD:"C$",USD:"$",EUR:"€",THB:"฿",NZD:"NZ$",SGD:"S$",AUD:"A$",CHF:"CHF ",JPY:"¥"};
+  const syms={GBP:"£",CAD:"C$",USD:"$",EUR:"€",THB:"฿",NZD:"NZ$",SGD:"S$",AUD:"A$",CHF:"CHF ",CNY:"元",JPY:"¥"};
   if (currency==="JPY") return "¥"+(Math.round(n)).toLocaleString("ja-JP");
   return (syms[currency]||"")+(Math.round(n*100)/100).toLocaleString("en",{minimumFractionDigits:2,maximumFractionDigits:2});
 }
@@ -1373,7 +1375,7 @@ function renderAddonBlock(b, i, sid) {
     const schoolKey = s?.school||""; const campusKey = s?.campus||"";
     const cd=getCampData(schoolKey,campusKey);
     const cur=schoolKey?getSchoolCurrency(schoolKey):"GBP";
-    const sym={GBP:"£",USD:"$",CAD:"C$",EUR:"€",THB:"฿",NZD:"NZ$",SGD:"S$"}[cur]||"";
+    const sym={GBP:"£",USD:"$",CAD:"C$",EUR:"€",THB:"฿",NZD:"NZ$",SGD:"S$",CNY:"元"}[cur]||"";
     let airportOpts=`<option value="">選択</option>`;
     if(cd) airportOpts+=Object.entries(cd.airports).map(([k,v])=>`<option value="${k}" ${b.airport===k?"selected":""}>${k} (${sym}${v})</option>`).join("");
     extraHtml=`<div class="field-grid g2">
