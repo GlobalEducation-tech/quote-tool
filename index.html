@@ -151,12 +151,7 @@ else{document.addEventListener("DOMContentLoaded",()=>{const i=document.getEleme
         <div class="field"><label>見積日</label><input type="date" id="quote-date"></div>
       </div>
       <div class="field-grid g3" style="background:#f7f9fc;border:0.5px solid #dde6f2;border-radius:8px;padding:8px 10px;margin:4px 0 8px">
-        <div class="field"><label>📁 ファイル名ラベル（学校名・案件略称等）</label><input type="text" id="file-label" placeholder="例：WESLI（空欄なら案件名を使用）" oninput="updateFilenamePreview()"></div>
-        <div class="field"><label>共有区分</label><select id="file-share" onchange="updateFilenamePreview()">
-          <option value="共有ファイル">共有ファイル</option>
-          <option value="個人ファイル">個人ファイル</option>
-        </select></div>
-        <div class="field"><label>Excelファイル名プレビュー</label><div id="file-preview" style="font-size:12px;color:#1f4e79;padding:8px 2px;word-break:break-all">—</div></div>
+        <div class="field" style="grid-column:span 2"><label>Excelファイル名プレビュー</label><div id="file-preview" style="font-size:12px;color:#1f4e79;padding:8px 2px;word-break:break-all">—</div></div>
       </div>
       <div class="field-grid g3">
         <div class="field">
@@ -293,7 +288,7 @@ else{document.addEventListener("DOMContentLoaded",()=>{const i=document.getEleme
       <div id="breakdown" style="margin-bottom:14px"></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn" onclick="saveQuote()" style="flex:1;background:#166534;color:#fff;border-color:#166534">この見積もりを保存</button>
-        <button class="btn" onclick="compareWithPastFile()" style="flex:1;background:#7c3aed;color:#fff;border-color:#7c3aed">🔍 過去の見積と比較</button>
+        <button class="btn" onclick="openYoyModal()" style="flex:1;background:#7c3aed;color:#fff;border-color:#7c3aed">🔍 過去の見積と比較</button>
       </div>
       <div style="margin-top:10px;padding:8px 12px;background:#eef3fb;border:0.5px solid #c7d7f8;border-radius:6px;font-size:12px;color:#1f4e79;line-height:1.6">📦 <b>標準運用:</b> 出力したExcel・共有用ファイルは、必ず <b>BOXの案件フォルダ</b> にアップロードして共有してください。</div>
     </div>
@@ -2021,8 +2016,6 @@ function saveQuote() {
     nationality: document.getElementById("person-nationality").value||"",
     country: (document.getElementById("person-country")||{}).value||"",
     author: document.getElementById("author-name").value||"",
-    fileLabel: document.getElementById("file-label")?.value||"",
-    fileShare: document.getElementById("file-share")?.value||"共有ファイル",
     authorDate: document.getElementById("author-date").value||"",
     reviewer: document.getElementById("reviewer-name").value||"",
     reviewerDate: document.getElementById("reviewer-date").value||"",
@@ -2065,8 +2058,6 @@ function loadProject(id) {
   document.getElementById("person-age").value=p.age||"unknown";
   document.getElementById("person-nationality").value=p.nationality||"japanese";
   document.getElementById("author-name").value=p.author||"";
-  if(document.getElementById("file-label"))document.getElementById("file-label").value=p.fileLabel||"";
-  if(document.getElementById("file-share"))document.getElementById("file-share").value=p.fileShare||"共有ファイル";
   updateFilenamePreview();
   document.getElementById("author-date").value=p.authorDate||"";
   document.getElementById("reviewer-name").value=p.reviewer||"";
@@ -2152,7 +2143,39 @@ function importProjectFile() {
 }
 
 // ===================== 過去の見積との比較（前年比較） =====================
-function compareWithPastFile() {
+// 2モード: JSON（このツールの共有用ファイル同士の厳密な比較）／ 手入力（去年のExcel等を見ながら概算比較）
+function openYoyModal() {
+  syncTabSections();
+  const currentTabs = tabs.filter(t=>t.result);
+  if (currentTabs.length===0) { alert("まず今年度の見積を計算してください"); return; }
+
+  const modal = document.getElementById("yoy-modal");
+  const content = document.getElementById("yoy-content");
+  content.innerHTML = `
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+      <button class="btn btn-sm btn-primary" id="yoy-mode-json" onclick="setYoyMode('json')">JSON（このツールの共有用ファイル）</button>
+      <button class="btn btn-sm" id="yoy-mode-manual" onclick="setYoyMode('manual')">手入力（去年のExcel等を見ながら）</button>
+    </div>
+    <div id="yoy-mode-body"></div>
+  `;
+  modal.style.display = "block";
+  setYoyMode("json");
+}
+
+function setYoyMode(mode) {
+  document.getElementById("yoy-mode-json").className = "btn btn-sm" + (mode==="json" ? " btn-primary" : "");
+  document.getElementById("yoy-mode-manual").className = "btn btn-sm" + (mode==="manual" ? " btn-primary" : "");
+  if (mode === "json") {
+    document.getElementById("yoy-mode-body").innerHTML = `
+      <div style="padding:8px 0 16px">
+        <button class="btn btn-primary btn-sm" onclick="pickYoyJsonFile()">📂 過去の案件ファイル（JSON）を選択</button>
+      </div>`;
+  } else {
+    renderManualCompareForm();
+  }
+}
+
+function pickYoyJsonFile() {
   const inp = document.createElement("input");
   inp.type = "file"; inp.accept = ".json,application/json";
   inp.onchange = () => {
@@ -2164,7 +2187,7 @@ function compareWithPastFile() {
         if (data.type!=="getc-quote-project" || !Array.isArray(data.projects) || data.projects.length===0) {
           alert("この見積ツールの案件ファイルではありません"); return;
         }
-        openYoyProjectPicker(data.projects);
+        renderJsonProjectPicker(data.projects);
       } catch(e) { alert("ファイルの読み込みに失敗しました: "+e.message); }
     };
     rd.readAsText(f);
@@ -2172,20 +2195,14 @@ function compareWithPastFile() {
   inp.click();
 }
 
-function openYoyProjectPicker(projects) {
-  syncTabSections();
-  const currentTabs = tabs.filter(t=>t.result);
-  if (currentTabs.length===0) { alert("まず今年度の見積を計算してください"); return; }
-
-  const modal = document.getElementById("yoy-modal");
-  const content = document.getElementById("yoy-content");
-
+function renderJsonProjectPicker(projects) {
+  const body = document.getElementById("yoy-mode-body");
   const projOptions = projects.map((p,pi)=>
     `<option value="${pi}">${p.client||"（無題）"} / ${p.project||""}（保存日: ${p.savedAt?new Date(p.savedAt).toLocaleDateString("ja-JP"):(p.date||"—")}）</option>`
   ).join("");
   const curTabOptions = tabs.map((t,ti)=>t.result?`<option value="${ti}">${getTabName(t)}</option>`:"").join("");
 
-  content.innerHTML = `
+  body.innerHTML = `
     <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px">
       <div class="field" style="flex:1;min-width:220px"><label>比較元（過去の案件）</label>
         <select id="yoy-old-project" onchange="onYoyOldProjectChange()">${projOptions}</select>
@@ -2202,7 +2219,6 @@ function openYoyProjectPicker(projects) {
   `;
   window._yoyProjects = projects;
   onYoyOldProjectChange();
-  modal.style.display = "block";
 }
 
 function onYoyOldProjectChange() {
@@ -2219,6 +2235,130 @@ function runYoyCompare() {
   const oldTab = window._yoyProjects[pi].tabs[oti];
   const newTab = tabs[nti];
   renderYoyCompare(oldTab, newTab);
+}
+
+// ----- 手入力モード（去年のExcel等を見ながら概算比較） -----
+function renderManualCompareForm() {
+  const body = document.getElementById("yoy-mode-body");
+  const curTabOptions = tabs.map((t,ti)=>t.result?`<option value="${ti}">${getTabName(t)}</option>`:"").join("");
+  body.innerHTML = `
+    <div class="field" style="max-width:320px;margin-bottom:12px"><label>今年度のどの案（タブ）と比較するか</label>
+      <select id="manual-new-tab" onchange="renderManualRows()">${curTabOptions}</select>
+    </div>
+    <div style="padding:8px 10px;background:#eef3fb;border:0.5px solid #c7d7f8;border-radius:6px;font-size:11px;color:#1f4e79;margin-bottom:12px">
+      去年の見積（Excel等）を見ながら、各行の「前回金額」と「前回、上乗せはあったか」は必ず入力してください。外貨金額・TTSは分かれば入力すると、為替と現地価格の内訳がより正確になります。
+    </div>
+    <div id="manual-rows"></div>
+    <div style="margin-top:12px"><button class="btn btn-primary btn-sm" onclick="runManualCompare()">計算する</button></div>
+    <div id="manual-result" style="margin-top:16px"></div>
+  `;
+  renderManualRows();
+}
+
+function renderManualRows() {
+  const nti = parseInt(document.getElementById("manual-new-tab").value);
+  const newTab = tabs[nti];
+  const nr = newTab && newTab.result;
+  const el = document.getElementById("manual-rows");
+  if (!nr) { el.innerHTML = `<div style="color:#888">この案には計算結果がありません</div>`; return; }
+  const lines = (nr.freeeLines||[]).filter(l=>!l.isJPY);
+  if (lines.length===0) { el.innerHTML = `<div style="color:#888">海外プログラム費用の明細がありません</div>`; return; }
+  el.innerHTML = lines.map((l,i)=>`
+    <div style="border:0.5px solid #e0e0dc;border-radius:8px;padding:12px 14px;margin-bottom:10px;background:#fafafa">
+      <div style="font-weight:600;font-size:13px;margin-bottom:8px">${l.label}　<span style="font-weight:400;color:#666;font-size:12px">今回: ${fmtJPY(l.jpy)}</span></div>
+      <div class="field-grid g3">
+        <div class="field"><label>前回金額（円）※必須</label><input type="number" id="man-prev-${i}" placeholder="例：2912212"></div>
+        <div class="field"><label>前回、上乗せ（プログラム/来年度・追加上乗せ）はありましたか？</label>
+          <select id="man-had-${i}">
+            <option value="unknown">わからない</option>
+            <option value="no">なかった</option>
+            <option value="yes">あった</option>
+          </select>
+        </div>
+        <div class="field"><label>前回の上乗せ額（円・概算可）</label><input type="number" id="man-bufamt-${i}" placeholder="分かれば入力"></div>
+      </div>
+      <div class="field-grid g3" style="margin-top:6px">
+        <div class="field"><label>前回外貨金額（任意・為替差の分解精度が上がります）</label><input type="number" id="man-local-${i}" placeholder="例：11548"></div>
+        <div class="field"><label>前回TTS（任意）</label><input type="number" step="0.01" id="man-tts-${i}" placeholder="例：219.71"></div>
+        <div class="field"><label>備考</label><input type="text" id="man-note-${i}" placeholder="例：ホームステイのグレードが変更"></div>
+      </div>
+    </div>
+  `).join("");
+}
+
+function runManualCompare() {
+  const nti = parseInt(document.getElementById("manual-new-tab").value);
+  const newTab = tabs[nti];
+  const nr = newTab.result;
+  const lines = (nr.freeeLines||[]).filter(l=>!l.isJPY);
+  const el = document.getElementById("manual-result");
+
+  let rows = "", sumFx=0, sumLocal=0, sumBuf=0, sumUnresolved=0, sumTotal=0, skipped=0;
+
+  lines.forEach((n,i)=>{
+    const prevRaw = document.getElementById(`man-prev-${i}`).value;
+    if (prevRaw === "") { skipped++; return; }
+    const prev = parseFloat(prevRaw)||0;
+    const had = document.getElementById(`man-had-${i}`).value;
+    const bufAmt = parseFloat(document.getElementById(`man-bufamt-${i}`).value)||0;
+    const prevLocalRaw = document.getElementById(`man-local-${i}`).value;
+    const prevTtsRaw = document.getElementById(`man-tts-${i}`).value;
+    const note = document.getElementById(`man-note-${i}`).value;
+
+    const total = n.jpy - prev;
+    sumTotal += total;
+
+    let buf = null;
+    if (had === "yes") buf = ((n.progGainJPY||0)+(n.flatMarkupJPY||0)) - bufAmt;
+    else if (had === "no") buf = ((n.progGainJPY||0)+(n.flatMarkupJPY||0));
+    const remainder = total - (buf||0);
+
+    let fx=null, localPrice=null, unresolved;
+    if (prevLocalRaw !== "" && prevTtsRaw !== "") {
+      const prevLocal = parseFloat(prevLocalRaw)||0, prevTts = parseFloat(prevTtsRaw)||0;
+      localPrice = ((n.local||0) - prevLocal) * prevTts;
+      fx = remainder - localPrice;
+      unresolved = 0;
+      sumFx+=fx; sumLocal+=localPrice;
+    } else {
+      unresolved = remainder;
+      sumUnresolved += unresolved;
+    }
+    if (buf!==null) sumBuf+=buf; else sumUnresolved += 0; // buf不明分はremainderに残り上のunresolvedに含まれる
+
+    let warn = "";
+    if (had === "unknown") warn += `<div style="color:#b45309;font-size:11px;margin-top:2px">⚠️ 上乗せ有無が未回答のため、差額に上乗せの変動が混ざっている可能性があります</div>`;
+    if (note) warn += `<div style="color:#666;font-size:11px;margin-top:2px">📝 ${note}</div>`;
+
+    rows += `<tr>
+      <td>${n.label}${warn}</td>
+      <td>${fmtJPY(prev)}</td>
+      <td>${fmtJPY(n.jpy)}</td>
+      <td style="font-weight:600;color:${total>=0?'#166534':'#dc2626'}">${total>=0?'+':''}${fmtJPY(total)}</td>
+      <td style="font-size:11px;color:#666">
+        ${fx!==null?`為替 ${fx>=0?'+':''}${fmtJPY(Math.round(fx))} ／ 現地価格・数量 ${localPrice>=0?'+':''}${fmtJPY(Math.round(localPrice))}`:`為替・現地価格（未分解） ${remainder>=0?'+':''}${fmtJPY(Math.round(remainder))}`}
+        ${buf!==null?` ／ 上乗せ ${buf>=0?'+':''}${fmtJPY(Math.round(buf))}`:` ／ 上乗せ 不明`}
+      </td>
+    </tr>`;
+  });
+
+  const skipNote = skipped>0 ? `<div style="color:#b45309;font-size:12px;margin-bottom:8px">⚠️ 前回金額が未入力の行が${skipped}件あり、集計から除外しています</div>` : "";
+
+  el.innerHTML = `
+    ${skipNote}
+    <div style="overflow-x:auto"><table class="compare-table" style="width:100%">
+      <thead><tr><th>項目</th><th>前回</th><th>今回</th><th>差額</th><th>要因内訳（概算）</th></tr></thead>
+      <tbody>${rows}</tbody>
+      <tfoot>
+        <tr class="total-row"><td>合計（入力済み行のみ）</td><td></td><td></td>
+          <td style="font-weight:600">${sumTotal>=0?'+':''}${fmtJPY(sumTotal)}</td><td></td></tr>
+      </tfoot>
+    </table></div>
+    <div style="margin-top:12px;padding:10px 14px;background:#f8f8f6;border-radius:8px;font-size:12px;line-height:1.8">
+      要因別合計（分解できた範囲）<br>
+      為替: ${sumFx>=0?'+':''}${fmtJPY(Math.round(sumFx))}円　／　現地価格・数量: ${sumLocal>=0?'+':''}${fmtJPY(Math.round(sumLocal))}円　／　上乗せ: ${sumBuf>=0?'+':''}${fmtJPY(Math.round(sumBuf))}円　／　未分解: ${sumUnresolved>=0?'+':''}${fmtJPY(Math.round(sumUnresolved))}円
+    </div>
+  `;
 }
 
 // 差額を「為替」「現地価格・数量」「上乗せ」の3つに分解する。
@@ -2403,10 +2543,9 @@ function exportExcel() {
 function buildExportFilename() {
   const d = new Date();
   const yymmdd = String(d.getFullYear()).slice(-2) + String(d.getMonth()+1).padStart(2,"0") + String(d.getDate()).padStart(2,"0");
-  const label = (document.getElementById("file-label")?.value || document.getElementById("project-name")?.value || document.getElementById("client-name")?.value || "見積").trim();
-  const share = document.getElementById("file-share")?.value || "共有ファイル";
+  const label = (document.getElementById("project-name")?.value || document.getElementById("client-name")?.value || "見積").trim();
   const co    = (document.getElementById("author-name")?.value || "担当者").trim();
-  return `${yymmdd}_価格計算${label}ファイル(${share})_${co}作成`.replace(/[\\/:*?"<>|]/g,"");
+  return `${yymmdd}_価格計算${label}ファイル_${co}作成`.replace(/[\\/:*?"<>|]/g,"");
 }
 function updateFilenamePreview() {
   const el = document.getElementById("file-preview");
