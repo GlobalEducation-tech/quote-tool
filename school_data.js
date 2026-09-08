@@ -2453,7 +2453,7 @@ SCHOOLS.anglocontinental = {
   currency: "GBP",
   campuses: {
     "bournemouth": {
-      name: "Bournemouth", country: "UK", regFee: 0, peakSupp: 0,
+      name: "Bournemouth（2026年版）", country: "UK", regFee: 0, peakSupp: 0,
       peakStart: "06-21", peakEnd: "08-08",
       courses: {
         "g120":  { name:"G-1.20 General English (20 L/W)", type:"firstN", firstWeeks:2, firstPrice:780,  addlPrice:300, commission:0.20, note:"2-60週。最初2週£780＋追加£300/週。" },
@@ -2549,3 +2549,56 @@ SCHOOLS.inlingua_chelt = {
   }
 };
 PRIVATE_LESSON_PRICES.inlingua_chelt = { "cheltenham": null };
+
+// =====================================================================
+// 2026-09-08 追加: Anglo-Continental 2027年版（部分版パンフより）
+// ・別キャンパス「bournemouth-2027」として2026年版と併存（開始日に応じて選択）
+// ・⚠️ 本パンフ(部分版)に未収録: Club 50+ (F-1.20)・Teacher Training (T-1.20)・
+//   Vacation (V-1.20/2.20/4.30)・Young Learners (C-1.20/2.20) の料金ページ → 2027年版は未登録
+// ・A-1.30 Academic Study Programme は2027年版で廃止（目次にも不掲載）
+// ・⚠️ 試験コース番号が2026年版から振り直し:
+//     2027: X-3.30=B1 Preliminary / X-4.30=B2 First / X-5.30=C1 Advanced
+//     2026: X-3.30=B2 First / X-4.30=C1 Advanced / X-5.30=B1 Preliminary
+// ・Executiveは「30+ Executive Programme」に改称・最低年齢21→30歳
+// ・ハイシーズン: 6/20〜8/7（2026年版は6/21〜8/8）
+// ・クリスマス加算 £70/週（2027/12/25〜2028/1/3・成人ホームステイ）→ 自動計算なし・⚠️行で警告
+// =====================================================================
+SCHOOLS.anglocontinental.campuses["bournemouth-2027"] = {
+  name: "Bournemouth（2027年版）", country: "UK", regFee: 0, peakSupp: 0,
+  peakStart: "06-20", peakEnd: "08-07",
+  courses: {
+    "g120":  { name:"G-1.20 General English (20 L/W)", type:"firstN", firstWeeks:2, firstPrice:780,  addlPrice:300, commission:0.20, note:"2027年版。2-60週。開催: 1/4-12/24。価格は2026年版と同額。" },
+    "g130":  { name:"G-1.30 General English + English for Success (30 L/W)", type:"firstN", firstWeeks:2, firstPrice:1020, addlPrice:420, commission:0.20, note:"2027年版。2-60週。価格据え置き。" },
+    "g120L": { name:"G-1.20L 長期割引 (20 L/W・20週以上)", type:"firstN", firstWeeks:20, firstPrice:5380, addlPrice:260, commission:0.20, note:"2027年版。20-60週専用。価格据え置き。" },
+    "g130L": { name:"G-1.30L 長期割引 (30 L/W・20週以上)", type:"firstN", firstWeeks:20, firstPrice:7380, addlPrice:360, commission:0.20, note:"2027年版。20-60週専用。価格据え置き。" },
+    "x230":  { name:"X-2.30 IELTS Exam Practice + Intensive (30 L/W)", type:"firstN", firstWeeks:2, firstPrice:1100, addlPrice:430, commission:0.20, note:"2027年版・値上げ（2026: £1,060+£420）。2-20週。入学A2〜。試験料別途（2026年10月〜Web公表）。" },
+    "x330":  { name:"X-3.30 B1 Preliminary Exam Practice + Intensive (30 L/W)", type:"firstN", firstWeeks:4, firstPrice:1960, addlPrice:430, commission:0.20, note:"2027年版。⚠️コース番号変更: 2026年版のX-3.30はB2 First。4-16週。入学B1〜。" },
+    "x430":  { name:"X-4.30 B2 First Exam Practice + Intensive (30 L/W・8週固定)", type:"group", prices:[3680], brackets:[1], fixedWeeks:8, commission:0.20, note:"2027年版。⚠️番号変更: 2026年版のX-4.30はC1 Advanced。8週固定£3,680。入学B2〜。" },
+    "x530":  { name:"X-5.30 C1 Advanced Exam Practice + Intensive (30 L/W・8/12週)", type:"firstN", firstWeeks:8, firstPrice:3680, addlPrice:430, commission:0.20, note:"2027年版。⚠️番号変更: 2026年版のX-5.30はB1 Preliminary。8週£3,680または12週£5,400のみ。" },
+    "b130":  { name:"B-1.30 English for Business + Intensive (30 L/W)", type:"firstN", firstWeeks:2, firstPrice:1375, addlPrice:560, commission:0.20, note:"2027年版・値下げ（2026: £1,420+£590）→原本p.19で要念押し確認。2-4週。18歳+。専用バスルーム加算£55/週は宿泊で選択。" },
+    "s530a": { name:"S-5.30A English for Medical Professionals (30 L/W)", type:"firstN", firstWeeks:2, firstPrice:1375, addlPrice:560, commission:0.20, note:"2027年版。2-4週。21歳+。" },
+    "s530b": { name:"S-5.30B English for Medical Students (30 L/W)", type:"firstN", firstWeeks:2, firstPrice:1375, addlPrice:560, commission:0.20, note:"2027年版。2-4週。開催日限定。" },
+    "s630":  { name:"S-6.30 English for Law (30 L/W)", type:"firstN", firstWeeks:2, firstPrice:1375, addlPrice:560, commission:0.20, note:"2027年版。2-4週。18歳+。" },
+    "e120":  { name:"E-1.20 30+ Executive Mini Group (20 L/W)", type:"firstN", firstWeeks:1, firstPrice:1100, addlPrice:880,  commission:0.20, note:"2027年版。⚠️最低年齢が30歳に変更（2026年版は21歳）。平日ランチ（講師同席）込。" },
+    "e130":  { name:"E-1.30 30+ Executive Mini Group (30 L/W)", type:"firstN", firstWeeks:1, firstPrice:1440, addlPrice:1220, commission:0.20, note:"2027年版。最低年齢30歳。" },
+    "e230":  { name:"E-2.30 30+ Executive Mini Group + 個人10 (30 L/W)", type:"firstN", firstWeeks:1, firstPrice:1840, addlPrice:1540, commission:0.20, note:"2027年版・改定（2026: £1,875+£1,585）。最低年齢30歳。専門個人指導選択可。" },
+    "e240":  { name:"E-2.40 30+ Executive Mini Group + 個人10 (40 L/W)", type:"firstN", firstWeeks:1, firstPrice:2180, addlPrice:1880, commission:0.20, note:"2027年版・改定（2026: £2,215+£1,925）。最低年齢30歳。" },
+    "e320":  { name:"E-3.20 30+ Executive 完全個人 (20 L/W)", type:"firstN", firstWeeks:1, firstPrice:1830, addlPrice:1530, commission:0.20, note:"2027年版。最低年齢30歳。" },
+    "e330":  { name:"E-3.30 30+ Executive 完全個人 (30 L/W)", type:"firstN", firstWeeks:1, firstPrice:2510, addlPrice:2210, commission:0.20, note:"2027年版・改定（2026: £2,500+£2,210）。最低年齢30歳。" },
+  },
+  accom: {
+    "none":            { name:"なし", low:0, peak:0 },
+    "std-1617-twin":   { name:"Standard Homestay 16-17歳 Twin（週16食）",         firstWeek:285, addlWeek:205, hsSupp:75, halfBoard:true },
+    "std-18-single":   { name:"Standard Homestay 18+ Single・共用バス（週16食）", firstWeek:285, addlWeek:205, hsSupp:75, halfBoard:true },
+    "std-18-privbath": { name:"Standard Homestay 18+ Single・専用バス（週16食）", firstWeek:340, addlWeek:260, hsSupp:75, halfBoard:true },
+    "yl-c120-age1013": { name:"YL Homestay Twin（C-1.20・10-13歳・送迎込）⚠️2027年版のC-1.20コース料金は未登録", firstWeek:498, addlWeek:418, halfBoard:true },
+    "yl-c120-age1416": { name:"YL Homestay Twin（C-1.20・14-16歳・送迎は+£108/週）", firstWeek:390, addlWeek:310, halfBoard:true },
+    "yl-c220-age1013": { name:"YL Homestay Twin（C-2.20・10-13歳・送迎込）⚠️2027年版のC-2.20コース料金は未登録", firstWeek:573, addlWeek:493, halfBoard:true },
+    "yl-c220-age1416": { name:"YL Homestay Twin（C-2.20・14-16歳・送迎は+£108/週）", firstWeek:465, addlWeek:385, halfBoard:true },
+    "vac-v120-twin":   { name:"Vacation Homestay Twin（V-1.20・16-17歳）⚠️2027年版のV系コース料金は未登録", firstWeek:390, addlWeek:310, halfBoard:true },
+    "vac-v220-twin":   { name:"Vacation Homestay Twin（V-2.20/V-4.30・16-17歳）",  firstWeek:420, addlWeek:340, halfBoard:true },
+  },
+  airports: { "Heathrow（car）":240, "Gatwick（car）":270, "London City（car）":395, "London Centre（car）":390, "Stansted（car）":370, "Luton（car）":370, "Southampton（car）":150, "Bournemouth（car）":70, "Heathrow（coach・夏季日曜のみ）":80, "UM同伴チェックインサービス":95 },
+};
+PRIVATE_LESSON_PRICES.anglocontinental["bournemouth-2027"] = 60;
+PRICE_YEARS_OVERRIDE.anglocontinental = { "bournemouth": [2026], "bournemouth-2027": [2027] };
