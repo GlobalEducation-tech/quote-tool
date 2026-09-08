@@ -255,6 +255,17 @@ else{document.addEventListener("DOMContentLoaded",()=>{const i=document.getEleme
     </div>
   </div>
 
+  <!-- 過去の見積との比較モーダル -->
+  <div id="yoy-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;overflow:auto">
+    <div style="background:#fff;border-radius:12px;padding:24px;max-width:1000px;width:92%;margin:40px auto">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <span style="font-size:15px;font-weight:600">過去の見積との比較</span>
+        <button class="btn btn-sm" onclick="document.getElementById('yoy-modal').style.display='none'">閉じる</button>
+      </div>
+      <div id="yoy-content"></div>
+    </div>
+  </div>
+
   <!-- 結果 -->
   <div class="result-card" id="result-section" style="display:none">
     <div class="result-header">見積結果（freee転記用）</div>
@@ -281,9 +292,8 @@ else{document.addEventListener("DOMContentLoaded",()=>{const i=document.getEleme
       <!-- 内訳 -->
       <div id="breakdown" style="margin-bottom:14px"></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn btn-primary copy-btn" onclick="copyResult()" style="flex:1">freee用テキストをコピー</button>
         <button class="btn" onclick="saveQuote()" style="flex:1;background:#166534;color:#fff;border-color:#166534">この見積もりを保存</button>
-        <button class="btn" onclick="exportPDF()" style="flex:1;background:#1565c0;color:#fff;border-color:#1565c0">📄 PDFで出力</button>
+        <button class="btn" onclick="compareWithPastFile()" style="flex:1;background:#7c3aed;color:#fff;border-color:#7c3aed">🔍 過去の見積と比較</button>
       </div>
       <div style="margin-top:10px;padding:8px 12px;background:#eef3fb;border:0.5px solid #c7d7f8;border-radius:6px;font-size:12px;color:#1f4e79;line-height:1.6">📦 <b>標準運用:</b> 出力したExcel・共有用ファイルは、必ず <b>BOXの案件フォルダ</b> にアップロードして共有してください。</div>
     </div>
@@ -2139,6 +2149,150 @@ function importProjectFile() {
     rd.readAsText(f);
   };
   inp.click();
+}
+
+// ===================== 過去の見積との比較（前年比較） =====================
+function compareWithPastFile() {
+  const inp = document.createElement("input");
+  inp.type = "file"; inp.accept = ".json,application/json";
+  inp.onchange = () => {
+    const f = inp.files && inp.files[0]; if (!f) return;
+    const rd = new FileReader();
+    rd.onload = () => {
+      try {
+        const data = JSON.parse(rd.result);
+        if (data.type!=="getc-quote-project" || !Array.isArray(data.projects) || data.projects.length===0) {
+          alert("この見積ツールの案件ファイルではありません"); return;
+        }
+        openYoyProjectPicker(data.projects);
+      } catch(e) { alert("ファイルの読み込みに失敗しました: "+e.message); }
+    };
+    rd.readAsText(f);
+  };
+  inp.click();
+}
+
+function openYoyProjectPicker(projects) {
+  syncTabSections();
+  const currentTabs = tabs.filter(t=>t.result);
+  if (currentTabs.length===0) { alert("まず今年度の見積を計算してください"); return; }
+
+  const modal = document.getElementById("yoy-modal");
+  const content = document.getElementById("yoy-content");
+
+  const projOptions = projects.map((p,pi)=>
+    `<option value="${pi}">${p.client||"（無題）"} / ${p.project||""}（保存日: ${p.savedAt?new Date(p.savedAt).toLocaleDateString("ja-JP"):(p.date||"—")}）</option>`
+  ).join("");
+  const curTabOptions = tabs.map((t,ti)=>t.result?`<option value="${ti}">${getTabName(t)}</option>`:"").join("");
+
+  content.innerHTML = `
+    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px">
+      <div class="field" style="flex:1;min-width:220px"><label>比較元（過去の案件）</label>
+        <select id="yoy-old-project" onchange="onYoyOldProjectChange()">${projOptions}</select>
+      </div>
+      <div class="field" style="flex:1;min-width:220px"><label>過去のどの案（タブ）と比較するか</label>
+        <select id="yoy-old-tab"></select>
+      </div>
+      <div class="field" style="flex:1;min-width:220px"><label>今年度のどの案（タブ）と比較するか</label>
+        <select id="yoy-new-tab">${curTabOptions}</select>
+      </div>
+    </div>
+    <button class="btn btn-primary btn-sm" onclick="runYoyCompare()">比較する</button>
+    <div id="yoy-result" style="margin-top:16px"></div>
+  `;
+  window._yoyProjects = projects;
+  onYoyOldProjectChange();
+  modal.style.display = "block";
+}
+
+function onYoyOldProjectChange() {
+  const pi = parseInt(document.getElementById("yoy-old-project").value);
+  const proj = window._yoyProjects[pi];
+  const sel = document.getElementById("yoy-old-tab");
+  sel.innerHTML = (proj.tabs||[]).map((t,ti)=>`<option value="${ti}">${t.name||("案"+(ti+1))}</option>`).join("");
+}
+
+function runYoyCompare() {
+  const pi = parseInt(document.getElementById("yoy-old-project").value);
+  const oti = parseInt(document.getElementById("yoy-old-tab").value);
+  const nti = parseInt(document.getElementById("yoy-new-tab").value);
+  const oldTab = window._yoyProjects[pi].tabs[oti];
+  const newTab = tabs[nti];
+  renderYoyCompare(oldTab, newTab);
+}
+
+// 差額を「為替」「現地価格・数量」「上乗せ」の3つに分解する。
+// ・為替 = 市場TTSレートの変動分 + TTS上乗せ%の変動分
+// ・現地価格・数量 = 外貨ベースの金額そのものの変動（学校側の値上げ・仕様変更・週数変更等）を旧年度のTTSで評価した分
+// ・上乗せ = プログラム/来年度上乗せ・追加上乗せの変動分
+// 3つを足すと必ず合計差額に一致する（按分の取り決めとして、現地価格差は旧TTS基準で評価）
+function renderYoyCompare(oldTab, newTab) {
+  const el = document.getElementById("yoy-result");
+  const or = oldTab && oldTab.result, nr = newTab && newTab.result;
+  if (!or || !nr) { el.innerHTML = `<div style="color:#888;padding:12px 0">比較対象に計算結果がありません</div>`; return; }
+
+  const oldLines = (or.freeeLines||[]).filter(l=>!l.isJPY);
+  const newLines = (nr.freeeLines||[]).filter(l=>!l.isJPY);
+  const allLabels = [...new Set([...oldLines.map(l=>l.label), ...newLines.map(l=>l.label)])];
+
+  let rows = "";
+  let sumFx=0, sumLocal=0, sumBuf=0;
+
+  allLabels.forEach(label=>{
+    const o = oldLines.find(l=>l.label===label);
+    const n = newLines.find(l=>l.label===label);
+    if (o && !n) {
+      rows += `<tr style="background:#fef2f2"><td>${label}</td><td>${fmtJPY(o.jpy)}</td><td>—</td>
+        <td style="color:#dc2626;font-weight:600">−${fmtJPY(o.jpy)}</td>
+        <td style="color:#dc2626;font-size:11px">⚠️ 今年度の見積で消えています。意図的な削除か確認してください</td></tr>`;
+      return;
+    }
+    if (!o && n) {
+      rows += `<tr style="background:#eff6ff"><td>${label}</td><td>—</td><td>${fmtJPY(n.jpy)}</td>
+        <td style="color:#2563eb;font-weight:600">+${fmtJPY(n.jpy)}</td>
+        <td style="color:#2563eb;font-size:11px">新規追加</td></tr>`;
+      return;
+    }
+    const fxMarket = (n.local||0) * ((n.tts||0) - (o.tts||0));
+    const fxMarkup = (n.ttsGainJPY||0) - (o.ttsGainJPY||0);
+    const fx = fxMarket + fxMarkup;
+    const localPrice = ((n.local||0) - (o.local||0)) * (o.tts||0);
+    const buf = ((n.progGainJPY||0)-(o.progGainJPY||0)) + ((n.flatMarkupJPY||0)-(o.flatMarkupJPY||0));
+    const total = n.jpy - o.jpy;
+    sumFx+=fx; sumLocal+=localPrice; sumBuf+=buf;
+
+    let warn = "";
+    if ((o.progMarkupPct||0) > 0 && (n.progMarkupPct||0) === 0) {
+      warn += `<div style="color:#dc2626;font-size:11px;margin-top:2px">⚠️ 前回はプログラム/来年度上乗せ${o.progMarkupPct}%だったが今回は未設定</div>`;
+    }
+    if ((o.flatMarkupJPY||0) > 0 && (n.flatMarkupJPY||0) === 0) {
+      warn += `<div style="color:#dc2626;font-size:11px;margin-top:2px">⚠️ 前回は追加上乗せ ¥${fmtJPY(o.flatMarkupJPY)} があったが今回はなし</div>`;
+    }
+
+    rows += `<tr>
+      <td>${label}${warn}</td>
+      <td>${fmtJPY(o.jpy)}</td>
+      <td>${fmtJPY(n.jpy)}</td>
+      <td style="font-weight:600;color:${total>=0?'#166534':'#dc2626'}">${total>=0?'+':''}${fmtJPY(total)}</td>
+      <td style="font-size:11px;color:#666">為替 ${fx>=0?'+':''}${fmtJPY(Math.round(fx))} ／ 現地価格・数量 ${localPrice>=0?'+':''}${fmtJPY(Math.round(localPrice))} ／ 上乗せ ${buf>=0?'+':''}${fmtJPY(Math.round(buf))}</td>
+    </tr>`;
+  });
+
+  const oldTotal = or.total||0, newTotal = nr.total||0;
+  el.innerHTML = `
+    <div style="overflow-x:auto"><table class="compare-table" style="width:100%">
+      <thead><tr><th>項目</th><th>前回</th><th>今回</th><th>差額</th><th>要因内訳（概算）</th></tr></thead>
+      <tbody>${rows}</tbody>
+      <tfoot>
+        <tr class="total-row"><td>合計</td><td>${fmtJPY(oldTotal)}</td><td>${fmtJPY(newTotal)}</td>
+          <td style="font-weight:600">${newTotal-oldTotal>=0?'+':''}${fmtJPY(newTotal-oldTotal)}</td><td></td></tr>
+      </tfoot>
+    </table></div>
+    <div style="margin-top:12px;padding:10px 14px;background:#f8f8f6;border-radius:8px;font-size:12px;line-height:1.8">
+      要因別合計（海外プログラム費用分のみ・コーディネーション等の円建て費用は含みません）<br>
+      為替: ${sumFx>=0?'+':''}${fmtJPY(Math.round(sumFx))}円　／　現地価格・数量: ${sumLocal>=0?'+':''}${fmtJPY(Math.round(sumLocal))}円　／　上乗せ: ${sumBuf>=0?'+':''}${fmtJPY(Math.round(sumBuf))}円
+    </div>
+  `;
 }
 
 function renderSavedQuotes() {
