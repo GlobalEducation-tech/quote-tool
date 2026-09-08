@@ -146,9 +146,17 @@ else{document.addEventListener("DOMContentLoaded",()=>{const i=document.getEleme
     <div class="card-header"><span class="card-title">クライアント・案件情報</span></div>
     <div class="card-body">
       <div class="field-grid g3">
-        <div class="field"><label>クライアント名</label><input type="text" id="client-name" placeholder="例：栗田工業株式会社"></div>
-        <div class="field"><label>案件名</label><input type="text" id="project-name" placeholder="例：2027年度若手海外語学留学"></div>
+        <div class="field"><label>クライアント名</label><input type="text" id="client-name" placeholder="例：栗田工業株式会社" oninput="updateFilenamePreview()"></div>
+        <div class="field"><label>案件名</label><input type="text" id="project-name" placeholder="例：2027年度若手海外語学留学" oninput="updateFilenamePreview()"></div>
         <div class="field"><label>見積日</label><input type="date" id="quote-date"></div>
+      </div>
+      <div class="field-grid g3" style="background:#f7f9fc;border:0.5px solid #dde6f2;border-radius:8px;padding:8px 10px;margin:4px 0 8px">
+        <div class="field"><label>📁 ファイル名ラベル（学校名・案件略称等）</label><input type="text" id="file-label" placeholder="例：WESLI（空欄なら案件名を使用）" oninput="updateFilenamePreview()"></div>
+        <div class="field"><label>共有区分</label><select id="file-share" onchange="updateFilenamePreview()">
+          <option value="共有ファイル">共有ファイル</option>
+          <option value="個人ファイル">個人ファイル</option>
+        </select></div>
+        <div class="field"><label>Excelファイル名プレビュー</label><div id="file-preview" style="font-size:12px;color:#1f4e79;padding:8px 2px;word-break:break-all">—</div></div>
       </div>
       <div class="field-grid g3">
         <div class="field">
@@ -196,7 +204,7 @@ else{document.addEventListener("DOMContentLoaded",()=>{const i=document.getEleme
         </div>
       </div>
       <div class="field-grid g4">
-        <div class="field"><label>作成者</label><input type="text" id="author-name" placeholder="担当者名"></div>
+        <div class="field"><label>作成者（Excelファイル名のCO名に使用）</label><input type="text" id="author-name" placeholder="担当者名" oninput="updateFilenamePreview()"></div>
         <div class="field"><label>作成日</label><input type="date" id="author-date"></div>
         <div class="field"><label>確認者</label><input type="text" id="reviewer-name" placeholder="確認者名"></div>
         <div class="field"><label>確認日</label><input type="date" id="reviewer-date"></div>
@@ -263,6 +271,8 @@ else{document.addEventListener("DOMContentLoaded",()=>{const i=document.getEleme
         </thead>
         <tbody id="freee-tbody"></tbody>
       </table>
+      <!-- 参考表示: 海外送金額・教材費 -->
+      <div id="ref-box" style="display:none;background:#eef3fb;border:0.5px solid #c7d7f8;border-radius:8px;padding:10px 14px;margin-bottom:10px;font-size:12px;line-height:1.7"></div>
       <!-- 粗利ボックス -->
       <div id="profit-box" style="background:#f0fdf4;border:0.5px solid #bbf7d0;border-radius:8px;padding:10px 14px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">
         <span style="font-size:13px;color:#166534">粗利（コミッション＋コーディネーション＋追加上乗せ・円建てAdd-ons）<br><span style="font-size:11px;color:#4d7c5f">※TTS上乗せ差益・プログラム/来年度上乗せ益は含みません</span></span>
@@ -1102,6 +1112,7 @@ function renderCourseBlock(b, i, sid) {
   let info="";
   if(b.school&&b.campus){const yrLabel=getPriceYearLabel(b.school,b.campus,b.start);const isW=yrLabel.includes("⚠️");info+=`<span class="info-badge" style="background:${isW?"#fff3cd":"#e8f4fd"};color:${isW?"#856404":"#1565c0"}">📋 ${yrLabel}</span>`;}
   if(w){info+=`<span class="info-badge weeks">${w.total}週間</span>`;if(w.peak>0)info+=`<span class="info-badge peak">ハイシーズン ${w.peak}週</span>`;}
+  {const _cn=cd&&b.course?cd.courses[b.course]?.note:null;if(_cn)info+=`<span class="info-badge" style="background:#fff8e1;color:#8a6d00;white-space:normal;max-width:100%">📝 ${_cn}</span>`;}
   const currency=b.school?getSchoolCurrency(b.school):"GBP";
   const courseType=cd&&b.course?cd.courses[b.course]?.type:"";
   const is1to1=courseType==="1to1",isWse1to1=courseType==="wse-1to1";
@@ -1148,7 +1159,7 @@ function renderAccomBlock(b, i, sid) {
   if(cd) accomOpts=`<option value="">選択</option>`+Object.entries(cd.accom).map(([k,v])=>`<option value="${k}" ${b.accom===k?"selected":""}>${v.name}</option>`).join("");
   const w=b.start&&b.end?calcWeeks(b.start,b.end):null;
   let info="";
-  if(w){info+=`<span class="info-badge weeks">${w.total}週間</span>`;if(w.peak>0)info+=`<span class="info-badge peak">ピーク ${w.peak}週</span>`;if(hasChristmas(b.start,b.end))info+=`<span class="info-badge peak">Christmas supplement £38</span>`;}
+  if(w){info+=`<span class="info-badge weeks">${w.total}週間</span>`;if(w.peak>0)info+=`<span class="info-badge peak">ピーク ${w.peak}週</span>`;if(hasChristmas(b.start,b.end)&&!["wse","ih","wesli","anglocontinental","inlingua_chelt"].includes(b.school))info+=`<span class="info-badge peak">Christmas supplement £38</span>`;}
   const accomData=cd&&b.accom?cd.accom[b.accom]:null;
   const dietField=accomData?.halfBoard?`<div class="field"><label>特別食（週）</label><input type="number" value="${b.dietWeeks||0}" min="0" oninput="updateAccom(${b.id},'dietWeeks',this.value)"></div>`:"";
   return `<div class="course-block">
@@ -1521,6 +1532,13 @@ function calcAll() {
         const t=course.fixedPrices[rw]||course.fixedPrices[4];subLocal+=t;commLocal+=t*course.commission;subItems.push({label:`授業料（${rw}週パッケージ）`,local:t});
         const ihsw=calcIHSummerWeeks(b.start,b.end);if(ihsw>0&&cd.peakSupp>0){const ss=cd.peakSupp*ihsw;subLocal+=ss;commLocal+=ss*course.commission;subItems.push({label:`サマーサプリメント × ${ihsw}週`,local:ss,formula:`${cd.peakSupp}*${ihsw}`});}
         const mf=Math.min(10*weeks,160);subLocal+=mf;subItems.push({label:`マテリアルフィー`,local:mf});
+      } else if(course.type==="firstN"){
+        const fw=course.firstWeeks||2;
+        const extraW=Math.max(0,weeks-fw);
+        const t=course.firstPrice+course.addlPrice*extraW;
+        subLocal+=t;commLocal+=t*course.commission;
+        if(extraW>0)subItems.push({label:`授業料 最初${fw}週 ${fmtC(course.firstPrice,currency)} ＋ 追加 ${fmtC(course.addlPrice,currency)}/週 × ${extraW}週`,local:t,formula:`${course.firstPrice}+${course.addlPrice}*${extraW}`});
+        else subItems.push({label:`授業料 最初${fw}週${weeks<fw?`（${weeks}週指定でも最低${fw}週分）`:""}`,local:t});
       } else if(course.fixedWeeks){
         const t=course.prices[0];subLocal+=t;commLocal+=t*course.commission;subItems.push({label:`授業料（${course.fixedWeeks}週固定）`,local:t});
       } else {
@@ -1568,6 +1586,13 @@ function calcAll() {
       let subLocal=0;let subItems=[];
       const base=accom.low*normalWeeks+(accom.peak||accom.low)*peakWeeks;
       if(accom.useNese){const sess=Math.max(1,Math.round(weeks/4));const cs=Math.min(sess,12);const nt=accom.nesePrices[cs]||accom.nesePrices[12];subLocal+=nt;subItems.push({label:`宿泊（${cs}セッション）`,local:nt});}
+      else if(accom.firstWeek!=null){
+        const extraW=Math.max(0,weeks-1);
+        const b2=accom.firstWeek+(accom.addlWeek||0)*extraW;
+        subLocal+=b2;
+        if(extraW>0)subItems.push({label:`宿泊 初週 ${fmtC(accom.firstWeek,currency)} ＋ ${fmtC(accom.addlWeek||0,currency)}/週 × ${extraW}週`,local:b2,formula:`${accom.firstWeek}+${accom.addlWeek||0}*${extraW}`});
+        else subItems.push({label:`宿泊 初週`,local:b2});
+      }
       else{subLocal+=base;
         const pkRate=accom.peak||accom.low;
         let accLabel, accFormula;
@@ -1578,12 +1603,17 @@ function calcAll() {
       if(accom.placementFee){subLocal+=accom.placementFee;subItems.push({label:`Accommodation Placement Fee`,local:accom.placementFee});}
       if(b.school==="ih"){if(accom.bookingFee){subLocal+=accom.bookingFee;subItems.push({label:`Booking Fee`,local:accom.bookingFee});}if(accom.ihSummerSupp){const ihsw=calcIHSummerWeeks(b.start,b.end);if(ihsw>0){const ss=accom.ihSummerSupp*ihsw;subLocal+=ss;subItems.push({label:`夏季サプリメント × ${ihsw}週`,local:ss,formula:`${accom.ihSummerSupp}*${ihsw}`});}}}
       if(b.school==="wse"&&accom.low>0&&!accom.halfBoard){subLocal+=60;subItems.push({label:`First week supplement`,local:60});}
+      // 汎用ハイシーズン加算（accom.hsSupp × キャンパス定義の期間。Anglo-Continental £75・inlingua £25 等）
+      if(accom.hsSupp&&cd.peakStart){const hsw=calcCustomSummerWeeks(b.start,b.end,cd.peakStart,cd.peakEnd);if(hsw>0){const hs=accom.hsSupp*hsw;subLocal+=hs;subItems.push({label:`ハイシーズン加算 × ${hsw}週`,local:hs,formula:`${accom.hsSupp}*${hsw}`});}}
+      const NO_XMAS38=["wse","ih","wesli","anglocontinental","inlingua_chelt"];
       if(b.school==="wse"&&hasChristmas(b.start,b.end)){subLocal+=80;subItems.push({label:`Christmas supplement`,local:80});}
-      if(b.school!=="wse"&&b.school!=="ih"&&hasChristmas(b.start,b.end)){subLocal+=38;subItems.push({label:`Christmas supplement`,local:38});}
+      if(!NO_XMAS38.includes(b.school)&&hasChristmas(b.start,b.end)){subLocal+=38;subItems.push({label:`Christmas supplement`,local:38});}
+      if(b.school==="anglocontinental"&&hasChristmas(b.start,b.end)){subItems.push({label:`⚠️ 冬期休校(12/19-1/3)を含む滞在: フルボード加算£70/週が自動請求されます（本見積には未計上・要手動確認）`,local:0});}
+      if(b.school==="inlingua_chelt"&&hasChristmas(b.start,b.end)){subItems.push({label:`⚠️ クリスマス期間(12/19-1/2休校)のホスト滞在は£75/週（本見積には未計上・要手動確認）`,local:0});}
       if(["elc_brighton","elc_chester","elc_eastbourne"].includes(b.school)){const campD=getCampData(b.school,b.campus);if(campD?.peakStart){const esw=calcCustomSummerWeeks(b.start,b.end,campD.peakStart,campD.peakEnd);if(esw>0&&campD.peakSupp>0){subLocal+=campD.peakSupp*esw;subItems.push({label:`サマーサプリメント × ${esw}週`,local:campD.peakSupp*esw,formula:`${campD.peakSupp}*${esw}`});}}if(hasChristmas(b.start,b.end)&&accom.halfBoard){subLocal+=50;subItems.push({label:`Christmas supplement`,local:50});}}
       if(b.school==="manhattan"){const mhsw=calcCustomSummerWeeks(b.start,b.end,"06-09","09-20");if(mhsw>0){subLocal+=30*mhsw;subItems.push({label:`夏季サプリメント × ${mhsw}週`,local:30*mhsw,formula:`30*${mhsw}`});}}
       if(b.school==="rennert"&&accom.rennertSummer){const rsw=calcCustomSummerWeeks(b.start,b.end,"06-01","08-31");if(rsw>0){subLocal+=35*rsw;subItems.push({label:`サマーサプリメント × ${rsw}週`,local:35*rsw,formula:`35*${rsw}`});}if(hasChristmas(b.start,b.end)){subLocal+=50;subItems.push({label:`Christmas supplement`,local:50});}}
-      if(b.dietWeeks&&parseInt(b.dietWeeks)>0){const dr=b.school==="wse"?50:(b.school==="manhattan"?0:33);if(dr>0){const d=dr*parseInt(b.dietWeeks);subLocal+=d;subItems.push({label:`特別食追加 × ${b.dietWeeks}週`,local:d,formula:`${dr}*${parseInt(b.dietWeeks)}`});}}
+      if(b.dietWeeks&&parseInt(b.dietWeeks)>0){const dr=b.school==="wse"?50:(b.school==="manhattan"||b.school==="wesli"?0:(b.school==="anglocontinental"?45:(b.school==="inlingua_chelt"?30:33)));if(dr>0){const d=dr*parseInt(b.dietWeeks);subLocal+=d;subItems.push({label:`特別食追加 × ${b.dietWeeks}週`,local:d,formula:`${dr}*${parseInt(b.dietWeeks)}`});}}
       const grp=getGroup(b.school,b.campus);
       grp.items.push({section:`宿泊 ${i+1}: ${accom.name}`,lines:subItems,subtotal:subLocal});grp.totalLocal+=subLocal;
       const el=document.getElementById("a"+b.id+"-sub");if(el)el.textContent=fmtC(subLocal,currency);
@@ -1644,7 +1674,7 @@ function calcAll() {
       const commJPY=Math.round(grp.commissionLocal*tts);
       grandTotalJPY+=programFee;totalCommJPY+=commJPY;
       totalProgMarkupJPY+=Math.round(progGainJPY);totalTTSMarkupJPY+=Math.round(ttsGainJPY);totalFlatMarkupJPY+=flatJPY;
-      freeeLines.push({label:`海外プログラム費用（${grp.label}）`,jpy:programFee,currency:grp.currency,local:grp.totalLocal,tts,effectiveFX,costJPY,ttsGainJPY,progGainJPY,flatMarkupJPY:flatJPY,items:grp.items,commJPY,progMarkupPct,ttsMarkupPct,commInfo:grp.commInfo||null,commRates:grp.commRates||[]});
+      freeeLines.push({label:`海外プログラム費用（${grp.label}）`,jpy:programFee,currency:grp.currency,local:grp.totalLocal,commLocal:grp.commissionLocal,tts,effectiveFX,costJPY,ttsGainJPY,progGainJPY,flatMarkupJPY:flatJPY,items:grp.items,commJPY,progMarkupPct,ttsMarkupPct,commInfo:grp.commInfo||null,commRates:grp.commRates||[]});
     });
 
     // コーディネーション・ビザ（セクションごと）
@@ -1674,6 +1704,24 @@ function calcAll() {
   const grossProfit=totalCommJPY+totalCoord+jpyOtherTotal+actionLearningTotal+glOptTotal+totalFlatMarkupJPY;
   const grossProfitRate = (grandTotalJPY+totalCoord+totalVisa)>0 ? grossProfit/(grandTotalJPY+totalCoord+totalVisa) : 0;
 
+  // 海外送金額（原価合計−原価コミッション。円換算はベースTTS・計算レートではない）
+  const remitByCur={}; let remitJPY=0;
+  // 教材費合計（教材費/マテリアルフィー/テキスト代/スタディマテリアルの明細行を集計・参考表示用）
+  const MAT_RE=/教材費|マテリアルフィー|テキスト代|スタディマテリアル/;
+  const matByCur={}; let matJPY=0;
+  freeeLines.filter(l=>!l.isJPY).forEach(l=>{
+    const cur=l.currency||"GBP", tts=l.tts||1;
+    const rLocal=(l.local||0)-(l.commLocal||0);
+    if(!remitByCur[cur])remitByCur[cur]={local:0,tts,jpy:0};
+    remitByCur[cur].local+=rLocal; remitByCur[cur].jpy+=rLocal*tts; remitJPY+=rLocal*tts;
+    (l.items||[]).forEach(it=>(it.lines||[]).forEach(ln=>{
+      if(MAT_RE.test(String(ln.label||""))&&(ln.local||0)>0){
+        if(!matByCur[cur])matByCur[cur]={local:0,jpy:0};
+        matByCur[cur].local+=ln.local; matByCur[cur].jpy+=ln.local*tts; matJPY+=ln.local*tts;
+      }
+    }));
+  });
+
   if(freeeLines.length===0){document.getElementById("result-section").style.display="none";return;}
 
   // freeeテーブル更新
@@ -1691,11 +1739,30 @@ function calcAll() {
   document.getElementById("freee-tbody").innerHTML=tbodyHtml;
   document.getElementById("r-profit").textContent=fmt(grossProfit)+"（粗利率 "+(grossProfitRate*100).toFixed(1)+"%）";
 
+  // 参考表示ボックス: 海外送金額（TTSベース換算）＋教材費合計
+  {
+    const rb=document.getElementById("ref-box");
+    let rh="";
+    const remitCurs=Object.keys(remitByCur).filter(c=>remitByCur[c].local>0.001);
+    if(remitCurs.length){
+      rh+=`<div style="font-weight:600;color:#1f4e79">💸 海外送金額（原価合計 − 原価コミッション）<span style="font-weight:400;color:#666">　※円換算はTTSベースレート（計算レートではありません）</span></div>`;
+      remitCurs.forEach(c=>{const r=remitByCur[c];rh+=`<div style="display:flex;justify-content:space-between;padding-left:8px"><span>${fmtC(r.local,c)}（TTS ${r.tts}）</span><span style="font-weight:500">${fmt(Math.round(r.jpy))}</span></div>`;});
+      if(remitCurs.length>1)rh+=`<div style="display:flex;justify-content:space-between;padding-left:8px;border-top:0.5px dashed #c7d7f8"><span>合計（円換算）</span><span style="font-weight:600">${fmt(Math.round(remitJPY))}</span></div>`;
+    }
+    const matCurs=Object.keys(matByCur);
+    if(matCurs.length){
+      rh+=`<div style="font-weight:600;color:#1f4e79;margin-top:${remitCurs.length?6:0}px">📚 教材費合計（参考・見積明細に計上済み）</div>`;
+      matCurs.forEach(c=>{const m=matByCur[c];rh+=`<div style="display:flex;justify-content:space-between;padding-left:8px"><span>${fmtC(m.local,c)}</span><span>≒ ${fmt(Math.round(m.jpy))}（TTSベース）</span></div>`;});
+    }
+    rb.innerHTML=rh; rb.style.display=rh?"":"none";
+  }
+
   // 内訳
   let html="";
   freeeLines.filter(l=>!l.isJPY).forEach(l=>{
     html+=`<div class="section-divider">${l.label}</div>`;
     html+=`<div class="breakdown-line"><span>原価合計 (${l.currency})</span><span class="bv">${fmtC(l.local,l.currency)}</span></div>`;
+    {const _rl=(l.local||0)-(l.commLocal||0);html+=`<div class="breakdown-line"><span>💸 海外送金額（原価−コミッション・TTSベース換算）</span><span class="bv">${fmtC(_rl,l.currency)} ≒ ${fmt(Math.round(_rl*(l.tts||1)))}</span></div>`;}
     if(l.commInfo)html+=`<div class="breakdown-line"><span style="color:${l.commInfo.multi?'#b45309':'#999'}">コミッション条件: ${l.commInfo.text}${l.commInfo.multi?'　◆複数パターンあり（適用率を要確認）':''}</span></div>`;
     html+=`<div class="breakdown-line"><span>× TTS ${l.tts} → 実効レート ${l.effectiveFX.toFixed(2)}（TTS+${l.ttsMarkupPct||0}%）</span><span class="bv">${fmt(l.costJPY+l.ttsGainJPY)}</span></div>`;
     if((l.progMarkupPct||0)>0)html+=`<div class="breakdown-line"><span>プログラム上乗せ +${l.progMarkupPct}%</span><span class="bv">${fmt(l.progGainJPY)}</span></div>`;
@@ -1729,6 +1796,8 @@ function calcAll() {
     gbpTTS:parseFloat(document.getElementById("fx-gbp").value)||200,
     usdTTS:parseFloat(document.getElementById("fx-usd").value)||155,
     jpyAddons:allJpyAddons,
+    remitByCur, remitJPY:Math.round(remitJPY),
+    matByCur, matJPY:Math.round(matJPY),
   };
 
   // アクティブタブにresultを保存・タブ名を更新
@@ -1942,6 +2011,8 @@ function saveQuote() {
     nationality: document.getElementById("person-nationality").value||"",
     country: (document.getElementById("person-country")||{}).value||"",
     author: document.getElementById("author-name").value||"",
+    fileLabel: document.getElementById("file-label")?.value||"",
+    fileShare: document.getElementById("file-share")?.value||"共有ファイル",
     authorDate: document.getElementById("author-date").value||"",
     reviewer: document.getElementById("reviewer-name").value||"",
     reviewerDate: document.getElementById("reviewer-date").value||"",
@@ -1984,6 +2055,9 @@ function loadProject(id) {
   document.getElementById("person-age").value=p.age||"unknown";
   document.getElementById("person-nationality").value=p.nationality||"japanese";
   document.getElementById("author-name").value=p.author||"";
+  if(document.getElementById("file-label"))document.getElementById("file-label").value=p.fileLabel||"";
+  if(document.getElementById("file-share"))document.getElementById("file-share").value=p.fileShare||"共有ファイル";
+  updateFilenamePreview();
   document.getElementById("author-date").value=p.authorDate||"";
   document.getElementById("reviewer-name").value=p.reviewer||"";
   document.getElementById("reviewer-date").value=p.reviewerDate||"";
@@ -2168,7 +2242,21 @@ function exportExcel() {
     });
   });
   if (targets.length===0) { alert("計算済みの案件がありません"); return; }
-  _exportToExcel(targets, `GETC_見積一覧_${new Date().toISOString().split("T")[0]}`);
+  _exportToExcel(targets, buildExportFilename());
+}
+
+// エクスポートファイル名: yymmdd_価格計算○○ファイル(共有ファイル/個人ファイル)_○○作成
+function buildExportFilename() {
+  const d = new Date();
+  const yymmdd = String(d.getFullYear()).slice(-2) + String(d.getMonth()+1).padStart(2,"0") + String(d.getDate()).padStart(2,"0");
+  const label = (document.getElementById("file-label")?.value || document.getElementById("project-name")?.value || document.getElementById("client-name")?.value || "見積").trim();
+  const share = document.getElementById("file-share")?.value || "共有ファイル";
+  const co    = (document.getElementById("author-name")?.value || "担当者").trim();
+  return `${yymmdd}_価格計算${label}ファイル(${share})_${co}作成`.replace(/[\\/:*?"<>|]/g,"");
+}
+function updateFilenamePreview() {
+  const el = document.getElementById("file-preview");
+  if (el) el.textContent = buildExportFilename() + ".xlsx";
 }
 
 // 保存済みデータに formula がない場合、ラベル「£484/週 × 4週」等から数式を復元
@@ -2213,8 +2301,8 @@ function _exportToExcel(targets, filename) {
       push([`※「◆」印＝コミッション体系が2パターン以上ある学校（▼行を黄色ハイライト・適用率を要確認）`]);
     push([]);
 
-    const subtotalRefs = [], jpyRefs = [], ttsGainRefs = [], progGainRefs = [], flatRefs = [];
-    let cachedTotal = 0, cachedTts = 0, cachedProg = 0, cachedFlat = 0;
+    const subtotalRefs = [], jpyRefs = [], ttsGainRefs = [], progGainRefs = [], flatRefs = [], remitRefs = [];
+    let cachedTotal = 0, cachedTts = 0, cachedProg = 0, cachedFlat = 0, cachedRemit = 0;
 
     q.freeeLines && q.freeeLines.forEach(l => {
       if (l.isJPY) return;
@@ -2288,6 +2376,19 @@ function _exportToExcel(targets, filename) {
       if (eRefs.length) formulas.push({ r:sr-1, c:4, f:`SUM(${eRefs.join(",")})` });
       yenCells.push({ r:sr-1, c:4 });
       subtotalRefs.push(`E${sr}`); cachedTotal += cachedSub;
+
+      // 海外送金額（原価合計−原価コミッション）。円換算はベースTTS（計算レートではない）・万円繰上げなしの実額
+      {
+        const commLocal = (l.commLocal!=null) ? l.commLocal : ((l.tts&&l.tts>0) ? (l.commJPY||0)/l.tts : 0);
+        const cm = push([`　うちコミッション（外貨・原価ベース）`, Math.round(commLocal*100)/100, cur, tts, Math.round(commLocal*tts)]);
+        formulas.push({ r:cm-1, c:4, f:`ROUND(B${cm}*D${cm},0)` });
+        yenCells.push({ r:cm-1, c:4 });
+        const rm = push([`　💸 海外送金額（原価合計−コミッション）　※円換算はTTSベースレート（計算レートではない）`, Math.round((l.local-commLocal)*100)/100, cur, tts, Math.round((l.local-commLocal)*tts)]);
+        formulas.push({ r:rm-1, c:1, f:`B${sr}-B${cm}` });
+        formulas.push({ r:rm-1, c:4, f:`ROUND(B${rm}*D${rm},0)` });
+        yenCells.push({ r:rm-1, c:4 });
+        remitRefs.push(`E${rm}`); cachedRemit += Math.round((l.local-commLocal)*tts);
+      }
       push([]);
     });
 
@@ -2345,6 +2446,12 @@ function _exportToExcel(targets, filename) {
     const pr = push(["　（参考）プログラム/来年度上乗せ益　※粗利には含めない", "", "", "", cachedProg || ceilMan(q.totalProgMarkupJPY||0)]);
     if (progGainRefs.length) formulas.push({ r:pr-1, c:4, f:`SUM(${progGainRefs.join(",")})` });
     yenCells.push({ r:pr-1, c:4 });
+    if (remitRefs.length) {
+      const rmt = push(["★ 海外送金額合計（原価合計−コミッション・円はTTSベース換算）", "", "", "", cachedRemit]);
+      formulas.push({ r:rmt-1, c:4, f:`SUM(${remitRefs.join(",")})` });
+      yenCells.push({ r:rmt-1, c:4 });
+      profitRows.push(rmt-1);
+    }
     push([]);
   });
 
@@ -2391,6 +2498,7 @@ schoolSections = tabs[0].schoolSections;
 renderTabs();
 renderSchoolSections();
 document.getElementById("quote-date").value = new Date().toISOString().split("T")[0];
+updateFilenamePreview();
 </script>
 </body>
 </html>

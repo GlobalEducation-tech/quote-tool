@@ -2391,3 +2391,161 @@ const PRIVATE_LESSON_PRICES = {
 //     }
 //   }
 // },
+
+// =====================================================================
+// 2026-09-08 追加: WESLI / Anglo-Continental / inlingua Cheltenham
+// =====================================================================
+
+// --- 通貨 ---
+CURRENCIES.wesli = "USD";
+CURRENCIES.anglocontinental = "GBP";
+CURRENCIES.inlingua_chelt = "GBP";
+
+// --- 年度: inlingua Cheltenhamは2027年版パンフのみ入力済み（2026年開始日を選ぶと⚠️表示） ---
+PRICE_YEARS_OVERRIDE.inlingua_chelt = { "cheltenham": [2027] };
+
+// =====================================================================
+// WESLI (Wisconsin ESL Institute) — Madison, WI, USA / 2026年版 / USD
+// コミッション: NET授業料の20%（契約書一覧より自動適用）
+// ⚠️ 教材費は$100-250/セッション（varies）のため自動計算対象外 → 手動で「その他Add-on」入力
+// ⚠️ 宿泊セキュリティデポジット$1,000（退去後返金）・健康保険$145/月は見積対象外（note参照）
+// =====================================================================
+SCHOOLS.wesli = {
+  name: "WESLI (Wisconsin ESL Institute)",
+  currency: "USD",
+  campuses: {
+    "madison": {
+      name: "Madison", country: "USA", regFee: 150, peakSupp: 0,
+      courses: {
+        "pt-select-12": { name:"Part-Time Select (12 L/W)", type:"group", prices:[305,255,245,240,230], brackets:[1,5,9,20,36], commission:0.20,
+          note:"教材費$100-250/期・別途手動追加（自動計算なし）。保険$145/月・宿泊デポジット$1,000（返金制）は請求外。U18は+$75。" },
+        "pt-core-20":   { name:"Part-Time Core (20 L/W)",   type:"group", prices:[510,425,410,400,385], brackets:[1,5,9,20,36], commission:0.20,
+          note:"教材費$100-250/期・別途手動追加（自動計算なし）。保険$145/月・宿泊デポジット$1,000（返金制）は請求外。U18は+$75。" },
+        "fulltime-24":  { name:"Full-Time (24-26 L/W)",     type:"group", prices:[660,550,535,515,500], brackets:[1,5,9,20,36], commission:0.20,
+          note:"教材費$100-250/期・別途手動追加（自動計算なし）。保険$145/月・宿泊デポジット$1,000（返金制）は請求外。U18は+$75。" },
+        "tt-foundations-grammar": { name:"Teacher Training: Foundations & Grammar Review (130h・5週固定)", type:"group", prices:[2995], brackets:[1], fixedWeeks:5, commission:0.20, note:"5週$2,995総額。パートタイム可（別料金）。" },
+        "tt-foundational":        { name:"Teacher Training: Foundational (110h・5週固定)",                type:"group", prices:[2595], brackets:[1], fixedWeeks:5, commission:0.20, note:"5週$2,595総額。" },
+        "tt-basic":               { name:"Teacher Training: Basic (90h・5週固定)",                        type:"group", prices:[2295], brackets:[1], fixedWeeks:5, commission:0.20, note:"5週$2,295総額。" },
+        "exec-be-5":  { name:"Executive Business English 個人レッスン (5 L/W・追加受講)",  type:"group", prices:[575],  brackets:[1], commission:0.20, note:"既存コースへのAdd-on個人レッスン。レベル500-700対象。" },
+        "exec-be-10": { name:"Executive Business English 個人レッスン (10 L/W・追加受講)", type:"group", prices:[1225], brackets:[1], commission:0.20, note:"既存コースへのAdd-on個人レッスン。レベル500-700対象。" },
+      },
+      accom: {
+        "none":            { name:"なし", low:0, peak:0 },
+        "homestay-hb":     { name:"Homestay Half-Board",            low:300, peak:300, placementFee:50, halfBoard:true },
+        "homestay-sc":     { name:"Homestay Self-Catering",         low:225, peak:225, placementFee:50 },
+        "homestay-u18-fb": { name:"Homestay Under 18 Full-Board",   low:340, peak:340, placementFee:50, halfBoard:true },
+      },
+      airports: { "Madison MSN（private）":65, "Chicago ORD（bus）":85 },
+    }
+  }
+};
+PRIVATE_LESSON_PRICES.wesli = { "madison": null };
+
+// =====================================================================
+// Anglo-Continental — Bournemouth, UK / 2026年版 / GBP
+// コミッション: コース費用20%（Aviation/CELTA/FELTは15%）→ 複数パターンにつき◆ハイライト
+// 料金構造:「最初N週＋追加週」型（type:"firstN"）。Enrolment fee等はコース費用に込み → regFee:0
+// 宿泊ハイシーズン加算 £75/週（6/21〜8/8・成人ホームステイのみ hsSupp）
+// クリスマス休校 12/19-1/3: 継続滞在はフルボード加算£70/週（自動計算なし・note参照）
+// =====================================================================
+SCHOOLS.anglocontinental = {
+  name: "Anglo-Continental",
+  currency: "GBP",
+  campuses: {
+    "bournemouth": {
+      name: "Bournemouth", country: "UK", regFee: 0, peakSupp: 0,
+      peakStart: "06-21", peakEnd: "08-08",
+      courses: {
+        "g120":  { name:"G-1.20 General English (20 L/W)", type:"firstN", firstWeeks:2, firstPrice:780,  addlPrice:300, commission:0.20, note:"2-60週。最初2週£780＋追加£300/週。" },
+        "g130":  { name:"G-1.30 General English + English for Success (30 L/W)", type:"firstN", firstWeeks:2, firstPrice:1020, addlPrice:420, commission:0.20, note:"2-60週。" },
+        "g120L": { name:"G-1.20L 長期割引 (20 L/W・20週以上)", type:"firstN", firstWeeks:20, firstPrice:5380, addlPrice:260, commission:0.20, note:"20-60週専用。最初20週£5,380＋追加£260/週。長期条件（休暇規定等）別途。" },
+        "g130L": { name:"G-1.30L 長期割引 (30 L/W・20週以上)", type:"firstN", firstWeeks:20, firstPrice:7380, addlPrice:360, commission:0.20, note:"20-60週専用。" },
+        "a130":  { name:"A-1.30 Academic Study Programme (30 L/W・20週以上)", type:"firstN", firstWeeks:20, firstPrice:7875, addlPrice:375, commission:0.20, note:"20-60週。Diploma発行（修了要件あり）。" },
+        "x230":  { name:"X-2.30 IELTS Exam Practice + Intensive (30 L/W)", type:"firstN", firstWeeks:2, firstPrice:1060, addlPrice:420, commission:0.20, note:"2-20週。入学レベルA2〜。試験料別途（2025年10月〜Web公表）。" },
+        "x330":  { name:"X-3.30 B2 First Exam Practice + Intensive (30 L/W・8週固定)", type:"group", prices:[3580], brackets:[1], fixedWeeks:8, commission:0.20, note:"⚠️PDF原本p.16のレイアウト錯綜あり・登録前に目視確認要。8週固定£3,580。開始日限定。" },
+        "x430":  { name:"X-4.30 C1 Advanced Exam Practice + Intensive (30 L/W・8/12週)", type:"firstN", firstWeeks:8, firstPrice:3580, addlPrice:420, commission:0.20, note:"⚠️PDF原本p.16要目視確認。8週£3,580または12週£5,260のみ。開始日限定。" },
+        "x530":  { name:"X-5.30 B1 Preliminary Exam Practice + Intensive (30 L/W)", type:"firstN", firstWeeks:4, firstPrice:1900, addlPrice:420, commission:0.20, note:"⚠️PDF原本p.16要目視確認。4-16週。開始日限定。" },
+        "b130":  { name:"B-1.30 English for Business + Intensive (30 L/W)", type:"firstN", firstWeeks:2, firstPrice:1420, addlPrice:590, commission:0.20, note:"2-4週。18歳+・B1〜。" },
+        "s530a": { name:"S-5.30A English for Medical Professionals (30 L/W)", type:"firstN", firstWeeks:2, firstPrice:1420, addlPrice:590, commission:0.20, note:"2-4週。21歳+。" },
+        "s530b": { name:"S-5.30B English for Medical Students (30 L/W)", type:"firstN", firstWeeks:2, firstPrice:1420, addlPrice:590, commission:0.20, note:"2-4週。開催日限定（1・6・7・8月）。" },
+        "s630":  { name:"S-6.30 English for Law (30 L/W)", type:"firstN", firstWeeks:2, firstPrice:1420, addlPrice:590, commission:0.20, note:"2-4週。18歳+。" },
+        "e120":  { name:"E-1.20 Executive Mini Group (20 L/W)", type:"firstN", firstWeeks:1, firstPrice:1095, addlPrice:880,  commission:0.20, note:"21歳+。平日ランチ（講師同席）込。" },
+        "e130":  { name:"E-1.30 Executive Mini Group (30 L/W)", type:"firstN", firstWeeks:1, firstPrice:1435, addlPrice:1220, commission:0.20, note:"21歳+。" },
+        "e230":  { name:"E-2.30 Executive Mini Group + 個人10 (30 L/W)", type:"firstN", firstWeeks:1, firstPrice:1875, addlPrice:1585, commission:0.20, note:"21歳+。専門個人指導選択可。" },
+        "e240":  { name:"E-2.40 Executive Mini Group + 個人10 (40 L/W)", type:"firstN", firstWeeks:1, firstPrice:2215, addlPrice:1925, commission:0.20, note:"21歳+。" },
+        "e320":  { name:"E-3.20 Executive 完全個人 (20 L/W)", type:"firstN", firstWeeks:1, firstPrice:1820, addlPrice:1530, commission:0.20, note:"21歳+。" },
+        "e330":  { name:"E-3.30 Executive 完全個人 (30 L/W)", type:"firstN", firstWeeks:1, firstPrice:2500, addlPrice:2210, commission:0.20, note:"21歳+。" },
+        "f120":  { name:"F-1.20 Great British Over 50s (20 L/W)", type:"firstN", firstWeeks:2, firstPrice:1240, addlPrice:535, commission:0.20, note:"2-4週。開催: 5/11-6/6・8/10-9/5のみ。遠足・アクティビティ込。同伴者Partner programme 2週£765＋£325/週（手動追加）。" },
+        "t120":  { name:"T-1.20 Teacher Training (20 L/W)", type:"firstN", firstWeeks:2, firstPrice:770, addlPrice:330, commission:0.20, note:"⚠️コミッション: CELTA/FELT系は15%の可能性・契約要確認。2-4週。開催: 6/22-7/31のみ。VAT込。" },
+        "v120":  { name:"V-1.20 Vacation 16-17歳 (20 L/W・1-5月)", type:"firstN", firstWeeks:2, firstPrice:1140, addlPrice:480, commission:0.20, note:"開催: 1/5-2/14・3/23-5/2。2-6週。ホームステイなしの場合ランチ代£50/週別途。" },
+        "v220":  { name:"V-2.20 Vacation 16-17歳 (20 L/W・6-8月)", type:"firstN", firstWeeks:2, firstPrice:900, addlPrice:360, commission:0.20, note:"開催: 6/8-8/15。2-10週。" },
+        "v430":  { name:"V-4.30 IELTS Prep Vacation 16-17歳 (30 L/W・夏)", type:"firstN", firstWeeks:2, firstPrice:1190, addlPrice:480, commission:0.20, note:"開催: 6/15-8/15。2-9週。試験料別途。" },
+        "c120":  { name:"C-1.20 Young Learners 10-16歳 (20 L/W・1-5月)", type:"firstN", firstWeeks:2, firstPrice:1140, addlPrice:480, commission:0.20, note:"開催: 1/5-2/14・3/23-5/2。2-6週。10-13歳は送迎付宿泊必須。" },
+        "c220":  { name:"C-2.20 Young Learners 10-16歳 (20 L/W・6-8月)", type:"firstN", firstWeeks:2, firstPrice:1210, addlPrice:515, commission:0.20, note:"開催: 6/8-8/15。2-10週。" },
+      },
+      accom: {
+        "none":               { name:"なし", low:0, peak:0 },
+        "std-1617-twin":      { name:"Standard Homestay 16-17歳 Twin（週16食）",         firstWeek:285, addlWeek:205, hsSupp:75, halfBoard:true },
+        "std-18-single":      { name:"Standard Homestay 18+ Single・共用バス（週16食）", firstWeek:285, addlWeek:205, hsSupp:75, halfBoard:true },
+        "std-18-privbath":    { name:"Standard Homestay 18+ Single・専用バス（週16食）", firstWeek:340, addlWeek:260, hsSupp:75, halfBoard:true },
+        "exec-18":            { name:"Executive Homestay 18+ Single・専用バス",          firstWeek:400, addlWeek:320, hsSupp:75, halfBoard:true },
+        "bb-18":              { name:"Bed & Breakfast Homestay 18+ Single",              firstWeek:270, addlWeek:190, hsSupp:75 },
+        "yl-c120-age1013":    { name:"YL Homestay Twin（C-1.20・10-13歳・送迎込）",      firstWeek:476, addlWeek:396, halfBoard:true },
+        "yl-c120-age1416":    { name:"YL Homestay Twin（C-1.20・14-16歳）",              firstWeek:380, addlWeek:300, halfBoard:true },
+        "yl-c220-age1013":    { name:"YL Homestay Twin（C-2.20・10-13歳・送迎込）",      firstWeek:551, addlWeek:471, halfBoard:true },
+        "yl-c220-age1416":    { name:"YL Homestay Twin（C-2.20・14-16歳）",              firstWeek:455, addlWeek:375, halfBoard:true },
+        "vac-v120-twin":      { name:"Vacation Homestay Twin（V-1.20・16-17歳）",        firstWeek:380, addlWeek:300, halfBoard:true },
+        "vac-v220-twin":      { name:"Vacation Homestay Twin（V-2.20/V-4.30・16-17歳）", firstWeek:410, addlWeek:330, halfBoard:true },
+      },
+      airports: { "Heathrow（car）":240, "Gatwick（car）":270, "London City（car）":410, "London Centre（car）":380, "Stansted（car）":355, "Luton（car）":375, "Southampton（car）":150, "Bournemouth（car）":70, "Heathrow（coach・夏季日曜のみ）":80 },
+    }
+  }
+};
+PRIVATE_LESSON_PRICES.anglocontinental = { "bournemouth": 60 };
+
+// =====================================================================
+// inlingua Cheltenham — Cheltenham, UK / ⚠️2027年版パンフ / GBP
+// コミッション: 契約書本文に率の記載なし（別紙参照）→ 仮25%・要確認
+// regFee £60（Registration）・宿泊手配料 £40（placementFee）
+// 宿泊サマーサプリメント £25/週（7-8月・hsSupp）・特別食 £30/週
+// クリスマス滞在 £75/週（12/19-1/2休校・自動計算なし・note参照）
+// =====================================================================
+SCHOOLS.inlingua_chelt = {
+  name: "inlingua Cheltenham",
+  currency: "GBP",
+  campuses: {
+    "cheltenham": {
+      name: "Cheltenham", country: "UK", regFee: 60, peakSupp: 0,
+      peakStart: "07-01", peakEnd: "08-31",
+      courses: {
+        "ge30": { name:"GE 30 Intensive English (30 L/W)", type:"group", prices:[455,425,395,365,335], brackets:[1,5,9,13,26], commission:0.25, note:"⚠️2027年版価格・コミッション率は契約別紙要確認（仮25%）。" },
+        "ge20": { name:"GE 20 General English (20 L/W)",   type:"group", prices:[375,355,335,300,270], brackets:[1,5,9,13,26], commission:0.25, note:"⚠️2027年版価格・コミッション率要確認（仮25%）。" },
+        "combo-20-5":  { name:"Combination GE20 + 個人5 (25 L/W)",  type:"group", prices:[625], brackets:[1], commission:0.25, note:"⚠️2027年版・週£625固定。コミッション率要確認。" },
+        "combo-20-10": { name:"Combination GE20 + 個人10 (30 L/W)", type:"group", prices:[895], brackets:[1], commission:0.25, note:"⚠️2027年版・週£895固定。" },
+        "combo-30-5":  { name:"Combination GE30 + 個人5 (35 L/W)",  type:"group", prices:[695], brackets:[1], commission:0.25, note:"⚠️2027年版・週£695固定。" },
+        "combo-30-10": { name:"Combination GE30 + 個人10 (40 L/W)", type:"group", prices:[995], brackets:[1], commission:0.25, note:"⚠️2027年版・週£995固定。" },
+        "cip10": { name:"CIP 10 個人レッスンパック (10回)", type:"group", prices:[545],  brackets:[1], fixedWeeks:1, commission:0.25, note:"⚠️2027年版・パック総額£545。時間割はフレキシブル。" },
+        "cip20": { name:"CIP 20 個人レッスンパック (20回)", type:"group", prices:[975],  brackets:[1], fixedWeeks:1, commission:0.25, note:"⚠️2027年版・パック総額£975。" },
+        "cip30": { name:"CIP 30 個人レッスンパック (30回)", type:"group", prices:[1320], brackets:[1], fixedWeeks:1, commission:0.25, note:"⚠️2027年版・パック総額£1,320。" },
+        "scip10": { name:"SCIP 10 専門個人レッスンパック (10回)", type:"group", prices:[635],  brackets:[1], fixedWeeks:1, commission:0.25, note:"⚠️2027年版・パック総額£635。" },
+        "scip20": { name:"SCIP 20 専門個人レッスンパック (20回)", type:"group", prices:[1085], brackets:[1], fixedWeeks:1, commission:0.25, note:"⚠️2027年版・パック総額£1,085。" },
+        "scip30": { name:"SCIP 30 専門個人レッスンパック (30回)", type:"group", prices:[1575], brackets:[1], fixedWeeks:1, commission:0.25, note:"⚠️2027年版・パック総額£1,575。" },
+        "gardens50-hs": { name:"Gardens and Culture 50+（宿泊込パッケージ・20L+遠足6/週）", type:"firstN", firstWeeks:1, firstPrice:1075, addlPrice:965, commission:0.25, note:"⚠️2027年版。1週£1,075/2週£2,040。HB Standard Homestay込 → 宿泊欄は追加不要。開催: 5/2-9/5の指定日。昼食・送迎別。" },
+        "gardens50-co": { name:"Gardens and Culture 50+（コースのみ・20L+遠足6/週）",       type:"firstN", firstWeeks:1, firstPrice:850,  addlPrice:740, commission:0.25, note:"⚠️2027年版。1週£850/2週£1,590。宿泊自己手配。開催日限定。" },
+        "summer-camp": { name:"Summer Camp 11-17歳（20L+活動12+遠足2/週）", type:"group", prices:[1045], brackets:[1], commission:0.25, note:"⚠️2027年版。開催: 7/5-8/16。HBホームステイ・昼食・バスパス・管理費込 → 宿泊欄/regFee追加不要（regFeeは0を手動選択）。空港送迎別（15名+グループは込）。" },
+        "ssp": { name:"State School Placement 11-17歳（現地校通学）", type:"group", prices:[775,750,725,695], brackets:[1,2,12,24], commission:0.25, note:"⚠️2027年版。FBホームステイ・通学送迎込 → 宿泊欄追加不要。週775/half term 750/1 term 725/2 terms 695（週換算は目安・term区切りで要確認）。制服・termブレイク別。" },
+        "holiday-camp": { name:"School Holiday Camp 11-17歳（20L+遠足2+活動4/週）", type:"group", prices:[850], brackets:[1], commission:0.25, note:"⚠️2027年版。FBホームステイ込 → 宿泊欄追加不要。最少催行4名。" },
+        "volunteer": { name:"Volunteer Work Placement（GE20併用・午後）", type:"group", prices:[75], brackets:[1], commission:0.25, note:"⚠️2027年版。18歳+・B1+。GE20と同時申込必須。最大30日（6週）。" },
+      },
+      accom: {
+        "none":       { name:"なし", low:0, peak:0 },
+        "std-hb":     { name:"Standard Homestay（朝夕）",             low:225, peak:225, placementFee:40, hsSupp:25, halfBoard:true },
+        "std-fb":     { name:"Full Board Homestay（3食）",            low:250, peak:250, placementFee:40, hsSupp:25, halfBoard:true },
+        "exec-hb":    { name:"Executive Homestay（朝夕・専用バス）",  low:275, peak:275, placementFee:40, hsSupp:25, halfBoard:true },
+        "exec-fb":    { name:"Executive Full Board（3食・専用バス）", low:300, peak:300, placementFee:40, hsSupp:25, halfBoard:true },
+      },
+      airports: { "Bristol BRS":175, "Birmingham BHX":175, "Heathrow LHR":225, "Gatwick LGW":260, "Stansted STN":260, "Luton LTN":225 },
+    }
+  }
+};
+PRIVATE_LESSON_PRICES.inlingua_chelt = { "cheltenham": null };
