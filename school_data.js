@@ -2602,3 +2602,53 @@ SCHOOLS.anglocontinental.campuses["bournemouth-2027"] = {
 };
 PRIVATE_LESSON_PRICES.anglocontinental["bournemouth-2027"] = 60;
 PRICE_YEARS_OVERRIDE.anglocontinental = { "bournemouth": [2026], "bournemouth-2027": [2027] };
+
+
+// =====================================================================
+// 2026-09-11 追加: Wimbledon School of English 2027年版（Course Dates & Fees 2027 / LAST UPDATE 04/09/26）
+// ・別キャンパス「wimbledon-2027」として2026年版と併存（開始日に応じて選択）
+// ・登録費 £60 → £65 に改定
+// ・週額改定: Standard 439/415/364/315 → 455/430/377/326、Intensive 495/469/394/345 → 513/486/408/357、
+//   Essential 383/361/334/285 → 397/374/346/295（ブラケット 1-4 / 5-11 / 12-23 / 24-36週 は据え置き）
+// ・One-to-One £90/レッスンは据え置き
+// ・教材費（Materials Fee）を自動計上: 1-3週£45 / 4-8週£55 / 9-12週£70 / 13-23週£85 / 24-35週£95 / 36週〜£110
+//   ※2026年版キャンパスには教材費未登録のため、前年比較時は構成差に注意
+// ・宿泊: 全宿泊タイプに初週£60サプリメント（index.html側で2027キャンパスは全タイプに自動加算）
+// ・ホームステイのサマーサプリメント £20/週（2027/6/26〜8/1・hsSupp）・特別食 £50/週（既存ロジック）・
+//   クリスマス2週滞在 £80サプリメント（既存ロジック）
+// ・空港送迎は Prices Frozen（2026年版と同額）
+// =====================================================================
+SCHOOLS.wse.campuses["wimbledon"].name = "Wimbledon（2026年版）";
+SCHOOLS.wse.campuses["wimbledon-2027"] = {
+  name: "Wimbledon（2027年版）", country: "UK", regFee: 65, peakSupp: 0,
+  peakStart: "06-26", peakEnd: "08-01",
+  materialsFee: { type:"bracket", brackets:[{maxWeeks:3, fee:45},{maxWeeks:8, fee:55},{maxWeeks:12, fee:70},{maxWeeks:23, fee:85},{maxWeeks:35, fee:95},{maxWeeks:999, fee:110}] },
+  courses: {
+    "standard":  { name:"General English Standard (21h/week)",   type:"wse", wseType:"standard",  commission:0.25, note:"2027年版。教材費は自動計上（週数ブラケット）。", weeklyPrices:{1:455,2:455,3:455,4:455,5:430,6:430,7:430,8:430,9:430,10:430,11:430,12:377,13:377,14:377,15:377,16:377,17:377,18:377,19:377,20:377,21:377,22:377,23:377,24:326,25:326,26:326,27:326,28:326,29:326,30:326,31:326,32:326,33:326,34:326,35:326,36:326} },
+    "intensive": { name:"General English Intensive (24.5h/week)",type:"wse", wseType:"intensive", commission:0.25, note:"2027年版。Standard＋1オプション。教材費は自動計上。", weeklyPrices:{1:513,2:513,3:513,4:513,5:486,6:486,7:486,8:486,9:486,10:486,11:486,12:408,13:408,14:408,15:408,16:408,17:408,18:408,19:408,20:408,21:408,22:408,23:408,24:357,25:357,26:357,27:357,28:357,29:357,30:357,31:357,32:357,33:357,34:357,35:357,36:357} },
+    "essential": { name:"General English Essential (17.5h/week)",type:"wse", wseType:"essential", commission:0.25, note:"2027年版。教材費は自動計上。", weeklyPrices:{1:397,2:397,3:397,4:397,5:374,6:374,7:374,8:374,9:374,10:374,11:374,12:346,13:346,14:346,15:346,16:346,17:346,18:346,19:346,20:346,21:346,22:346,23:346,24:295,25:295,26:295,27:295,28:295,29:295,30:295,31:295,32:295,33:295,34:295,35:295,36:295} },
+    "business":  { name:"Business English & Professional Skills (21h/week)", type:"wse", wseType:"standard", commission:0.25, note:"2027年版。最低年齢18歳・1-12週。Standard週額と同額。", weeklyPrices:{1:455,2:455,3:455,4:455,5:430,6:430,7:430,8:430,9:430,10:430,11:430,12:377,13:377,14:377,15:377,16:377,17:377,18:377,19:377,20:377,21:377,22:377,23:377,24:326,25:326,26:326,27:326,28:326,29:326,30:326,31:326,32:326,33:326,34:326,35:326,36:326} },
+    "ielts-standard": { name:"IELTS Preparation Standard (21h/week)", type:"wse", wseType:"standard", commission:0.25, note:"2027年版。開始日限定（1/4・3/15・5/24・7/26・10/11 Flexi Start可）。試験料別途（IELTS £290 approx）。", weeklyPrices:{1:455,2:455,3:455,4:455,5:430,6:430,7:430,8:430,9:430,10:430,11:430,12:377,13:377,14:377,15:377,16:377,17:377,18:377,19:377,20:377,21:377,22:377,23:377,24:326,25:326,26:326,27:326,28:326,29:326,30:326,31:326,32:326,33:326,34:326,35:326,36:326} },
+    "ielts-express": { name:"IELTS Express Academic (4週固定・6/28開始)", type:"wse-fixed", fixedPrice:455, fixedWeeks:4, commission:0.25, note:"2027年版。6/28〜7/23の4週固定（Standard週額£455×4週）。試験料別途。" },
+    "oet-prep": { name:"OET Preparation (24.5h/week・1週固定)", type:"wse-fixed", fixedPrice:540, fixedWeeks:1, commission:0.25, noMaterialsFee:true, note:"2027年版。1週£540（教材費・登録料込 → 教材費は自動計上されません。regFeeは0を手動選択）。開催: 3/15・6/14・9/20・11/29週。" },
+    "1to1": { name:"One-to-One (per lesson £90)", type:"wse-1to1", pricePerLesson:90, commission:0.25, note:"2027年版。£90/レッスン（60分）据え置き。教材費なし。" },
+  },
+  accom: {
+    "none":                    { name:"なし", low:0, peak:0 },
+    "homestay-std-bd":         { name:"Homestay Standard・Breakfast & dinner full week", low:280, peak:280, hsSupp:20, halfBoard:true },
+    "homestay-std-z56-bd":     { name:"Homestay Standard Zones 5&6・Breakfast & dinner", low:260, peak:260, hsSupp:20, halfBoard:true },
+    "homestay-stdplus-bd":     { name:"Homestay Standard Plus・Breakfast & dinner",      low:330, peak:330, hsSupp:20, halfBoard:true },
+    "homestay-superior-bd":    { name:"Homestay Superior・Breakfast & dinner",           low:375, peak:375, hsSupp:20, halfBoard:true },
+    "homestay-std-bo":         { name:"Homestay Standard・Breakfast only",               low:230, peak:230, hsSupp:20 },
+    "homestay-std-sc":         { name:"Homestay Standard・Self catering",                low:205, peak:205, hsSupp:20 },
+    "queens-lodge-ensuite":    { name:"Queens Lodge・Single ensuite",                    low:430, peak:430 },
+    "kings-lodge-ensuite":     { name:"Kings Lodge・Single ensuite",                     low:405, peak:405 },
+    "beverley-lodge-ensuite":  { name:"Beverley Lodge・Single ensuite",                  low:305, peak:305 },
+    "justin-james-ensuite":    { name:"Justin James Serviced・Single ensuite",           low:440, peak:440 },
+    "signal-house-ensuite":    { name:"Signal House Residence・Superior single ensuite（〜2027/8/31）", low:465, peak:465 },
+    "signal-house-ensuite-sep":{ name:"Signal House Residence・Superior single ensuite（2027/9/1〜）",  low:495, peak:495 },
+  },
+  airports: { "Heathrow (single)":180, "Heathrow (return)":325, "Gatwick (single)":210, "Gatwick (return)":380, "Stansted (single)":300, "Stansted (return)":540, "City (single)":190, "City (return)":340, "Luton (single)":250, "Luton (return)":450, "St Pancras (single)":175, "St Pancras (return)":315 }
+};
+PRIVATE_LESSON_PRICES.wse["wimbledon-2027"] = 90;
+PRICE_YEARS_OVERRIDE.wse = { "wimbledon": [2026], "wimbledon-2027": [2027] };
