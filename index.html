@@ -1727,7 +1727,7 @@ function calcAll() {
       const commJPY=Math.round(grp.commissionLocal*tts);
       grandTotalJPY+=programFee;totalCommJPY+=commJPY;
       totalProgMarkupJPY+=Math.round(progGainJPY);totalTTSMarkupJPY+=Math.round(ttsGainJPY);totalFlatMarkupJPY+=flatJPY;
-      freeeLines.push({label:`海外プログラム費用（${grp.label}）`,jpy:programFee,currency:grp.currency,local:grp.totalLocal,commLocal:grp.commissionLocal,tts,effectiveFX,costJPY,ttsGainJPY,progGainJPY,flatMarkupJPY:flatJPY,items:grp.items,commJPY,progMarkupPct,ttsMarkupPct,commInfo:grp.commInfo||null,commRates:grp.commRates||[],si,secLabel});
+      freeeLines.push({label:`海外プログラム費用（${grp.label}）`,yrLabel:grp.yrLabel||"",jpy:programFee,currency:grp.currency,local:grp.totalLocal,commLocal:grp.commissionLocal,tts,effectiveFX,costJPY,ttsGainJPY,progGainJPY,flatMarkupJPY:flatJPY,items:grp.items,commJPY,progMarkupPct,ttsMarkupPct,commInfo:grp.commInfo||null,commRates:grp.commRates||[],si,secLabel});
     });
 
     // コーディネーション・ビザ（セクションごと）
@@ -1836,12 +1836,12 @@ function calcAll() {
   // 内訳
   let html="";
   freeeLines.filter(l=>!l.isJPY).forEach(l=>{
-    html+=`<div class="section-divider">${l.label}</div>`;
+    html+=`<div class="section-divider">${l.label}${l.yrLabel?`　<span style="font-weight:400;color:${l.yrLabel.includes("⚠️")?"#b45309":"#1565c0"}">📋 ${l.yrLabel}</span>`:""}</div>`;
     html+=`<div class="breakdown-line"><span>原価合計 (${l.currency})</span><span class="bv">${fmtC(l.local,l.currency)}</span></div>`;
     {const _rl=(l.local||0)-(l.commLocal||0);html+=`<div class="breakdown-line"><span>💸 海外送金額（原価−コミッション・TTSベース換算）</span><span class="bv">${fmtC(_rl,l.currency)} ≒ ${fmt(Math.round(_rl*(l.tts||1)))}</span></div>`;}
     if(l.commInfo)html+=`<div class="breakdown-line"><span style="color:${l.commInfo.multi?'#b45309':'#999'}">コミッション条件: ${l.commInfo.text}${l.commInfo.multi?'　◆複数パターンあり（適用率を要確認）':''}</span></div>`;
     html+=`<div class="breakdown-line"><span>× TTS ${l.tts} → 実効レート ${l.effectiveFX.toFixed(2)}（TTS+${l.ttsMarkupPct||0}%）</span><span class="bv">${fmt(l.costJPY+l.ttsGainJPY)}</span></div>`;
-    if((l.progMarkupPct||0)>0)html+=`<div class="breakdown-line"><span>来年度上乗せ +${l.progMarkupPct}%</span><span class="bv">${fmt(l.progGainJPY)}</span></div>`;
+    html+=`<div class="breakdown-line"><span>来年度上乗せ +${parseFloat(l.progMarkupPct)||0}%${(parseFloat(l.progMarkupPct)||0)>0?"":"（なし）"}</span><span class="bv">${(parseFloat(l.progMarkupPct)||0)>0?fmt(l.progGainJPY):"0円"}</span></div>`;
     if((l.flatMarkupJPY||0)!==0)html+=`<div class="breakdown-line"><span>${l.flatMarkupJPY<0?"割引":"追加上乗せ"}（円・粗利計上）</span><span class="bv"${l.flatMarkupJPY<0?' style="color:#b91c1c"':''}>${l.flatMarkupJPY.toLocaleString("ja-JP")}円</span></div>`;
     html+=`<div class="breakdown-line" style="font-weight:500"><span>→ 海外プログラム費用</span><span class="bv">${fmt(l.jpy)}</span></div>`;
     l.items.forEach(item=>{html+=`<div style="margin:6px 0 2px;font-size:11px;color:#999;text-transform:uppercase;">${item.section}</div>`;item.lines.forEach(ln=>{html+=`<div class="breakdown-line" style="padding-left:8px"><span>${ln.label}</span><span class="bv">${fmtC(ln.local,l.currency)}</span></div>`;});});
@@ -1853,8 +1853,8 @@ function calcAll() {
   if(discountJPY!==0)html+=`<div class="breakdown-line"><span style="color:#b91c1c">▲ ${discountLabel}（見積合計・粗利から減算）</span><span class="bv" style="color:#b91c1c">${discountJPY.toLocaleString("ja-JP")}円</span></div>`;
   if(totalCoord>0)html+=`<div class="breakdown-line"><span>コーディネーション費用合計</span><span class="bv" style="color:#166534">${fmt(totalCoord)}</span></div>`;
   allJpyAddons.filter(a=>(a.jpy||0)>0).forEach(a=>{html+=`<div class="breakdown-line"><span>${a.label}</span><span class="bv" style="color:#166534">${fmt(a.jpy)}</span></div>`;});
-  if(totalTTSMarkupJPY>0)html+=`<div class="breakdown-line"><span style="color:#999">（参考）TTS上乗せ差益 ※粗利には含めない</span><span class="bv" style="color:#999">${fmt(totalTTSMarkupJPY)}</span></div>`;
-  if(totalProgMarkupJPY>0)html+=`<div class="breakdown-line"><span style="color:#999">（参考）来年度上乗せ益 ※粗利には含めない</span><span class="bv" style="color:#999">${fmt(totalProgMarkupJPY)}</span></div>`;
+  html+=`<div class="breakdown-line"><span style="color:#999">（参考）TTS上乗せ差益 ※粗利には含めない${totalTTSMarkupJPY>0?"":"（0%・なし）"}</span><span class="bv" style="color:#999">${totalTTSMarkupJPY>0?fmt(totalTTSMarkupJPY):"0円"}</span></div>`;
+  html+=`<div class="breakdown-line"><span style="color:#999">（参考）来年度上乗せ益 ※粗利には含めない${totalProgMarkupJPY>0?"":"（0%・なし）"}</span><span class="bv" style="color:#999">${totalProgMarkupJPY>0?fmt(totalProgMarkupJPY):"0円"}</span></div>`;
   html+=`<div class="breakdown-line" style="font-weight:500;padding-top:6px;border-top:0.5px solid #bbf7d0"><span style="color:#166534">粗利合計</span><span class="bv" style="color:#166534">${fmt(grossProfit)}</span></div>`;
   html+=`<div class="breakdown-line"><span style="color:#166534">粗利率（粗利÷見積合計）</span><span class="bv" style="color:#166534">${(grossProfitRate*100).toFixed(1)}%</span></div>`;
   if(visaHasExtra)html+=`<div style="font-size:11px;color:#888;margin-top:8px">* 翻訳等の実費は別途ご請求</div>`;
@@ -1962,9 +1962,9 @@ function exportPDF() {
     html += `<div style="font-size:10px;color:#555;border-top:0.5px solid #eee;padding-top:8px">`;
     (r.freeeLines||[]).filter(l=>!l.isJPY).forEach(l => {
       html += `<div style="margin-bottom:6px">
-        <div style="font-weight:600;color:#333;margin-bottom:2px">${l.label}</div>
+        <div style="font-weight:600;color:#333;margin-bottom:2px">${l.label}${l.yrLabel?`　<span style="font-weight:400;color:#1565c0">📋 ${l.yrLabel}</span>`:""}</div>
         <div style="padding-left:8px">原価 ${fmtC(l.local,l.currency)} × TTS ${l.tts} → 実効レート ${(l.effectiveFX||l.tts).toFixed(2)} = ${fmt(l.costJPY+l.ttsGainJPY)}</div>
-        ${(l.progGainJPY||0)>0?`<div style="padding-left:8px">来年度上乗せ +${l.progMarkupPct}% = ${fmt(l.progGainJPY)}</div>`:""}
+        <div style="padding-left:8px">来年度上乗せ +${parseFloat(l.progMarkupPct)||0}% = ${(parseFloat(l.progMarkupPct)||0)>0?fmt(l.progGainJPY):"0円（なし）"}</div>
         ${(l.flatMarkupJPY||0)!==0?`<div style="padding-left:8px">${l.flatMarkupJPY<0?"割引":"追加上乗せ"} = ${l.flatMarkupJPY.toLocaleString("ja-JP")}円</div>`:""}
       </div>`;
     });
@@ -2808,11 +2808,11 @@ function _exportToExcel(targets, filename, returnWorkbook) {
       const multi = !!(l.commInfo && l.commInfo.multi);
       const rateFormula = `ROUND(${tts}*${factor},2)`;
 
-      const hr = push([`▼ ${l.label}${multi?"　◆コミッション複数パターンあり（要確認）":""}`]);
+      const hr = push([`▼ ${l.label}${l.yrLabel?`　📋 Price List: ${l.yrLabel}`:""}${multi?"　◆コミッション複数パターンあり（要確認）":""}`]);
       if (multi) hlRows.push(hr-1); else secRows.push(hr-1);
       const ratesTxt = (l.commRates&&l.commRates.length) ? l.commRates.map(r=>r+"%").join("/") : "";
       if (ratesTxt || l.commInfo) push([`　コミッション率: ${ratesTxt||"—"}（授業料に適用）${l.commInfo?`　｜契約条件: ${l.commInfo.text}`:""}`]);
-      push([`　TTS ${tts}　TTS上乗せ: +${lTtsPct}%　→ 計算レート: ${rate}（= ${tts} × ${factor}）${lProgPct>0?`　※来年度上乗せ(+${lProgPct}%)は明細レートに含めず下段で別途加算`:""}`]);
+      push([`　TTS ${tts}　TTS上乗せ: +${lTtsPct}%　→ 計算レート: ${rate}（= ${tts} × ${factor}）　｜　来年度上乗せ: +${lProgPct}%${lProgPct>0?"（明細レートに含めず下段で別途加算）":"（なし）"}`]);
       push(["　項目", "外貨金額", "通貨", `計算レート(TTS×${Math.round(factor*100)}%)`, "金額（円・万円繰上げ）"]);
 
       const detailRows = [];
@@ -2840,18 +2840,18 @@ function _exportToExcel(targets, filename, returnWorkbook) {
       const eRefs = detailRows.map(r=>`E${r}`);
       let cachedSub = detailRows.reduce((s,r)=>s+(rows[r-1][4]||0),0);
 
-      if (detailRows.length && lTtsPct>0) {
-        const v = ceilMan((l.local||0)*tts*lTtsPct/100);
-        const gr = push([`　TTS上乗せ差益（TTSの+${lTtsPct}%分）　※明細の計算レートに含まれるため小計には加算しない`, "", "", "", v]);
+      if (detailRows.length) {
+        const v = lTtsPct>0 ? ceilMan((l.local||0)*tts*lTtsPct/100) : 0;
+        const gr = push([`　TTS上乗せ差益（TTSの+${lTtsPct}%分）　${lTtsPct>0?"※明細の計算レートに含まれるため小計には加算しない":"※上乗せなし（0%）"}`, "", "", "", v]);
         formulas.push({ r:gr-1, c:4, f:`ROUNDUP(${localSum}*${tts}*${lTtsPct/100}/10000,0)*10000` });
         yenCells.push({ r:gr-1, c:4 }); ttsGainRefs.push(`E${gr}`); cachedTts += v;
       }
-      if (detailRows.length && lProgPct>0) {
-        const v = ceilMan((l.local||0)*rate*lProgPct/100);
-        const pr2 = push([`　来年度上乗せ (+${lProgPct}%)　※上の明細行には含まれていません`, "", "", "", v]);
+      if (detailRows.length) {
+        const v = lProgPct>0 ? ceilMan((l.local||0)*rate*lProgPct/100) : 0;
+        const pr2 = push([`　来年度上乗せ (+${lProgPct}%)　${lProgPct>0?"※上の明細行には含まれていません":"※上乗せなし（0%）"}`, "", "", "", v]);
         formulas.push({ r:pr2-1, c:4, f:`ROUNDUP(${localSum}*${rateFormula}*${lProgPct/100}/10000,0)*10000` });
-        yenCells.push({ r:pr2-1, c:4 }); progGainRefs.push(`E${pr2}`); eRefs.push(`E${pr2}`);
-        cachedProg += v; cachedSub += v;
+        yenCells.push({ r:pr2-1, c:4 }); progGainRefs.push(`E${pr2}`); if(lProgPct>0){eRefs.push(`E${pr2}`);}
+        cachedProg += v; if(lProgPct>0){cachedSub += v;}
       }
       if ((l.flatMarkupJPY||0)!==0) {
         const v = l.flatMarkupJPY>=0 ? ceilMan(l.flatMarkupJPY) : Math.round(l.flatMarkupJPY);
