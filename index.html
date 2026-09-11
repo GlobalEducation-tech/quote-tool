@@ -2581,6 +2581,7 @@ function exportProjectZip(id) {
       coordSchools:t.result.coordSchools||0,
       jpyAddons:t.result.jpyAddons||[],
       discountJPY:t.result.discountJPY||0, discountLabel:t.result.discountLabel||"",
+      yrLabels:_collectYearLabels(t.schoolSections),
       priceLinks:_collectPriceLinks(t.schoolSections) });
   });
   const dateStr = new Date().toISOString().split("T")[0];
@@ -2644,6 +2645,15 @@ function toggleAllQuotes(checked) {
   document.querySelectorAll(".quote-checkbox").forEach(cb=>cb.checked=checked);
 }
 
+// 学校セクションから 学校番号→Price List年版ラベル を作る（旧保存データのExcel出力用フォールバック）
+function _collectYearLabels(sections) {
+  return (sections||[]).map(s => {
+    if (!s || !s.school || s.school==="bschool" || !s.campus) return "";
+    const st = (s.courses&&s.courses[0]&&s.courses[0].start) || null;
+    try { return getPriceYearLabel(s.school, s.campus, st); } catch(e) { return ""; }
+  });
+}
+
 // 学校セクションからPrice ListリンクをExcel/共有用に集める（空欄は除外）
 function _collectPriceLinks(sections) {
   const out = [];
@@ -2672,6 +2682,7 @@ function exportCurrentExcel() {
     totalTTSMarkupJPY:t.result.totalTTSMarkupJPY||0, totalProgMarkupJPY:t.result.totalProgMarkupJPY||0,
     coordSchools:t.result.coordSchools||0,
     discountJPY:t.result.discountJPY||0, discountLabel:t.result.discountLabel||"",
+    yrLabels:_collectYearLabels(t.schoolSections),
     priceLinks:_collectPriceLinks(t.schoolSections),
   }));
   if (targets.length===0) { alert("先に計算してください"); return; }
@@ -2694,6 +2705,7 @@ function exportProjectExcel(id) {
       coordSchools:t.result.coordSchools||0,
       jpyAddons:t.result.jpyAddons||[],
       discountJPY:t.result.discountJPY||0, discountLabel:t.result.discountLabel||"",
+      yrLabels:_collectYearLabels(t.schoolSections),
       priceLinks:_collectPriceLinks(t.schoolSections) });
   });
   if (targets.length===0) { alert("この案件に計算済みの見積がありません"); return; }
@@ -2717,6 +2729,7 @@ function exportExcel() {
         coordSchools:t.result.coordSchools||0,
         jpyAddons:t.result.jpyAddons||[],
         discountJPY:t.result.discountJPY||0, discountLabel:t.result.discountLabel||"",
+        yrLabels:_collectYearLabels(t.schoolSections),
         priceLinks:_collectPriceLinks(t.schoolSections) });
     });
   });
@@ -2808,7 +2821,8 @@ function _exportToExcel(targets, filename, returnWorkbook) {
       const multi = !!(l.commInfo && l.commInfo.multi);
       const rateFormula = `ROUND(${tts}*${factor},2)`;
 
-      const hr = push([`▼ ${l.label}${l.yrLabel?`　📋 Price List: ${l.yrLabel}`:""}${multi?"　◆コミッション複数パターンあり（要確認）":""}`]);
+      const _yl = l.yrLabel || ((q.yrLabels && q.yrLabels[(l.si!=null?l.si:0)]) || "");
+      const hr = push([`▼ ${l.label}${_yl?`　📋 Price List: ${_yl}`:""}${multi?"　◆コミッション複数パターンあり（要確認）":""}`]);
       if (multi) hlRows.push(hr-1); else secRows.push(hr-1);
       const ratesTxt = (l.commRates&&l.commRates.length) ? l.commRates.map(r=>r+"%").join("/") : "";
       if (ratesTxt || l.commInfo) push([`　コミッション率: ${ratesTxt||"—"}（授業料に適用）${l.commInfo?`　｜契約条件: ${l.commInfo.text}`:""}`]);
