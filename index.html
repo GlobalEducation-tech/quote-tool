@@ -842,7 +842,7 @@ function renderSchoolSection(s, si) {
           <input type="number" value="${s.ttsMarkup??10}" min="0" max="20" oninput="updateSection(${s.id},'ttsMarkup',this.value)">
         </div>
         <div class="field">
-          <label>追加上乗せ または 割引（円）※粗利に計上・割引の場合はマイナスで入力してください（例：-50000）</label>
+          <label>追加上乗せ または 割引（円）※上乗せは海外プログラム費用に内包・粗利に計上／割引はマイナスで入力→小計には含めず見積合計・粗利から減算（例：-50000）</label>
           <input type="text" inputmode="numeric" value="${s.flatMarkup?Number(s.flatMarkup).toLocaleString("ja-JP"):""}" placeholder="例：100000 / 割引は -50000"
             oninput="updateSection(${s.id},'flatMarkup',this.value.replace(/[,，\s円]/g,''))"
             onchange="this.value=(parseFloat(this.value.replace(/[,，\s円]/g,''))||0).toLocaleString('ja-JP')">
@@ -1489,6 +1489,7 @@ function calcAll() {
 
   const freeeLines = [];
   let grandTotalJPY=0, totalCommJPY=0, totalProgMarkupJPY=0, totalTTSMarkupJPY=0, totalFlatMarkupJPY=0, totalInlineAddonJPY=0;
+  let totalSchoolDiscJPY=0; const schoolDiscLabels=[];   // 追加上乗せ欄のマイナス入力（割引）: 小計に内包せず、全体割引と同じ扱いで見積合計・粗利から減算
   let totalCoord=0, totalVisa=0, visaHasExtra=false;
   const allJpyAddons=[];
 
@@ -1498,7 +1499,9 @@ function calcAll() {
     const _addonStart = allJpyAddons.length;
     const progMarkupPct = parseFloat(s.progMarkup)||0;
     const ttsMarkupPct  = normTtsPct(s.ttsMarkup??10);
-    const sFlat = Math.round(parseFloat(s.flatMarkup)||0);   // 追加上乗せ（円）: 先頭グループの海外プログラム費用に内包
+    const sFlatRaw = Math.round(parseFloat(s.flatMarkup)||0);
+    const sFlat = sFlatRaw>0 ? sFlatRaw : 0;   // 追加上乗せ（円・プラスのみ）: 先頭グループの海外プログラム費用に内包
+    if(sFlatRaw<0){totalSchoolDiscJPY+=sFlatRaw;schoolDiscLabels.push(`割引${schoolSections.length>1?`（学校 ${si+1}）`:""}`);}   // マイナス（割引）は小計に内包せず全体から減算
     const sInlineAddons = [];   // 「小計に含める」指定の円建てその他費用: 先頭グループの海外プログラム費用に内包・粗利計上
     const schoolGroups = {};
 
@@ -1735,9 +1738,9 @@ function calcAll() {
     });
 
     // コーディネーション・ビザ（セクションごと）
-    if(sFlat!==0&&Object.keys(schoolGroups).length===0){
-      // 学校が未設定の場合のみ円建て行として計上（金額が消えないようにするための保険）
-      allJpyAddons.push({label:(sFlat<0?"割引":"追加上乗せ")+(schoolSections.length>1?`（学校 ${si+1}）`:""),jpy:sFlat,type:"flat-markup"});
+    if(sFlat>0&&Object.keys(schoolGroups).length===0){
+      // 学校が未設定の場合のみ円建て行として計上（金額が消えないようにするための保険）※割引（マイナス）は全体割引扱いのためここには来ない
+      allJpyAddons.push({label:"追加上乗せ"+(schoolSections.length>1?`（学校 ${si+1}）`:""),jpy:sFlat,type:"flat-markup"});
       totalFlatMarkupJPY+=sFlat;
     }
     if(sInlineAddons.length&&Object.keys(schoolGroups).length===0){
@@ -1755,17 +1758,22 @@ function calcAll() {
   }); // end schoolSections.forEach
 
   const totalAll=grandTotalJPY+totalCoord+totalVisa;
-  // 全体割引（案ごと）: 見積合計・粗利から減算。％指定は割引前総額に対して計算。
+  // 全体割引（案ごと）＋学校ごとの割引（追加上乗せ欄のマイナス入力）: 見積合計・粗利から減算。％指定は割引前総額（学校割引適用後）に対して計算。
   const _disc = curDiscount();
   let discountJPY=0, discountLabel="";
   {
     const dv = Math.abs(parseFloat(String(_disc.value||"").replace(/[,，\s円%％]/g,""))||0);
     if (_disc.type==="yen" && dv>0) discountJPY = -Math.round(dv);
-    else if (_disc.type==="pct" && dv>0) discountJPY = -Math.round(totalAll*dv/100);
+    else if (_disc.type==="pct" && dv>0) discountJPY = -Math.round((totalAll+totalSchoolDiscJPY)*dv/100);
     if (discountJPY!==0) {
       const base=(_disc.label||"").trim()||"割引";
       discountLabel = _disc.type==="pct" ? `${base}（総額の${dv}%）` : base;
     }
+  }
+  if (totalSchoolDiscJPY!==0) {
+    discountJPY += totalSchoolDiscJPY;
+    const sl = schoolDiscLabels.join("＋") || "割引";
+    discountLabel = discountLabel ? `${discountLabel}＋${sl}` : sl;
   }
   const totalAfter = totalAll + discountJPY;
   const jpyOtherTotal=allJpyAddons.filter(a=>a.type==="jpy-other").reduce((s,a)=>s+a.jpy,0);
