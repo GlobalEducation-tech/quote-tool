@@ -1457,7 +1457,8 @@ function renderAddonBlock(b, i, sid) {
   } else if (b.type==="jpy-other") {
     extraHtml=`<div class="field-grid g2">
       <div class="field"><label>説明</label><input type="text" id="addon-desc-${b.id}" value="${(b.desc||'').replace(/"/g,'&quot;')}" placeholder="例：上乗せ、サポート費など" onchange="updateAddon(${b.id},'desc',this.value)"></div>
-      <div class="field"><label>金額（円）</label><input type="number" value="${b.amountJPY||''}" min="0" placeholder="0" oninput="updateAddon(${b.id},'amountJPY',this.value)"></div></div>`;
+      <div class="field"><label>金額（円）</label><input type="number" value="${b.amountJPY||''}" min="0" placeholder="0" oninput="updateAddon(${b.id},'amountJPY',this.value)"></div></div>
+    <label style="display:flex;align-items:center;gap:6px;font-size:11px;color:#3b5bdb;margin-top:6px;cursor:pointer"><input type="checkbox" ${b.inclProg?"checked":""} onchange="updateAddon(${b.id},'inclProg',this.checked?1:0)" style="width:auto;margin:0">海外プログラム費用の小計に含める（内包・粗利計上は従来どおり）</label>`;
   } else if (["gl-fieldwork","gl-dinner","gl-lunch","gl-speaking","gl-lesson","gl-night"].includes(b.type)) {
     const glUnitLabels={"gl-fieldwork":"回","gl-dinner":"回","gl-lunch":"回","gl-speaking":"回","gl-lesson":"時間","gl-night":"泊"};
     const glPriceMap={"gl-fieldwork":18000,"gl-dinner":15000,"gl-lunch":15000,"gl-speaking":12000,"gl-lesson":3000,"gl-night":7000};
@@ -1487,7 +1488,7 @@ function calcAll() {
   if (schoolSections.length===0) { document.getElementById("result-section").style.display="none"; return; }
 
   const freeeLines = [];
-  let grandTotalJPY=0, totalCommJPY=0, totalProgMarkupJPY=0, totalTTSMarkupJPY=0, totalFlatMarkupJPY=0;
+  let grandTotalJPY=0, totalCommJPY=0, totalProgMarkupJPY=0, totalTTSMarkupJPY=0, totalFlatMarkupJPY=0, totalInlineAddonJPY=0;
   let totalCoord=0, totalVisa=0, visaHasExtra=false;
   const allJpyAddons=[];
 
@@ -1498,6 +1499,7 @@ function calcAll() {
     const progMarkupPct = parseFloat(s.progMarkup)||0;
     const ttsMarkupPct  = normTtsPct(s.ttsMarkup??10);
     const sFlat = Math.round(parseFloat(s.flatMarkup)||0);   // 追加上乗せ（円）: 先頭グループの海外プログラム費用に内包
+    const sInlineAddons = [];   // 「小計に含める」指定の円建てその他費用: 先頭グループの海外プログラム費用に内包・粗利計上
     const schoolGroups = {};
 
     function getGroup(schoolKey, campusKey, startDate) {
@@ -1709,7 +1711,7 @@ function calcAll() {
         return;
       }
       if(glPrices[b.type]){const amtJPY=glPrices[b.type]*qty;const el=document.getElementById("d"+b.id+"-sub");if(el)el.textContent=fmtJPY(amtJPY);b._jpyTotal=amtJPY;b._label=`GrandLine ${glLabels[b.type]} × ${qty}`;allJpyAddons.push({label:b._label,jpy:amtJPY,type:b.type});return;}
-      if(b.type==="jpy-other"){const amtJPY=(parseFloat(b.amountJPY)||0)*qty;const el=document.getElementById("d"+b.id+"-sub");if(el)el.textContent=fmtJPY(amtJPY);b._jpyTotal=amtJPY;b._label=b.desc||"その他費用";allJpyAddons.push({label:b._label,jpy:amtJPY,type:b.type});return;}
+      if(b.type==="jpy-other"){const amtJPY=(parseFloat(b.amountJPY)||0)*qty;const el=document.getElementById("d"+b.id+"-sub");if(el)el.textContent=fmtJPY(amtJPY);b._jpyTotal=amtJPY;b._label=b.desc||"その他費用";if(b.inclProg){sInlineAddons.push({label:b._label,jpy:amtJPY});}else{allJpyAddons.push({label:b._label,jpy:amtJPY,type:b.type});}return;}
       if(b.type==="transfer"){const cd=getCampData(s.school,s.campus);const price=cd&&b.airport?(cd.airports[b.airport]||0):0;subLocal=price*qty;subItems.push({label:`${b.airport||"空港"}`,local:subLocal});if(s.school&&s.campus){const grp=getGroup(s.school,s.campus);grp.items.push({section:`空港送迎 ${i+1}`,lines:subItems,subtotal:subLocal});grp.totalLocal+=subLocal;}}
       else{currency=b.currency||getSchoolCurrency(s.school)||"GBP";subLocal=(parseFloat(b.amount)||0)*qty;subItems.push({label:b.desc||b.type,local:subLocal});if(s.school&&s.campus){const grp=getGroup(s.school,s.campus);grp.items.push({section:`Add-on: ${b.desc||b.type}`,lines:subItems,subtotal:subLocal});grp.totalLocal+=subLocal;}}
       const el=document.getElementById("d"+b.id+"-sub");if(el)el.textContent=fmtC(subLocal,currency);
@@ -1723,11 +1725,13 @@ function calcAll() {
       const ttsGainJPY=grp.totalLocal*(effectiveFX-tts);
       const progGainJPY=costJPY*(progMarkupPct/100);
       const flatJPY = gi===0 ? sFlat : 0;   // 追加上乗せは海外プログラム費用（先頭グループ）に内包し、粗利に計上
-      const programFee=Math.round(costJPY+ttsGainJPY+progGainJPY+flatJPY);
+      const inlineList = gi===0 ? sInlineAddons : [];   // 「小計に含める」指定の円建てその他費用も同様に先頭グループへ内包
+      const inlineJPY = inlineList.reduce((t,a)=>t+(a.jpy||0),0);
+      const programFee=Math.round(costJPY+ttsGainJPY+progGainJPY+flatJPY+inlineJPY);
       const commJPY=Math.round(grp.commissionLocal*tts);
       grandTotalJPY+=programFee;totalCommJPY+=commJPY;
-      totalProgMarkupJPY+=Math.round(progGainJPY);totalTTSMarkupJPY+=Math.round(ttsGainJPY);totalFlatMarkupJPY+=flatJPY;
-      freeeLines.push({label:`海外プログラム費用（${grp.label}）`,yrLabel:grp.yrLabel||"",jpy:programFee,currency:grp.currency,local:grp.totalLocal,commLocal:grp.commissionLocal,tts,effectiveFX,costJPY,ttsGainJPY,progGainJPY,flatMarkupJPY:flatJPY,items:grp.items,commJPY,progMarkupPct,ttsMarkupPct,commInfo:grp.commInfo||null,commRates:grp.commRates||[],si,secLabel});
+      totalProgMarkupJPY+=Math.round(progGainJPY);totalTTSMarkupJPY+=Math.round(ttsGainJPY);totalFlatMarkupJPY+=flatJPY;totalInlineAddonJPY+=inlineJPY;
+      freeeLines.push({label:`海外プログラム費用（${grp.label}）`,yrLabel:grp.yrLabel||"",jpy:programFee,currency:grp.currency,local:grp.totalLocal,commLocal:grp.commissionLocal,tts,effectiveFX,costJPY,ttsGainJPY,progGainJPY,flatMarkupJPY:flatJPY,inlineAddons:inlineList,items:grp.items,commJPY,progMarkupPct,ttsMarkupPct,commInfo:grp.commInfo||null,commRates:grp.commRates||[],si,secLabel});
     });
 
     // コーディネーション・ビザ（セクションごと）
@@ -1735,6 +1739,10 @@ function calcAll() {
       // 学校が未設定の場合のみ円建て行として計上（金額が消えないようにするための保険）
       allJpyAddons.push({label:(sFlat<0?"割引":"追加上乗せ")+(schoolSections.length>1?`（学校 ${si+1}）`:""),jpy:sFlat,type:"flat-markup"});
       totalFlatMarkupJPY+=sFlat;
+    }
+    if(sInlineAddons.length&&Object.keys(schoolGroups).length===0){
+      // 内包先の海外プログラム費用が無い場合は従来どおり円建て行として計上（金額が消えないようにするための保険）
+      sInlineAddons.forEach(a=>{allJpyAddons.push({label:a.label,jpy:a.jpy,type:"jpy-other"});});
     }
     if(s.coord>0){totalCoord+=s.coord;freeeLines.push({label:`コーディネーション費用`,jpy:s.coord,isJPY:true,si,secLabel,jpyType:"coord"});}
     // 外国籍（米国・その他）は2026年8月改定で¥400,000。旧保存データ（¥300,000）も新料金に読み替える。
@@ -1766,7 +1774,7 @@ function calcAll() {
   // 粗利 = コミッション + コーディネーション + 追加上乗せ + 円建てAdd-ons。TTS上乗せ差益・来年度上乗せ益は含めない。
   // ※追加上乗せは海外プログラム費用に内包して見積合計へ算入済み（totalFlatMarkupJPY）
   const _fallbackFlat=allJpyAddons.filter(a=>a.type==="flat-markup").reduce((s,a)=>s+a.jpy,0);
-  const grossProfit=totalCommJPY+totalCoord+jpyOtherTotal+actionLearningTotal+glOptTotal+totalFlatMarkupJPY+discountJPY;
+  const grossProfit=totalCommJPY+totalCoord+jpyOtherTotal+actionLearningTotal+glOptTotal+totalFlatMarkupJPY+totalInlineAddonJPY+discountJPY;
   const grossProfitRate = totalAfter>0 ? grossProfit/totalAfter : 0;
 
   // 海外送金額（原価合計−原価コミッション。円換算はベースTTS・計算レートではない）
@@ -1843,6 +1851,7 @@ function calcAll() {
     html+=`<div class="breakdown-line"><span>× TTS ${l.tts} → 実効レート ${l.effectiveFX.toFixed(2)}（TTS+${l.ttsMarkupPct||0}%）</span><span class="bv">${fmt(l.costJPY+l.ttsGainJPY)}</span></div>`;
     html+=`<div class="breakdown-line"><span>来年度上乗せ +${parseFloat(l.progMarkupPct)||0}%${(parseFloat(l.progMarkupPct)||0)>0?"":"（なし）"}</span><span class="bv">${(parseFloat(l.progMarkupPct)||0)>0?fmt(l.progGainJPY):"0円"}</span></div>`;
     if((l.flatMarkupJPY||0)!==0)html+=`<div class="breakdown-line"><span>${l.flatMarkupJPY<0?"割引":"追加上乗せ"}（円・粗利計上）</span><span class="bv"${l.flatMarkupJPY<0?' style="color:#b91c1c"':''}>${l.flatMarkupJPY.toLocaleString("ja-JP")}円</span></div>`;
+    (l.inlineAddons||[]).forEach(a=>{html+=`<div class="breakdown-line"><span>${a.label}（円・小計に内包・粗利計上）</span><span class="bv">${(a.jpy||0).toLocaleString("ja-JP")}円</span></div>`;});
     html+=`<div class="breakdown-line" style="font-weight:500"><span>→ 海外プログラム費用</span><span class="bv">${fmt(l.jpy)}</span></div>`;
     l.items.forEach(item=>{html+=`<div style="margin:6px 0 2px;font-size:11px;color:#999;text-transform:uppercase;">${item.section}</div>`;item.lines.forEach(ln=>{html+=`<div class="breakdown-line" style="padding-left:8px"><span>${ln.label}</span><span class="bv">${fmtC(ln.local,l.currency)}</span></div>`;});});
   });
@@ -1850,6 +1859,7 @@ function calcAll() {
   {const _allRates=[...new Set(freeeLines.filter(l=>!l.isJPY).flatMap(l=>l.commRates||[]))];
   html+=`<div class="breakdown-line"><span>コミッション（授業料 × ${_allRates.length?_allRates.map(r=>r+"%").join("/"):"コミッション率"}・TTS換算）</span><span class="bv" style="color:#166534">${fmt(totalCommJPY)}</span></div>`;}
   if(totalFlatMarkupJPY!==0)html+=`<div class="breakdown-line"><span>${totalFlatMarkupJPY<0?"割引（海外プログラム費用から）":"追加上乗せ（海外プログラム費用に内包）"}</span><span class="bv" style="color:${totalFlatMarkupJPY<0?"#b91c1c":"#166534"}">${totalFlatMarkupJPY.toLocaleString("ja-JP")}円</span></div>`;
+  if(totalInlineAddonJPY!==0)html+=`<div class="breakdown-line"><span>円建て上乗せ・サポート費等（海外プログラム費用に内包）</span><span class="bv" style="color:#166534">${fmt(totalInlineAddonJPY)}</span></div>`;
   if(discountJPY!==0)html+=`<div class="breakdown-line"><span style="color:#b91c1c">▲ ${discountLabel}（見積合計・粗利から減算）</span><span class="bv" style="color:#b91c1c">${discountJPY.toLocaleString("ja-JP")}円</span></div>`;
   if(totalCoord>0)html+=`<div class="breakdown-line"><span>コーディネーション費用合計</span><span class="bv" style="color:#166534">${fmt(totalCoord)}</span></div>`;
   allJpyAddons.filter(a=>(a.jpy||0)>0).forEach(a=>{html+=`<div class="breakdown-line"><span>${a.label}</span><span class="bv" style="color:#166534">${fmt(a.jpy)}</span></div>`;});
@@ -1966,6 +1976,7 @@ function exportPDF() {
         <div style="padding-left:8px">原価 ${fmtC(l.local,l.currency)} × TTS ${l.tts} → 実効レート ${(l.effectiveFX||l.tts).toFixed(2)} = ${fmt(l.costJPY+l.ttsGainJPY)}</div>
         <div style="padding-left:8px">来年度上乗せ +${parseFloat(l.progMarkupPct)||0}% = ${(parseFloat(l.progMarkupPct)||0)>0?fmt(l.progGainJPY):"0円（なし）"}</div>
         ${(l.flatMarkupJPY||0)!==0?`<div style="padding-left:8px">${l.flatMarkupJPY<0?"割引":"追加上乗せ"} = ${l.flatMarkupJPY.toLocaleString("ja-JP")}円</div>`:""}
+        ${(l.inlineAddons||[]).map(a=>`<div style="padding-left:8px">${a.label}（内包） = ${(a.jpy||0).toLocaleString("ja-JP")}円</div>`).join("")}
       </div>`;
     });
     html += `</div></div>`;
@@ -2795,7 +2806,7 @@ function _exportToExcel(targets, filename, returnWorkbook) {
     push([]);
 
     const subtotalRefs = [], jpyRefs = [], ttsGainRefs = [], progGainRefs = [], flatRefs = [], remitRefs = [];
-    let cachedTotal = 0, cachedTts = 0, cachedProg = 0, cachedFlat = 0, cachedRemit = 0;
+    let cachedTotal = 0, cachedTts = 0, cachedProg = 0, cachedFlat = 0, cachedInline = 0, cachedRemit = 0;
 
     // 学校（セクション）ごとにグループ化。旧保存データ（si無し）は単一グループに集約
     const _bySchool = new Map();
@@ -2873,6 +2884,13 @@ function _exportToExcel(targets, filename, returnWorkbook) {
         yenCells.push({ r:fr-1, c:4 }); flatRefs.push(`E${fr}`); eRefs.push(`E${fr}`);
         cachedFlat += v; cachedSub += v;
       }
+      // 「小計に含める」指定の円建てその他費用（内包・粗利計上）: 小計SUMに含め、円建て費用セクションには出さない
+      (l.inlineAddons||[]).forEach(a=>{
+        const v = ceilMan(a.jpy||0);
+        const ir = push([`　${a.label}（円・内包）　※粗利に計上・上の明細行には含まれていません`, "", "", "", v]);
+        yenCells.push({ r:ir-1, c:4 }); addonRefs.push(`E${ir}`); eRefs.push(`E${ir}`);
+        cachedInline += v; cachedSub += v;
+      });
 
       const sr = push([`　▶ ${l.label} 小計`, Math.round((l.local||0)*100)/100, cur, rate, cachedSub]);
       if (detailRows.length) {
@@ -2947,7 +2965,7 @@ function _exportToExcel(targets, filename, returnWorkbook) {
     let cdr = null;
     if ((q.coord||0) > 0) { cdr = push(["　うちコーディネーション", "", "", "", ceilMan(q.coord)]); yenCells.push({ r:cdr-1, c:4 }); }
     let ar = null;
-    const addonV = (q.jpyAddons||[]).reduce((s,a)=>s+ceilMan(a.jpy||0),0) + cachedFlat;
+    const addonV = (q.jpyAddons||[]).reduce((s,a)=>s+ceilMan(a.jpy||0),0) + cachedFlat + cachedInline;
     if (addonRefs.length || flatRefs.length) {
       ar = push(["　うち追加上乗せ・円建てAdd-ons", "", "", "", addonV]);
       formulas.push({ r:ar-1, c:4, f:`SUM(${[...flatRefs,...addonRefs].join(",")})` });
