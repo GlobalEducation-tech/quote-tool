@@ -142,7 +142,7 @@ const SCHOOLS = {
     currency: "GBP",
     campuses: {
       "holland-park": {
-        name: "Holland Park", country: "UK", regFee: 95, peakSupp: 0,
+        name: "Holland Park（2026年版）", country: "UK", regFee: 95, peakSupp: 0,
         courses: {
           "ge-fulltime":       { name:"General English Full-time (24h/week)",                    type:"group", prices:[695,650,620],  brackets:[1,5,13], commission:0.25 },
           "ge-pt-am":          { name:"General English Part-time AM (12h/week)",                 type:"group", prices:[460,420,390],  brackets:[1,5,13], commission:0.25 },
@@ -697,34 +697,34 @@ const SCHOOLS = {
         name: "Irvine", country: "USA", regFee: 200, peakSupp: 0,
         courses: {
           // ACP（Accelerated Certificate Programs）12週間固定
-          "acp-business":    { name:"ACP Business Administration",                  type:"group", prices:[7900],  brackets:[1], fixedWeeks:12, commission:0.20 },
-          "acp-creativity":  { name:"ACP Creativity & Product Development",         type:"group", prices:[7900],  brackets:[1], fixedWeeks:12, commission:0.20 },
-          "acp-data-biz":    { name:"ACP Data Analytics for Business",              type:"group", prices:[7900],  brackets:[1], fixedWeeks:12, commission:0.20 },
-          "acp-data-sci":    { name:"ACP Data Science",                             type:"group", prices:[7900],  brackets:[1], fixedWeeks:12, commission:0.20 },
-          "acp-digital-mkt": { name:"ACP Digital Marketing & Communications",       type:"group", prices:[7900],  brackets:[1], fixedWeeks:12, commission:0.20 },
-          "acp-innovation":  { name:"ACP Innovation Management & Entrepreneurship", type:"group", prices:[7900],  brackets:[1], fixedWeeks:12, commission:0.20 },
-          "acp-intl-biz":    { name:"ACP International Business Operations",        type:"group", prices:[7900],  brackets:[1], fixedWeeks:12, commission:0.20 },
-          "acp-intl-finance":{ name:"ACP International Finance",                    type:"group", prices:[7900],  brackets:[1], fixedWeeks:12, commission:0.20 },
-          "acp-pm":          { name:"ACP Project Management",                       type:"group", prices:[7900],  brackets:[1], fixedWeeks:12, commission:0.20 },
-          "acp-internship":  { name:"ACP Internship Experience",                    type:"group", prices:[2900],  brackets:[1], fixedWeeks:12, commission:0.20 },
+          "acp-business":    { name:"ACP Business Administration",                  type:"group", prices:[7900],  brackets:[1], fixedWeeks:12, commission:0.15 },
+          "acp-creativity":  { name:"ACP Creativity & Product Development",         type:"group", prices:[7900],  brackets:[1], fixedWeeks:12, commission:0.15 },
+          "acp-data-biz":    { name:"ACP Data Analytics for Business",              type:"group", prices:[7900],  brackets:[1], fixedWeeks:12, commission:0.15 },
+          "acp-data-sci":    { name:"ACP Data Science",                             type:"group", prices:[7900],  brackets:[1], fixedWeeks:12, commission:0.15 },
+          "acp-digital-mkt": { name:"ACP Digital Marketing & Communications",       type:"group", prices:[7900],  brackets:[1], fixedWeeks:12, commission:0.15 },
+          "acp-innovation":  { name:"ACP Innovation Management & Entrepreneurship", type:"group", prices:[7900],  brackets:[1], fixedWeeks:12, commission:0.15 },
+          "acp-intl-biz":    { name:"ACP International Business Operations",        type:"group", prices:[7900],  brackets:[1], fixedWeeks:12, commission:0.15 },
+          "acp-intl-finance":{ name:"ACP International Finance",                    type:"group", prices:[7900],  brackets:[1], fixedWeeks:12, commission:0.15 },
+          "acp-pm":          { name:"ACP Project Management",                       type:"group", prices:[7900],  brackets:[1], fixedWeeks:12, commission:0.15 },
+          "acp-internship":  { name:"ACP Internship Experience",                    type:"group", prices:[2900],  brackets:[1], fixedWeeks:12, commission:0.15 },
           // ASAP（Academic Study Abroad Program）
-          "asap-gen-3m":     { name:"ASAP General Track 3ヶ月",                     type:"group", prices:[8200],  brackets:[1], fixedWeeks:13, commission:0.20 },
-          "asap-gen-6m":     { name:"ASAP General Track 6ヶ月",                     type:"group", prices:[16400], brackets:[1], fixedWeeks:26, commission:0.20 },
-          "asap-gen-9m":     { name:"ASAP General Track 9ヶ月",                     type:"group", prices:[24600], brackets:[1], fixedWeeks:39, commission:0.20 },
-          "asap-csl-6m":     { name:"ASAP CSL Track 6ヶ月",                         type:"group", prices:[15500], brackets:[1], fixedWeeks:26, commission:0.20 },
-          "asap-csl-9m":     { name:"ASAP CSL Track 9ヶ月",                         type:"group", prices:[22500], brackets:[1], fixedWeeks:39, commission:0.20 },
-          "asap-spec-3m":    { name:"ASAP Specialized Track 3ヶ月",                 type:"group", prices:[11000], brackets:[1], fixedWeeks:13, commission:0.20 },
-          "asap-spec-6m":    { name:"ASAP Specialized Track 6ヶ月",                 type:"group", prices:[22000], brackets:[1], fixedWeeks:26, commission:0.20 },
-          "asap-spec-9m":    { name:"ASAP Specialized Track 9ヶ月",                 type:"group", prices:[33000], brackets:[1], fixedWeeks:39, commission:0.20 },
+          "asap-gen-3m":     { name:"ASAP General Track 3ヶ月",                     type:"group", prices:[8200],  brackets:[1], fixedWeeks:13, commission:0.10 },
+          "asap-gen-6m":     { name:"ASAP General Track 6ヶ月",                     type:"group", prices:[16400], brackets:[1], fixedWeeks:26, commission:0.10 },
+          "asap-gen-9m":     { name:"ASAP General Track 9ヶ月",                     type:"group", prices:[24600], brackets:[1], fixedWeeks:39, commission:0.10 },
+          "asap-csl-6m":     { name:"ASAP CSL Track 6ヶ月",                         type:"group", prices:[15500], brackets:[1], fixedWeeks:26, commission:0.10 },
+          "asap-csl-9m":     { name:"ASAP CSL Track 9ヶ月",                         type:"group", prices:[22500], brackets:[1], fixedWeeks:39, commission:0.10 },
+          "asap-spec-3m":    { name:"ASAP Specialized Track 3ヶ月",                 type:"group", prices:[11000], brackets:[1], fixedWeeks:13, commission:0.10 },
+          "asap-spec-6m":    { name:"ASAP Specialized Track 6ヶ月",                 type:"group", prices:[22000], brackets:[1], fixedWeeks:26, commission:0.10 },
+          "asap-spec-9m":    { name:"ASAP Specialized Track 9ヶ月",                 type:"group", prices:[33000], brackets:[1], fixedWeeks:39, commission:0.10 },
           // STAR Programs
-          "star-ug-9m":      { name:"Undergrad STAR Program 9ヶ月",                 type:"group", prices:[35000], brackets:[1], fixedWeeks:39, commission:0.20 },
-          "star-grad-6m":    { name:"Grad STAR General Track 6ヶ月",                type:"group", prices:[24000], brackets:[1], fixedWeeks:26, commission:0.20 },
-          "star-grad-9m":    { name:"Grad STAR General Track 9ヶ月",                type:"group", prices:[29800], brackets:[1], fixedWeeks:39, commission:0.20 },
-          "star-grad-31-9m": { name:"Grad STAR 3+1 Access Track 9ヶ月",             type:"group", prices:[32050], brackets:[1], fixedWeeks:39, commission:0.20 },
+          "star-ug-9m":      { name:"Undergrad STAR Program 9ヶ月",                 type:"group", prices:[35000], brackets:[1], fixedWeeks:39, commission:0.10 },
+          "star-grad-6m":    { name:"Grad STAR General Track 6ヶ月",                type:"group", prices:[24000], brackets:[1], fixedWeeks:26, commission:0.10 },
+          "star-grad-9m":    { name:"Grad STAR General Track 9ヶ月",                type:"group", prices:[29800], brackets:[1], fixedWeeks:39, commission:0.10 },
+          "star-grad-31-9m": { name:"Grad STAR 3+1 Access Track 9ヶ月",             type:"group", prices:[32050], brackets:[1], fixedWeeks:39, commission:0.10 },
           // ISP（Individualized Study Program）
-          "isp-2wk":         { name:"ISP 2週間セッション",                          type:"group", prices:[1095],  brackets:[1], fixedWeeks:2,  commission:0.20 },
-          "isp-4wk":         { name:"ISP 4週間セッション",                          type:"group", prices:[2190],  brackets:[1], fixedWeeks:4,  commission:0.20 },
-          "isp-6wk":         { name:"ISP 6週間セッション",                          type:"group", prices:[3285],  brackets:[1], fixedWeeks:6,  commission:0.20 },
+          "isp-2wk":         { name:"ISP 2週間セッション",                          type:"group", prices:[1095],  brackets:[1], fixedWeeks:2,  commission:0.15 },
+          "isp-4wk":         { name:"ISP 4週間セッション",                          type:"group", prices:[2190],  brackets:[1], fixedWeeks:4,  commission:0.15 },
+          "isp-6wk":         { name:"ISP 6週間セッション",                          type:"group", prices:[3285],  brackets:[1], fixedWeeks:6,  commission:0.15 },
         },
         accom: {
           "none":     { name:"なし",                                               low:0,   peak:0 },
@@ -736,6 +736,10 @@ const SCHOOLS = {
         airports: {
           "LAX（片道）": 75,
           "John Wayne SNA（片道）": 45,
+          "［追加費用］Student Services Fee（ACP/STAR/ASAP・1クォーター）": 250,
+          "［追加費用］Student Services Fee（ISP・2週セッションあたり）": 100,
+          "［追加費用］健康保険（ACP/STAR/ASAP・1クォーター）": 675,
+          "［追加費用］健康保険（ISP・任意・2週セッションあたり）": 150,
         }
       }
     }
@@ -2652,3 +2656,223 @@ SCHOOLS.wse.campuses["wimbledon-2027"] = {
 };
 PRIVATE_LESSON_PRICES.wse["wimbledon-2027"] = 90;
 PRICE_YEARS_OVERRIDE.wse = { "wimbledon": [2026], "wimbledon-2027": [2027] };
+
+
+// =====================================================================
+// 2026-09-28 Price List更新
+//  ・LSE 2027年版（Course Guide 2027）→ 別キャンパス「holland-park-2027」で2026年版と併存
+//  ・新規: IH Mexico City（2026）/ Les Ateliers FL（IH Paris）Au Pair（2026-27）/
+//          KAPITO Sprachschule Münster（2027）/ Duke Language School Bangkok（2026-27）
+//  ・UCI DCE（2026-2027 Tuition and Fees・2026/09/18取得）: 料金は既存登録と一致。
+//    コミッションを契約一覧（English/Cert等15%・STAR/ASAP10%）に合わせ修正、必須費用をAdd-on化
+//  ・TLI北京校: 受講料一覧は既存登録と一致（変更なし）
+//  ※［追加費用］で始まる項目はAdd-on「空港送迎」欄から選択（Excelでは「追加費用」表示）
+// =====================================================================
+
+// --- 通貨 ---
+CURRENCIES.ih_mexico = "USD";
+CURRENCIES.les_ateliers_fl = "EUR";
+CURRENCIES.kapito = "EUR";
+CURRENCIES.duke_bkk = "THB";
+
+// --- 年度 ---
+PRICE_YEARS_OVERRIDE.lse = { "holland-park": [2026], "holland-park-2027": [2027] };
+PRICE_YEARS_OVERRIDE.uci_dce = { "irvine": [2026, 2027] };
+PRICE_YEARS_OVERRIDE.ih_mexico = { "mexico-city": [2026] };
+PRICE_YEARS_OVERRIDE.les_ateliers_fl = { "paris": [2026, 2027] };
+PRICE_YEARS_OVERRIDE.kapito = { "muenster": [2027] };
+PRICE_YEARS_OVERRIDE.duke_bkk = { "bangkok": [2026, 2027] };
+
+// =====================================================================
+// The London School of English — 2027年版（Course Guide 2027）/ GBP
+// ・登録費: オンライン予約£95（既定）/ メール予約£125 / オンラインコース£35
+// ・休校: 2027/3/26-29・12/21-1/1
+// ・⚠️ 2027ガイドに宿泊ページなし → 宿泊は2026年版の値を暫定転記（要確認）
+// ・English and Art（要問合せ）・On Demand Closed Group（£9,750・単位不明）は未登録
+// =====================================================================
+SCHOOLS.lse.campuses["holland-park-2027"] = {
+  name: "Holland Park（2027年版）", country: "UK", regFee: 95, peakSupp: 0,
+  courses: {
+    "ge-fulltime":     { name:"General English Full Day (24h/week・20歳+)", type:"group", prices:[720,685,649,595], brackets:[1,5,13,24], commission:0.20, note:"2027年版。09:30-16:00。" },
+    "ge-pt-am":        { name:"General English Morning (12h/week・20歳+)", type:"group", prices:[495,455,430], brackets:[1,5,13], commission:0.20, note:"2027年版。09:30-12:15。" },
+    "ge-pt-pm":        { name:"General English Afternoon (12h/week・20歳+)", type:"group", prices:[375,350,330], brackets:[1,5,13], commission:0.20, note:"2027年版。13:15-16:00。" },
+    "ge-combination":  { name:"General English + Individual Tuition (27h/週)", type:"group", prices:[2100], brackets:[1], commission:0.20, note:"2027年版。週£2,100（2026: £1,975）。" },
+    "ge-business":     { name:"General English + Business English (27h/週・Lv5-7)", type:"group", prices:[1305], brackets:[1], commission:0.20, note:"2027年版・新設。週£1,305。" },
+    "beginners-4wk":   { name:"Beginners English (Lv2-3・15h/週 午前・4週固定)", type:"group", prices:[2396], brackets:[1], fixedWeeks:4, commission:0.20, note:"⚠️2027ガイドのWeekly Fee欄「£599」を週額と解釈し£599×4週=£2,396で登録（2026年版は4週総額£2,300）。総額£599の可能性もあるため要確認。開始: 1/4・2/1・3/1・4/5・5/3・6/7・7/5・8/2・9/6・10/4・11/1。" },
+    "fifty-plus":      { name:"50+ English & Cultural Programme (25h/週・1-2週)", type:"group", prices:[975], brackets:[1], commission:0.20, note:"2027年版。1週£975/2週£1,950。開始日限定（4/5・4/12・6/14・6/21・8/30・9/6・11/29・12/6。2週は4/5・6/14・8/30・11/29）。" },
+    "xmas-excursions": { name:"General English & Christmas Excursions (25h・1週)", type:"group", prices:[975], brackets:[1], fixedWeeks:1, commission:0.20, note:"2027年版・新設。開始: 12/6・12/13。" },
+    "biz-pt-am":       { name:"Business & Professional English AM (15h/週・25歳+)", type:"group", prices:[920], brackets:[1], commission:0.20, note:"2027年版。09:00-12:30。" },
+    "biz-pt-pm":       { name:"Business & Professional English PM (15h/週・25歳+)", type:"group", prices:[810], brackets:[1], commission:0.20, note:"2027年版。13:30-16:45。" },
+    "biz-fulltime":    { name:"Business & Professional English Full-time (30h/週・25歳+)", type:"group", prices:[1490], brackets:[1], commission:0.20, note:"2027年版。" },
+    "biz-combination": { name:"Business & Professional English + Individual Tuition (15+15h/週)", type:"group", prices:[2415], brackets:[1], commission:0.20, note:"2027年版。週£2,415（2026: £2,325）。" },
+    "biz-voice":       { name:"Business & Professional English + Voice & Accent (15+10h/週)", type:"group", prices:[2184], brackets:[1], commission:0.20, note:"2027年版・新設。" },
+    "english-hr":      { name:"English for HR Professionals (30h・1週)", type:"group", prices:[1570], brackets:[1], commission:0.20, note:"2027年版。開始: 3/1・5/17・10/4。" },
+    "english-banking": { name:"English for Banking & Finance (30h・1週)", type:"group", prices:[1570], brackets:[1], commission:0.20, note:"2027年版。開始: 2/22・5/10・9/27。" },
+    "english-medical": { name:"English for Medical Purposes (30h・1週)", type:"group", prices:[1570], brackets:[1], commission:0.20, note:"2027年版・新設。開始: 1/25・5/24・10/11。" },
+    "legal-commercial":{ name:"Legal English 30+ Commercial Lawyers (30h・1週)", type:"group", prices:[1570], brackets:[1], commission:0.20, note:"2027年版。開始: 2/15・5/3・9/20。" },
+    "legal-20-30-3wk": { name:"Legal English 20-30 (24h/週・3週固定)", type:"group", prices:[2230], brackets:[1], fixedWeeks:3, commission:0.20, note:"2027年版・3週コース新設。開始: 1/11・3/1・4/19・6/28・7/26・9/6・11/15。" },
+    "legal-20-30":     { name:"Legal English 20-30 (24h/週・4週固定)", type:"group", prices:[2980], brackets:[1], fixedWeeks:4, commission:0.20, note:"2027年版。総額£2,980＋TOLES試験料£220別途（2026: £156）。" },
+    "ielts-4wk":       { name:"IELTS Preparation (24h/週・4週固定)", type:"group", prices:[2980], brackets:[1], fixedWeeks:4, commission:0.20, note:"2027年版。開始: 1/11・3/15・4/19・6/28・10/11。" },
+    "teacher-training":{ name:"Teacher Training (24h/週・2週固定)", type:"group", prices:[1490], brackets:[1], fixedWeeks:2, commission:0.20, note:"⚠️2027年版・新設。Weekly Fee欄£1,490を2週総額と解釈（他の固定コースと同じ表記）。要確認。開始: 3/22・7/19・10/18。" },
+    "home-tuition-20": { name:"Home Tuition (20h/週・講師宅ホームステイ)", type:"group", prices:[2185], brackets:[1], commission:0.20, note:"2027年版（2026: £2,100）。" },
+    "home-tuition-25": { name:"Home Tuition (25h/週・講師宅ホームステイ)", type:"group", prices:[2610], brackets:[1], commission:0.20, note:"2027年版（2026: £2,510）。" },
+    "young-adults":    { name:"Young Adults Summer Programme (15-18歳・Business Pioneers/Global Leaders)", type:"grandline-fixed", priceTable:[0,0,4300,0,7700], commission:0.20, note:"2027年版。2週£4,300（7/12・7/26開始）/4週Back to back £7,700（7/12開始）。" },
+    "1to1-faceto":     { name:"1:1 Face to Face (Holland Park Gardens)", type:"1to1", pricePerHour:109, commission:0.20, note:"2027年版。15/20/30h/週。" },
+    "2to1-faceto":     { name:"2:1 Face to Face (Holland Park Gardens)", type:"1to1", pricePerHour:120, commission:0.20 },
+    "1to1-online":     { name:"1:1 Online Lessons", type:"1to1", pricePerHour:79, commission:0.20 },
+    "2to1-online":     { name:"2:1 Online Lessons", type:"1to1", pricePerHour:99, commission:0.20 },
+    "voice-online":    { name:"Voice & Accent Training (Online)", type:"1to1", pricePerHour:105, commission:0.20 },
+    "voice-faceto":    { name:"Voice & Accent Training (Face to Face)", type:"1to1", pricePerHour:135, commission:0.20 },
+  },
+  accom: {
+    "none":                { name:"なし", low:0, peak:0 },
+    "homestay-silver-bb":  { name:"⚠️2026年版価格 Homestay Silver・B&B",                 low:250, peak:250, placementFee:80 },
+    "homestay-silver-bb3d":{ name:"⚠️2026年版価格 Homestay Silver・B&B + 3 evening meals", low:305, peak:305, placementFee:80 },
+    "homestay-gold-bb":    { name:"⚠️2026年版価格 Homestay Gold (private bath)・B&B",     low:320, peak:320, placementFee:80 },
+    "homestay-gold-bb3d":  { name:"⚠️2026年版価格 Homestay Gold・B&B + 3 evening meals",  low:375, peak:375, placementFee:80 },
+  },
+  airports: {
+    "Heathrow (arrival)":145, "Heathrow (departure)":135,
+    "London City (arrival)":150, "London City (departure)":145,
+    "Gatwick/Luton (arrival)":210, "Gatwick/Luton (departure)":200,
+    "Stansted (arrival)":225, "Stansted (departure)":220,
+    "St Pancras (arrival)":130, "St Pancras (departure)":120,
+    "［追加費用］ランチ（週）":65, "［追加費用］保険（週）":7,
+    "［追加費用］登録費差額（メール予約£125−£95）":30,
+  }
+};
+PRIVATE_LESSON_PRICES.lse["holland-park-2027"] = 109;
+
+// =====================================================================
+// International House Mexico City — 2026年版 / USD
+// コミッション: 授業料25%・宿泊費（ホテル除く）10% → 本ツールは授業料分のみ計上（宿泊10%は粗利に未反映）
+// ・登録・レベルテスト・ソーシャルプログラム等はコース費用に込み → regFee 0
+// ・教材: Course book $60/レベル → 1レベル分を自動計上（複数レベル分は手動追加）
+// ・4/2開始週（祝日2日含む）は特別料金$175/週 → 自動計算なし（note参照）
+// ・キャンセル: 50%デポジット・残額は開始1週前・開始5日前までの通知で全額返金
+// =====================================================================
+SCHOOLS.ih_mexico = {
+  name: "International House Mexico",
+  currency: "USD",
+  campuses: {
+    "mexico-city": {
+      name: "Mexico City", country: "Mexico", regFee: 0, peakSupp: 0,
+      materialsFee: { type:"fixed", fee:60 },
+      courses: {
+        "intensive-20": { name:"Intensive Spanish (20h/週・最大8名)", type:"group", prices:[250,230,215,200], brackets:[1,5,13,24], commission:0.25, note:"2026年版。月-金 10:00-14:00。毎週月曜開始（完全初心者は指定日）。受講者1名のみの場合は個人10h/週に振替。教材$60/レベル（1レベル分自動計上）。4/2開始週は$175の特別料金（手動調整）。祝日の振替なし。" },
+        "private-1":  { name:"Private lessons 1時間",  type:"rennert-fixed", fixedPrice:38,  noMaterialsFee:true, commission:0.25, note:"2026年版。Business Spanish/DELE対策等。" },
+        "private-5":  { name:"Private lessons 5時間パック",  type:"rennert-fixed", fixedPrice:180, noMaterialsFee:true, commission:0.25 },
+        "private-10": { name:"Private lessons 10時間パック", type:"rennert-fixed", fixedPrice:340, noMaterialsFee:true, commission:0.25 },
+        "private-15": { name:"Private lessons 15時間パック", type:"rennert-fixed", fixedPrice:480, noMaterialsFee:true, commission:0.25 },
+        "private-20": { name:"Private lessons 20時間パック", type:"rennert-fixed", fixedPrice:600, noMaterialsFee:true, commission:0.25 },
+      },
+      accom: {
+        "none":         { name:"なし", low:0, peak:0 },
+        "host-family":  { name:"Host family", low:335, peak:335 },
+        "studio":       { name:"Studio", low:570, peak:570 },
+        "private-apt":  { name:"Private Apartment", low:625, peak:625 },
+        "shared-apt":   { name:"⚠️Shared Apartment（$525「for 2 persons」・1人あたりか2人総額か要確認）", low:525, peak:525 },
+      },
+      airports: { "空港送迎 片道（1名）":135, "空港送迎 片道（2名以上・1人あたり）":85 },
+    }
+  }
+};
+PRIVATE_LESSON_PRICES.ih_mexico = { "mexico-city": 38 };
+
+// =====================================================================
+// Les Ateliers FL（IH Paris）— Programme Au Pair 2026-2027 / EUR
+// ・対象: オペア（フランス人家庭滞在）17歳+。10h/週（対面6h＝8レッスン＋自習4h）。月・木 or 火・金
+// ・学期: 秋 2026/9/21-12/11・冬 2027/1/4-3/26・春 2027/3/30-6/18（学校休暇・祝日は授業なし）
+// ・登録料 €45（1・2学期）/ 3学期申込は無料（noRegFeeで自動）
+// ・学期途中入学は週€50で按分（開始日により調整）
+// ・コミッション: 契約一覧に記載なし → 0%で計算（要確認 📝）
+// =====================================================================
+SCHOOLS.les_ateliers_fl = {
+  name: "Les Ateliers FL（IH Paris）",
+  currency: "EUR",
+  campuses: {
+    "paris": {
+      name: "Paris（Au Pair 2026-27）", country: "France", regFee: 45, peakSupp: 0,
+      courses: {
+        "aupair-1term": { name:"Au Pair 1学期 (10h/週)", type:"group", prices:[455], brackets:[1], fixedWeeks:12, commission:0, note:"📝コミッション率未確認のため0%。1学期€455＋登録€45。" },
+        "aupair-2term": { name:"Au Pair 2学期 (10h/週)", type:"group", prices:[795], brackets:[1], fixedWeeks:24, commission:0, note:"📝コミッション0%（要確認）。€795（通常€910）＋登録€45。" },
+        "aupair-3term": { name:"Au Pair 3学期 (10h/週)", type:"group", prices:[1075], brackets:[1], fixedWeeks:36, noRegFee:true, commission:0, note:"📝コミッション0%（要確認）。€1,075（通常€1,365）。3学期申込は登録料無料（自動で登録費なし）。" },
+        "aupair-weekly":{ name:"Au Pair 学期途中入学 (週€50)", type:"group", prices:[50], brackets:[1], commission:0, note:"📝学期途中からの入学時の週割（初心者は不可）。" },
+      },
+      accom: { "none": { name:"なし（オペア家庭に滞在）", low:0, peak:0 } },
+      airports: {},
+    }
+  }
+};
+PRIVATE_LESSON_PRICES.les_ateliers_fl = { "paris": null };
+
+// =====================================================================
+// KAPITO Sprachschule — Münster, Germany / 2027年版 / EUR
+// コミッション: コース料金の20%（契約一覧より自動適用）
+// ・登録費 €39・教材費 €20/4週（自動計上）
+// ・夏季サプリメント €30/週（2027/7/5〜8/27・Intensive / Intensive Plus）
+// ・宿泊は1-4週が総額表・5週以上は週単価（weekTotals）。KAPITOは仲介（宿泊費はホストへ全額送金）
+// ・冬季休校 2027/12/20-2028/1/3。空港送迎は要問合せ
+// ・Extension on site（現地延長）料金は代理店見積対象外のため未登録
+// =====================================================================
+SCHOOLS.kapito = {
+  name: "KAPITO Sprachschule",
+  currency: "EUR",
+  campuses: {
+    "muenster": {
+      name: "Münster（2027年版）", country: "Germany", regFee: 39, peakSupp: 0,
+      peakStart: "07-05", peakEnd: "08-27",
+      materialsFee: { type:"bracket", brackets:[4,8,12,16,20,24,28,32,36,40,44,48,52,56,60].map((w,i)=>({maxWeeks:w, fee:20*(i+1)})).concat([{maxWeeks:999, fee:320}]) },
+      courses: {
+        "intensive":      { name:"Intensive Course (20L/週＋学習サポート10h・最大12名)", type:"elc", prices:[210,190,180,170,160], brackets:[1,5,9,17,24], peakSupp:30, commission:0.20, note:"2027年版。9:00-12:30。毎週月曜開始（完全初心者は指定日）。夏季7/5-8/27は+€30/週（自動）。" },
+        "intensive-plus": { name:"Intensive Course Plus (24L/週＋学習サポート10h・最大12名)", type:"elc", prices:[250,230,210,200,190], brackets:[1,5,9,17,24], peakSupp:30, commission:0.20, note:"2027年版。午後2コマ（会話・試験対策）。夏季+€30/週（自動）。" },
+        "compact":        { name:"Compact Course (グループ20L＋個人10L/週)", type:"firstN", firstWeeks:1, firstPrice:760, addlPrice:710, commission:0.20, note:"2027年版。初週€760・追加€710/週。" },
+        "individual-20":  { name:"Individual Course (個人20L/週)", type:"group", prices:[1100], brackets:[1], commission:0.20, note:"2027年版。同レベルの2人目は無料。午後の追加10Lは別コース行で追加。" },
+        "individual-add10":{ name:"Individual Course 追加10L/週（午後）", type:"group", prices:[550], brackets:[1], noMaterialsFee:true, noRegFee:true, commission:0.20, note:"2027年版。Individual Courseと併用（登録費・教材費は本体行で計上）。" },
+        "pathway-uni":    { name:"Pathway University（A1.1→C1・24L/週・44週固定）", type:"group", prices:[6800], brackets:[1], fixedWeeks:44, commission:0.20, note:"2027年版。開始: 1/4・4/5・8/2・8/30。教材費は週数に応じ自動計上（要確認）。" },
+        "pathway-voc":    { name:"Pathway Vocational/Studienkolleg（A1.1→B2・24L/週・36週固定）", type:"group", prices:[5800], brackets:[1], fixedWeeks:36, commission:0.20, note:"2027年版。開始: 1/4・4/5・8/2・8/30。" },
+        "vocational-fee": { name:"Vocational training program 手配料（ドイツ語コース併用必須）", type:"rennert-fixed", fixedPrice:750, noMaterialsFee:true, noRegFee:true, commission:0.20, note:"2027年版。登録費はドイツ語コース行で計上。" },
+        "online-telc":    { name:"Online telc B2/C1 Hochschule 試験対策（2週・火木18:00-19:30）", type:"rennert-fixed", fixedPrice:80, noMaterialsFee:true, commission:0.20, note:"2027年版。毎月開始。" },
+      },
+      accom: {
+        "none":         { name:"なし", low:0, peak:0 },
+        "single-nomeal":{ name:"Single room 食事なし（キッチン利用可・18歳+）", weekTotals:{1:290,2:390,3:525,4:660}, low:165, peak:165 },
+        "single-bf":    { name:"Single room 朝食付", weekTotals:{1:330,2:450,3:615,4:780}, low:195, peak:195 },
+        "single-hb":    { name:"Single room ハーフボード（週末フルボード）", weekTotals:{1:400,2:590,3:825,4:1060}, low:265, peak:265, halfBoard:true },
+        "apartment":    { name:"Apartment 食事なし（専用バス・簡易キッチン・23歳+）from €270/週＋デポジット", low:270, peak:270 },
+        "studio":       { name:"KAPITO Studio 食事なし（18歳+）from €300/週＋デポジット", low:300, peak:300 },
+      },
+      airports: {
+        "［追加費用］telc Deutsch A1/A2 受験料":120, "［追加費用］telc Deutsch B1/B2 受験料":180,
+        "［追加費用］telc Deutsch C1 Hochschule 受験料":210, "［追加費用］TestDaF 受験料":215, "［追加費用］TestAS 受験料":170,
+      },
+    }
+  }
+};
+PRIVATE_LESSON_PRICES.kapito = { "muenster": null };
+
+// =====================================================================
+// Duke Language School — Bangkok（タイ語）/ 2026-27 / THB
+// ・1コース = 40時間（月-金2h×20日＝約4週）฿8,000。S1〜S4の時間帯から選択
+// ・スペシャルプロモーション: 5コース ฿36,000 / 7コース ฿49,000（期間未記載・申込前に要確認）
+// ・オリジナルテキスト ฿500（自動計上）。登録料の記載なし → regFee 0
+// ・コミッション: 契約一覧に記載なし → 0%で計算（要確認 📝）
+// =====================================================================
+SCHOOLS.duke_bkk = {
+  name: "Duke Language School",
+  currency: "THB",
+  campuses: {
+    "bangkok": {
+      name: "Bangkok", country: "Thailand", regFee: 0, peakSupp: 0,
+      materialsFee: { type:"fixed", fee:500 },
+      courses: {
+        "course-weekly": { name:"タイ語コース（1コース40h＝4週 ฿8,000・週数で按分）", type:"group", prices:[2000], brackets:[1], commission:0, note:"📝コミッション0%（要確認）。4週＝1コース。週数は4の倍数で入力。" },
+        "promo-5":       { name:"タイ語 5コースパック（200h・20週）฿36,000", type:"group", prices:[36000], brackets:[1], fixedWeeks:20, commission:0, note:"📝プロモーション価格（通常฿40,000）。期間要確認。" },
+        "promo-7":       { name:"タイ語 7コースパック（280h・28週）฿49,000", type:"group", prices:[49000], brackets:[1], fixedWeeks:28, commission:0, note:"📝プロモーション価格（通常฿56,000）。期間要確認。" },
+      },
+      accom: { "none": { name:"なし", low:0, peak:0 } },
+      airports: {},
+    }
+  }
+};
+PRIVATE_LESSON_PRICES.duke_bkk = { "bangkok": null };

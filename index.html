@@ -426,7 +426,7 @@ const COMMISSION_LIST = [
  {n:"Sara's Homestay", t:"Homestay10%・Residence/HighSchool5%・SummerImmersion20%", r:null, m:true},
 ];
 // 自動マッチが外れる/曖昧な学校は、SCHOOLSキー → 一覧のnを手動指定（例: { lse: "The London School of English" }）
-const COMMISSION_KEY_MAP = {};
+const COMMISSION_KEY_MAP = { uci_dce: "University of California, Irvine" };
 (function applyCommissionList(){
   if (typeof SCHOOLS === "undefined") return;
   const norm = s => String(s||"").toLowerCase().replace(/[^a-z0-9\u3040-\u30ff\u4e00-\u9fff]/g,"");
@@ -1178,7 +1178,7 @@ function renderCourseBlock(b, i, sid) {
     <div class="field-grid g2">
       <div class="field"><label>コース</label><select onchange="updateCourse(${b.id},'course',this.value)">${courseOpts}</select></div>
       <div class="field"><label>登録費</label><select onchange="updateCourse(${b.id},'regFee',this.value)">
-        <option value="auto" ${!b.regFee||b.regFee==="auto"?"selected":""}>自動（${cd?.regFee||85}）</option>
+        <option value="auto" ${!b.regFee||b.regFee==="auto"?"selected":""}>自動（${cd?.regFee??85}）</option>
         <option value="0" ${b.regFee==="0"?"selected":""}>なし</option>
       </select></div>
     </div>
@@ -1551,7 +1551,7 @@ function calcAll() {
       const w=b.start&&b.end?calcWeeks(b.start,b.end):null;
       const weeks=w?w.total:0;
       const peakWeeks=w?w.peak:0;
-      const useRegFee=b.regFee==="0"?0:(cd.regFee||85);
+      const useRegFee=(b.regFee==="0"||course.noRegFee)?0:(cd.regFee??85);
       let subLocal=0, commLocal=0;
       let subItems=[];
       if (course.type==="grandline-fixed") {
@@ -1573,7 +1573,7 @@ function calcAll() {
       } else if(course.type==="elc"){
         const pw=getPrice(course.prices,course.brackets,weeks);const t=pw*weeks;
         subLocal+=t;commLocal+=t*course.commission;subItems.push({label:`授業料 ${fmtC(pw,currency)}/週 × ${weeks}週`,local:t,formula:`${pw}*${weeks}`});
-        if(cd.peakStart&&cd.peakSupp>0){const sw=calcCustomSummerWeeks(b.start,b.end,cd.peakStart,cd.peakEnd);if(sw>0){const ss=cd.peakSupp*sw;subLocal+=ss;commLocal+=ss*course.commission;subItems.push({label:`サマーサプリメント × ${sw}週`,local:ss,formula:`${cd.peakSupp}*${sw}`});}}
+        const _psup=course.peakSupp??cd.peakSupp;if(cd.peakStart&&_psup>0){const sw=calcCustomSummerWeeks(b.start,b.end,cd.peakStart,cd.peakEnd);if(sw>0){const ss=_psup*sw;subLocal+=ss;commLocal+=ss*course.commission;subItems.push({label:`サマーサプリメント × ${sw}週`,local:ss,formula:`${_psup}*${sw}`});}}
       } else if(course.type==="wse"){
         const pw=course.weeklyPrices[Math.min(weeks,36)]||course.weeklyPrices[36];const t=pw*weeks;
         subLocal+=t;commLocal+=t*course.commission;subItems.push({label:`授業料 £${pw}/週 × ${weeks}週`,local:t,formula:`${pw}*${weeks}`});
@@ -1644,6 +1644,10 @@ function calcAll() {
       let subLocal=0;let subItems=[];
       const base=accom.low*normalWeeks+(accom.peak||accom.low)*peakWeeks;
       if(accom.useNese){const sess=Math.max(1,Math.round(weeks/4));const cs=Math.min(sess,12);const nt=accom.nesePrices[cs]||accom.nesePrices[12];subLocal+=nt;subItems.push({label:`宿泊（${cs}セッション）`,local:nt});}
+      else if(accom.weekTotals&&accom.weekTotals[weeks]!=null){
+        // 1〜N週が総額表の宿泊（KAPITO等）。表にない週数は low×週数
+        const wt=accom.weekTotals[weeks];subLocal+=wt;subItems.push({label:`宿泊 ${weeks}週（総額表）`,local:wt});
+      }
       else if(accom.firstWeek!=null){
         const extraW=Math.max(0,weeks-1);
         const b2=accom.firstWeek+(accom.addlWeek||0)*extraW;
@@ -1663,7 +1667,7 @@ function calcAll() {
       if(b.school==="wse"&&accom.low>0&&(b.campus==="wimbledon-2027"||!accom.halfBoard)){subLocal+=60;subItems.push({label:`First week supplement`,local:60});}
       // 汎用ハイシーズン加算（accom.hsSupp × キャンパス定義の期間。Anglo-Continental £75・inlingua £25 等）
       if(accom.hsSupp&&cd.peakStart){const hsw=calcCustomSummerWeeks(b.start,b.end,cd.peakStart,cd.peakEnd);if(hsw>0){const hs=accom.hsSupp*hsw;subLocal+=hs;subItems.push({label:`ハイシーズン加算 × ${hsw}週`,local:hs,formula:`${accom.hsSupp}*${hsw}`});}}
-      const NO_XMAS38=["wse","ih","wesli","anglocontinental","inlingua_chelt"];
+      const NO_XMAS38=["wse","ih","wesli","anglocontinental","inlingua_chelt","ih_mexico","les_ateliers_fl","kapito","duke_bkk"];
       if(b.school==="wse"&&hasChristmas(b.start,b.end)){subLocal+=80;subItems.push({label:`Christmas supplement`,local:80});}
       if(!NO_XMAS38.includes(b.school)&&hasChristmas(b.start,b.end)){subLocal+=38;subItems.push({label:`Christmas supplement`,local:38});}
       if(b.school==="anglocontinental"&&hasChristmas(b.start,b.end)){subItems.push({label:`⚠️ 冬期休校(12/19-1/3)を含む滞在: フルボード加算£70/週が自動請求されます（本見積には未計上・要手動確認）`,local:0});}
@@ -1671,7 +1675,7 @@ function calcAll() {
       if(["elc_brighton","elc_chester","elc_eastbourne"].includes(b.school)){const campD=getCampData(b.school,b.campus);if(campD?.peakStart){const esw=calcCustomSummerWeeks(b.start,b.end,campD.peakStart,campD.peakEnd);if(esw>0&&campD.peakSupp>0){subLocal+=campD.peakSupp*esw;subItems.push({label:`サマーサプリメント × ${esw}週`,local:campD.peakSupp*esw,formula:`${campD.peakSupp}*${esw}`});}}if(hasChristmas(b.start,b.end)&&accom.halfBoard){subLocal+=50;subItems.push({label:`Christmas supplement`,local:50});}}
       if(b.school==="manhattan"){const mhsw=calcCustomSummerWeeks(b.start,b.end,"06-09","09-20");if(mhsw>0){subLocal+=30*mhsw;subItems.push({label:`夏季サプリメント × ${mhsw}週`,local:30*mhsw,formula:`30*${mhsw}`});}}
       if(b.school==="rennert"&&accom.rennertSummer){const rsw=calcCustomSummerWeeks(b.start,b.end,"06-01","08-31");if(rsw>0){subLocal+=35*rsw;subItems.push({label:`サマーサプリメント × ${rsw}週`,local:35*rsw,formula:`35*${rsw}`});}if(hasChristmas(b.start,b.end)){subLocal+=50;subItems.push({label:`Christmas supplement`,local:50});}}
-      if(b.dietWeeks&&parseInt(b.dietWeeks)>0){const dr=b.school==="wse"?50:(b.school==="manhattan"||b.school==="wesli"?0:(b.school==="anglocontinental"?45:(b.school==="inlingua_chelt"?30:33)));if(dr>0){const d=dr*parseInt(b.dietWeeks);subLocal+=d;subItems.push({label:`特別食追加 × ${b.dietWeeks}週`,local:d,formula:`${dr}*${parseInt(b.dietWeeks)}`});}}
+      if(b.dietWeeks&&parseInt(b.dietWeeks)>0){const dr=b.school==="wse"?50:(["manhattan","wesli","ih_mexico","les_ateliers_fl","kapito","duke_bkk"].includes(b.school)?0:(b.school==="anglocontinental"?45:(b.school==="inlingua_chelt"?30:33)));if(dr>0){const d=dr*parseInt(b.dietWeeks);subLocal+=d;subItems.push({label:`特別食追加 × ${b.dietWeeks}週`,local:d,formula:`${dr}*${parseInt(b.dietWeeks)}`});}}
       const grp=getGroup(b.school,b.campus);
       grp.items.push({section:`宿泊 ${i+1}: ${accom.name}`,lines:subItems,subtotal:subLocal});grp.totalLocal+=subLocal;
       const el=document.getElementById("a"+b.id+"-sub");if(el)el.textContent=fmtC(subLocal,currency);
@@ -1715,7 +1719,7 @@ function calcAll() {
       }
       if(glPrices[b.type]){const amtJPY=glPrices[b.type]*qty;const el=document.getElementById("d"+b.id+"-sub");if(el)el.textContent=fmtJPY(amtJPY);b._jpyTotal=amtJPY;b._label=`GrandLine ${glLabels[b.type]} × ${qty}`;allJpyAddons.push({label:b._label,jpy:amtJPY,type:b.type});return;}
       if(b.type==="jpy-other"){const amtJPY=(parseFloat(b.amountJPY)||0)*qty;const el=document.getElementById("d"+b.id+"-sub");if(el)el.textContent=fmtJPY(amtJPY);b._jpyTotal=amtJPY;b._label=b.desc||"その他費用";if(b.inclProg){sInlineAddons.push({label:b._label,jpy:amtJPY});}else{allJpyAddons.push({label:b._label,jpy:amtJPY,type:b.type});}return;}
-      if(b.type==="transfer"){const cd=getCampData(s.school,s.campus);const price=cd&&b.airport?(cd.airports[b.airport]||0):0;subLocal=price*qty;subItems.push({label:`${b.airport||"空港"}`,local:subLocal});if(s.school&&s.campus){const grp=getGroup(s.school,s.campus);grp.items.push({section:`空港送迎 ${i+1}`,lines:subItems,subtotal:subLocal});grp.totalLocal+=subLocal;}}
+      if(b.type==="transfer"){const cd=getCampData(s.school,s.campus);const price=cd&&b.airport?(cd.airports[b.airport]||0):0;subLocal=price*qty;subItems.push({label:`${b.airport||"空港"}`,local:subLocal});if(s.school&&s.campus){const grp=getGroup(s.school,s.campus);grp.items.push({section:`${String(b.airport||"").startsWith("［追加費用］")?"追加費用":"空港送迎"} ${i+1}`,lines:subItems,subtotal:subLocal});grp.totalLocal+=subLocal;}}
       else{currency=b.currency||getSchoolCurrency(s.school)||"GBP";subLocal=(parseFloat(b.amount)||0)*qty;subItems.push({label:b.desc||b.type,local:subLocal});if(s.school&&s.campus){const grp=getGroup(s.school,s.campus);grp.items.push({section:`Add-on: ${b.desc||b.type}`,lines:subItems,subtotal:subLocal});grp.totalLocal+=subLocal;}}
       const el=document.getElementById("d"+b.id+"-sub");if(el)el.textContent=fmtC(subLocal,currency);
     });
