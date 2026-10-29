@@ -95,7 +95,8 @@ h1 { font-size: 20px; font-weight: 500; margin-bottom: 24px; color: #1a1a18; }
 .compare-table tr.section-row td { background:#f5f5f3; font-weight:500; color:#1a1a18; padding-top:10px; }
 .compare-table tr.total-row td { border-top:1.5px solid #1a1a18; font-weight:600; font-size:13px; }
 .compare-table tr.profit-row td { background:#f0fdf4; color:#166534; font-weight:500; }</style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<!-- 行の色付けのため、書式出力に対応したSheetJS互換版（xlsx-js-style）を使用 -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
 </head>
 <body>
 <!-- ═══ パスワードゲート ═══
@@ -2158,23 +2159,43 @@ function _exportToExcel(targets, filename) {
     return nm;
   };
   const manCeil = n => Math.ceil(Math.round(n)/10000); // 万単位・繰り上げ
+  // 行の色（3系統）: 見積書タイトル / 海外プログラム費用の見出し / 円建て費用・見積合計・粗利合計
+  const STYLE = {
+    title:   { fill:{ patternType:"solid", fgColor:{ rgb:"1F3864" } }, font:{ bold:true, color:{ rgb:"FFFFFF" } } },
+    program: { fill:{ patternType:"solid", fgColor:{ rgb:"DDEBF7" } }, font:{ bold:true, color:{ rgb:"1F3864" } } },
+    total:   { fill:{ patternType:"solid", fgColor:{ rgb:"FFF2CC" } }, font:{ bold:true, color:{ rgb:"000000" } } },
+  };
+  const paintRows = (ws, rowStyles, ncol=6) => {
+    rowStyles.forEach(({ r, style }) => {
+      for (let c = 0; c < ncol; c++) {
+        const addr = XLSX.utils.encode_cell({ r, c });
+        if (!ws[addr]) ws[addr] = { t:"s", v:"" };
+        ws[addr].s = Object.assign({}, ws[addr].s||{}, style);
+      }
+    });
+  };
+  const allLinks = []; // Price Listシート用 {sheet, label, url}
 
   targets.forEach((q, qi) => {
     const rows = [];
+    const rowStyles = [];         // {r(0始まり), style}
     const formulas = [];          // {r, c, f}
     const hyperlinks = [];        // {r, c, url}
     const push = (arr) => { rows.push(arr); return rows.length; };
     const addManF = (r, val) => { rows[r-1][5] = manCeil(val); formulas.push({ r:r-1, c:5, f:`ROUNDUP(E${r}/10000,0)` }); };
 
-    push([`■ 見積書　${q.client}　${q.project}${q.tabName?`　[${q.tabName}]`:""}　${q.date}`]);
+    const thisSheet = sheetName(q, qi);
+    const titleRow = push([`■ 見積書　${q.client}　${q.project}${q.tabName?`　[${q.tabName}]`:""}　${q.date}`]);
+    rowStyles.push({ r:titleRow-1, style:STYLE.title });
     push([]);
 
-    // 参照リンク（Price List / 出典URL）— クリックで開けるハイパーリンク
+    // 参照リンク（Price List / 出典URL）— 各見積シートにも残し、別シート「Price List」にも一覧で出力
     if (q.links && q.links.length > 0) {
       push(["▼ 参照リンク（Price List / 出典URL）※クリックで開けます"]);
       q.links.forEach(lk => {
         const r = push([`　${lk.label}`, lk.url]);
         hyperlinks.push({ r:r-1, c:1, url:lk.url });
+        allLinks.push({ sheet:thisSheet, label:lk.label, url:lk.url });
       });
       push([]);
     }
@@ -2191,7 +2212,8 @@ function _exportToExcel(targets, filename) {
       const lTtsPct = l.ttsMarkupPct ?? 0;
       const lProgPct = l.progMarkupPct ?? 0;
 
-      push([`▼ ${l.label}`]);
+      const ph = push([`▼ ${l.label}`]);
+      rowStyles.push({ r:ph-1, style:STYLE.program });
       push([`　TTS ${tts}　TTS上乗せ: ${lTtsPct}%　プログラム/来年度上乗せ: ${lProgPct}%　→ 計算レート: ${Math.round(effRate*100)/100}`]);
       push(["　項目", "外貨金額", "通貨", `計算レート(TTS+${lTtsPct}%)`, "円換算", "円換算(万円・繰上げ)"]);
 
@@ -2245,7 +2267,8 @@ function _exportToExcel(targets, filename) {
     if ((q.visa||0) > 0)  jpyLines.push([`ビザ申請費用`, "", "JPY", 1, q.visa]);
     q.jpyAddons && q.jpyAddons.forEach(a => { jpyLines.push([a.label, "", "JPY", 1, a.jpy]); });
     if (jpyLines.length > 0) {
-      push(["▼ 円建て費用"]);
+      const jh = push(["▼ 円建て費用"]);
+      rowStyles.push({ r:jh-1, style:STYLE.total });
       push(["　項目", "", "通貨", "", "金額（円）", "金額（万円・繰上げ）"]);
       jpyLines.forEach(r => { const rn = push(r); jpyRefs.push(`E${rn}`); addManF(rn, r[4]); });
       push([]);
@@ -2254,6 +2277,7 @@ function _exportToExcel(targets, filename) {
     // 合計・粗利
     const totalArgs = [...subtotalRefs, ...jpyRefs];
     const tr = push(["★ 見積合計", "", "", "", Math.round(q.total)]);
+    rowStyles.push({ r:tr-1, style:STYLE.total });
     if (totalArgs.length) formulas.push({ r: tr-1, c: 4, f: `SUM(${totalArgs.join(",")})` });
     addManF(tr, q.total);
     const cr = push(["　うちコミッション（授業料×コミッション率）", "", "", "", Math.round(q.totalCommJPY||0)]);
@@ -2265,6 +2289,7 @@ function _exportToExcel(targets, filename) {
     let cdr = null;
     if ((q.coord||0) > 0) { cdr = push(["　うちコーディネーション", "", "", "", q.coord]); addManF(cdr, q.coord); }
     const gr = push(["★ 粗利合計", "", "", "", Math.round(q.grossProfit)]);
+    rowStyles.push({ r:gr-1, style:STYLE.total });
     const gpArgs = [`E${cr}`,`E${mr}`,`E${pr}`]; if (cdr) gpArgs.push(`E${cdr}`);
     const gpSum = Math.round(q.totalCommJPY||0)+Math.round(q.totalTTSMarkupJPY||0)+Math.round(q.totalProgMarkupJPY||0)+(cdr?(q.coord||0):0);
     if (Math.abs(gpSum-Math.round(q.grossProfit))<=2) formulas.push({ r: gr-1, c: 4, f: `SUM(${gpArgs.join(",")})` });
@@ -2282,9 +2307,23 @@ function _exportToExcel(targets, filename) {
       if (!ws[addr]) ws[addr] = { t:"s", v:url };
       ws[addr].l = { Target: url, Tooltip: url };
     });
+    paintRows(ws, rowStyles);
     ws["!cols"] = [{wch:64},{wch:12},{wch:6},{wch:16},{wch:16},{wch:18}];
-    XLSX.utils.book_append_sheet(wb, ws, sheetName(q, qi));
+    XLSX.utils.book_append_sheet(wb, ws, thisSheet);
   });
+
+  // Price List（参照リンク）を独立したシートに出力
+  if (allLinks.length > 0) {
+    const lrows = [["▼ 参照リンク（Price List / 出典URL）※クリックで開けます"], [], ["見積シート", "項目", "URL"]];
+    const lstyles = [{ r:0, style:STYLE.title }, { r:2, style:STYLE.program }];
+    const lhl = [];
+    allLinks.forEach(lk => { lrows.push([lk.sheet, lk.label, lk.url]); lhl.push({ r:lrows.length-1, c:2, url:lk.url }); });
+    const lws = XLSX.utils.aoa_to_sheet(lrows);
+    lhl.forEach(({r,c,url}) => { const addr = XLSX.utils.encode_cell({ r, c }); if (!lws[addr]) lws[addr] = { t:"s", v:url }; lws[addr].l = { Target:url, Tooltip:url }; lws[addr].s = { font:{ color:{ rgb:"0563C1" }, underline:true } }; });
+    paintRows(lws, lstyles, 3);
+    lws["!cols"] = [{wch:28},{wch:48},{wch:70}];
+    XLSX.utils.book_append_sheet(wb, lws, "Price List");
+  }
   XLSX.writeFile(wb, `${filename}.xlsx`);
 }
 
