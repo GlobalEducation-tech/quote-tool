@@ -142,7 +142,7 @@ const SCHOOLS = {
     currency: "GBP",
     campuses: {
       "holland-park": {
-        name: "Holland Park（2026年版）", country: "UK", regFee: 95, peakSupp: 0,
+        name: "Holland Park", country: "UK", regFee: 95, peakSupp: 0,
         courses: {
           "ge-fulltime":       { name:"General English Full-time (24h/week)",                    type:"group", prices:[695,650,620],  brackets:[1,5,13], commission:0.25 },
           "ge-pt-am":          { name:"General English Part-time AM (12h/week)",                 type:"group", prices:[460,420,390],  brackets:[1,5,13], commission:0.25 },
@@ -697,34 +697,34 @@ const SCHOOLS = {
         name: "Irvine", country: "USA", regFee: 200, peakSupp: 0,
         courses: {
           // ACP（Accelerated Certificate Programs）12週間固定
-          "acp-business":    { name:"ACP Business Administration",                  type:"group", prices:[7900],  brackets:[1], fixedWeeks:12, commission:0.15 },
-          "acp-creativity":  { name:"ACP Creativity & Product Development",         type:"group", prices:[7900],  brackets:[1], fixedWeeks:12, commission:0.15 },
-          "acp-data-biz":    { name:"ACP Data Analytics for Business",              type:"group", prices:[7900],  brackets:[1], fixedWeeks:12, commission:0.15 },
-          "acp-data-sci":    { name:"ACP Data Science",                             type:"group", prices:[7900],  brackets:[1], fixedWeeks:12, commission:0.15 },
-          "acp-digital-mkt": { name:"ACP Digital Marketing & Communications",       type:"group", prices:[7900],  brackets:[1], fixedWeeks:12, commission:0.15 },
-          "acp-innovation":  { name:"ACP Innovation Management & Entrepreneurship", type:"group", prices:[7900],  brackets:[1], fixedWeeks:12, commission:0.15 },
-          "acp-intl-biz":    { name:"ACP International Business Operations",        type:"group", prices:[7900],  brackets:[1], fixedWeeks:12, commission:0.15 },
-          "acp-intl-finance":{ name:"ACP International Finance",                    type:"group", prices:[7900],  brackets:[1], fixedWeeks:12, commission:0.15 },
-          "acp-pm":          { name:"ACP Project Management",                       type:"group", prices:[7900],  brackets:[1], fixedWeeks:12, commission:0.15 },
-          "acp-internship":  { name:"ACP Internship Experience",                    type:"group", prices:[2900],  brackets:[1], fixedWeeks:12, commission:0.15 },
+          "acp-business":    { name:"ACP Business Administration",                  type:"group", prices:[7900],  brackets:[1], fixedWeeks:12, commission:0.20 },
+          "acp-creativity":  { name:"ACP Creativity & Product Development",         type:"group", prices:[7900],  brackets:[1], fixedWeeks:12, commission:0.20 },
+          "acp-data-biz":    { name:"ACP Data Analytics for Business",              type:"group", prices:[7900],  brackets:[1], fixedWeeks:12, commission:0.20 },
+          "acp-data-sci":    { name:"ACP Data Science",                             type:"group", prices:[7900],  brackets:[1], fixedWeeks:12, commission:0.20 },
+          "acp-digital-mkt": { name:"ACP Digital Marketing & Communications",       type:"group", prices:[7900],  brackets:[1], fixedWeeks:12, commission:0.20 },
+          "acp-innovation":  { name:"ACP Innovation Management & Entrepreneurship", type:"group", prices:[7900],  brackets:[1], fixedWeeks:12, commission:0.20 },
+          "acp-intl-biz":    { name:"ACP International Business Operations",        type:"group", prices:[7900],  brackets:[1], fixedWeeks:12, commission:0.20 },
+          "acp-intl-finance":{ name:"ACP International Finance",                    type:"group", prices:[7900],  brackets:[1], fixedWeeks:12, commission:0.20 },
+          "acp-pm":          { name:"ACP Project Management",                       type:"group", prices:[7900],  brackets:[1], fixedWeeks:12, commission:0.20 },
+          "acp-internship":  { name:"ACP Internship Experience",                    type:"group", prices:[2900],  brackets:[1], fixedWeeks:12, commission:0.20 },
           // ASAP（Academic Study Abroad Program）
-          "asap-gen-3m":     { name:"ASAP General Track 3ヶ月",                     type:"group", prices:[8200],  brackets:[1], fixedWeeks:13, commission:0.10 },
-          "asap-gen-6m":     { name:"ASAP General Track 6ヶ月",                     type:"group", prices:[16400], brackets:[1], fixedWeeks:26, commission:0.10 },
-          "asap-gen-9m":     { name:"ASAP General Track 9ヶ月",                     type:"group", prices:[24600], brackets:[1], fixedWeeks:39, commission:0.10 },
-          "asap-csl-6m":     { name:"ASAP CSL Track 6ヶ月",                         type:"group", prices:[15500], brackets:[1], fixedWeeks:26, commission:0.10 },
-          "asap-csl-9m":     { name:"ASAP CSL Track 9ヶ月",                         type:"group", prices:[22500], brackets:[1], fixedWeeks:39, commission:0.10 },
-          "asap-spec-3m":    { name:"ASAP Specialized Track 3ヶ月",                 type:"group", prices:[11000], brackets:[1], fixedWeeks:13, commission:0.10 },
-          "asap-spec-6m":    { name:"ASAP Specialized Track 6ヶ月",                 type:"group", prices:[22000], brackets:[1], fixedWeeks:26, commission:0.10 },
-          "asap-spec-9m":    { name:"ASAP Specialized Track 9ヶ月",                 type:"group", prices:[33000], brackets:[1], fixedWeeks:39, commission:0.10 },
+          "asap-gen-3m":     { name:"ASAP General Track 3ヶ月",                     type:"group", prices:[8200],  brackets:[1], fixedWeeks:13, commission:0.20 },
+          "asap-gen-6m":     { name:"ASAP General Track 6ヶ月",                     type:"group", prices:[16400], brackets:[1], fixedWeeks:26, commission:0.20 },
+          "asap-gen-9m":     { name:"ASAP General Track 9ヶ月",                     type:"group", prices:[24600], brackets:[1], fixedWeeks:39, commission:0.20 },
+          "asap-csl-6m":     { name:"ASAP CSL Track 6ヶ月",                         type:"group", prices:[15500], brackets:[1], fixedWeeks:26, commission:0.20 },
+          "asap-csl-9m":     { name:"ASAP CSL Track 9ヶ月",                         type:"group", prices:[22500], brackets:[1], fixedWeeks:39, commission:0.20 },
+          "asap-spec-3m":    { name:"ASAP Specialized Track 3ヶ月",                 type:"group", prices:[11000], brackets:[1], fixedWeeks:13, commission:0.20 },
+          "asap-spec-6m":    { name:"ASAP Specialized Track 6ヶ月",                 type:"group", prices:[22000], brackets:[1], fixedWeeks:26, commission:0.20 },
+          "asap-spec-9m":    { name:"ASAP Specialized Track 9ヶ月",                 type:"group", prices:[33000], brackets:[1], fixedWeeks:39, commission:0.20 },
           // STAR Programs
-          "star-ug-9m":      { name:"Undergrad STAR Program 9ヶ月",                 type:"group", prices:[35000], brackets:[1], fixedWeeks:39, commission:0.10 },
-          "star-grad-6m":    { name:"Grad STAR General Track 6ヶ月",                type:"group", prices:[24000], brackets:[1], fixedWeeks:26, commission:0.10 },
-          "star-grad-9m":    { name:"Grad STAR General Track 9ヶ月",                type:"group", prices:[29800], brackets:[1], fixedWeeks:39, commission:0.10 },
-          "star-grad-31-9m": { name:"Grad STAR 3+1 Access Track 9ヶ月",             type:"group", prices:[32050], brackets:[1], fixedWeeks:39, commission:0.10 },
+          "star-ug-9m":      { name:"Undergrad STAR Program 9ヶ月",                 type:"group", prices:[35000], brackets:[1], fixedWeeks:39, commission:0.20 },
+          "star-grad-6m":    { name:"Grad STAR General Track 6ヶ月",                type:"group", prices:[24000], brackets:[1], fixedWeeks:26, commission:0.20 },
+          "star-grad-9m":    { name:"Grad STAR General Track 9ヶ月",                type:"group", prices:[29800], brackets:[1], fixedWeeks:39, commission:0.20 },
+          "star-grad-31-9m": { name:"Grad STAR 3+1 Access Track 9ヶ月",             type:"group", prices:[32050], brackets:[1], fixedWeeks:39, commission:0.20 },
           // ISP（Individualized Study Program）
-          "isp-2wk":         { name:"ISP 2週間セッション",                          type:"group", prices:[1095],  brackets:[1], fixedWeeks:2,  commission:0.15 },
-          "isp-4wk":         { name:"ISP 4週間セッション",                          type:"group", prices:[2190],  brackets:[1], fixedWeeks:4,  commission:0.15 },
-          "isp-6wk":         { name:"ISP 6週間セッション",                          type:"group", prices:[3285],  brackets:[1], fixedWeeks:6,  commission:0.15 },
+          "isp-2wk":         { name:"ISP 2週間セッション",                          type:"group", prices:[1095],  brackets:[1], fixedWeeks:2,  commission:0.20 },
+          "isp-4wk":         { name:"ISP 4週間セッション",                          type:"group", prices:[2190],  brackets:[1], fixedWeeks:4,  commission:0.20 },
+          "isp-6wk":         { name:"ISP 6週間セッション",                          type:"group", prices:[3285],  brackets:[1], fixedWeeks:6,  commission:0.20 },
         },
         accom: {
           "none":     { name:"なし",                                               low:0,   peak:0 },
@@ -736,10 +736,6 @@ const SCHOOLS = {
         airports: {
           "LAX（片道）": 75,
           "John Wayne SNA（片道）": 45,
-          "［追加費用］Student Services Fee（ACP/STAR/ASAP・1クォーター）": 250,
-          "［追加費用］Student Services Fee（ISP・2週セッションあたり）": 100,
-          "［追加費用］健康保険（ACP/STAR/ASAP・1クォーター）": 675,
-          "［追加費用］健康保険（ISP・任意・2週セッションあたり）": 150,
         }
       }
     }
@@ -2607,272 +2603,692 @@ SCHOOLS.anglocontinental.campuses["bournemouth-2027"] = {
 PRIVATE_LESSON_PRICES.anglocontinental["bournemouth-2027"] = 60;
 PRICE_YEARS_OVERRIDE.anglocontinental = { "bournemouth": [2026], "bournemouth-2027": [2027] };
 
+// =====================================================================
+// 2026-10-29 追加①: ELS Malaysia（2026年版・MYR）/ CCEL 2027年版
+// =====================================================================
+(function(){
+  // ---- ELS Malaysia ----------------------------------------------------
+  // 料金は「1セッション=4週（1ヶ月）」単位（type:"session"）。週数は4の倍数で入力。
+  // 登録費（Registration）はregFee、Placement Testはコース内の一回払い項目。
+  // ⚠️コミッション率未確認のため0%で計算（粗利は過小側）。
+  const CM = 0; // コミッション（要確認）
+  const SS_KL  = "開始日（KL）: 1/5, 2/3, 3/2, 4/6, 5/4, 6/2, 6/29, 7/27, 9/1, 9/28, 10/26, 11/23";
+  const SS_UNI = "開始日（UPM/UTM）: 1/5, 2/23, 3/24, 4/20, 5/25, 6/22, 7/27, 8/24, 9/28, 10/26, 11/23";
+  const SS_GEP = "開始日（GEP）: 6/29, 7/27, 9/1, 9/28, 10/26, 11/23";
+  const SST = "授業料等はSST 6%込（教材費を除く）";
+  const ciepIntl = (ss)=>({ name:"CIEP 集中英語（留学生・国際料金）1セッション=4週", type:"session", sessionWeeks:4, commission:CM,
+    items:[{label:"Placement Test",fee:212,per:"once"},{label:"Tuition",fee:3551,per:"session",comm:true},{label:"Assessment and Resource",fee:212,per:"session"},{label:"Books and Materials",fee:200,per:"session"}],
+    note:`2026年版（2025/12/1〜）。1セッションRM3,963＋申込時RM742（登録530＋Placement 212）。${SST}。${ss}。📝コミッション率未確認のため0%で計算。` });
+  const siepIntl = (ss)=>({ name:"SIEP 準集中英語（留学生）1セッション=4週", type:"session", sessionWeeks:4, commission:CM,
+    items:[{label:"Placement Test",fee:212,per:"once"},{label:"Tuition",fee:1696,per:"session",comm:true},{label:"Books and Materials",fee:100,per:"session"}],
+    note:`2026年版。1セッションRM1,796。${SST}。${ss}` });
+  const siepCls = (ss)=>({ name:"SIEP + Customised Learning Support（留学生）1セッション=4週", type:"session", sessionWeeks:4, commission:CM,
+    items:[{label:"Placement Test",fee:212,per:"once"},{label:"Tuition",fee:1696,per:"session",comm:true},{label:"Customised Learning Support",fee:477,per:"session",comm:true},{label:"Books and Materials",fee:100,per:"session"}],
+    note:`2026年版。PDF記載の合計RM2,273（=1,796＋CLS RM477）。${ss}` });
+  const ciepMy = (ss)=>({ name:"CIEP（マレーシア国籍者料金）※マレーシア人専用", type:"session", sessionWeeks:4, commission:CM, regFee:300,
+    items:[{label:"Placement Test",fee:200,per:"once"},{label:"Tuition",fee:2250,per:"session",comm:true},{label:"Assessment and Resource",fee:200,per:"session"},{label:"Books and Materials",fee:200,per:"session"}],
+    note:`⚠️マレーシア国籍者（MyKad保持者）専用料金。登録費RM300。${ss}` });
+  const ciepVisa = (ss)=>({ name:"CIEP 学生ビザ申請者（ELS経由ビザ）最低4セッション=16週", type:"session", sessionWeeks:4, minSessions:4, commission:CM,
+    items:[{label:"Visa Processing",fee:636,per:"once"},{label:"Airport Clearance and Pickup",fee:424,per:"once"},{label:"EMGS Fee（学生ビザ・ELS経由で支払い）",fee:1652,per:"once"},{label:"Placement Test",fee:212,per:"once"},
+           {label:"Tuition",fee:3392,per:"session",comm:true},{label:"Assessment and Resource（最初の4ヶ月分のみ）",fee:212,per:"session",maxSessions:4},{label:"Books and Materials",fee:200,per:"session"}],
+    note:`2026年版。4ヶ月パッケージRM15,428＋申込時RM1,590＋EMGS RM1,652。追加1ヶ月RM3,592（授業料3,392＋教材200）。18〜44歳・高卒以上。${ss}` });
 
-// =====================================================================
-// 2026-09-11 追加: Wimbledon School of English 2027年版（Course Dates & Fees 2027 / LAST UPDATE 04/09/26）
-// ・別キャンパス「wimbledon-2027」として2026年版と併存（開始日に応じて選択）
-// ・登録費 £60 → £65 に改定
-// ・週額改定: Standard 439/415/364/315 → 455/430/377/326、Intensive 495/469/394/345 → 513/486/408/357、
-//   Essential 383/361/334/285 → 397/374/346/295（ブラケット 1-4 / 5-11 / 12-23 / 24-36週 は据え置き）
-// ・One-to-One £90/レッスンは据え置き
-// ・教材費（Materials Fee）を自動計上: 1-3週£45 / 4-8週£55 / 9-12週£70 / 13-23週£85 / 24-35週£95 / 36週〜£110
-//   ※2026年版キャンパスには教材費未登録のため、前年比較時は構成差に注意
-// ・宿泊: 全宿泊タイプに初週£60サプリメント（index.html側で2027キャンパスは全タイプに自動加算）
-// ・ホームステイのサマーサプリメント £20/週（2027/6/26〜8/1・hsSupp）・特別食 £50/週（既存ロジック）・
-//   クリスマス2週滞在 £80サプリメント（既存ロジック）
-// ・空港送迎は Prices Frozen（2026年版と同額）
-// =====================================================================
-SCHOOLS.wse.campuses["wimbledon"].name = "Wimbledon（2026年版）";
-SCHOOLS.wse.campuses["wimbledon-2027"] = {
-  name: "Wimbledon（2027年版）", country: "UK", regFee: 65, peakSupp: 0,
-  peakStart: "06-26", peakEnd: "08-01",
-  materialsFee: { type:"bracket", brackets:[{maxWeeks:3, fee:45},{maxWeeks:8, fee:55},{maxWeeks:12, fee:70},{maxWeeks:23, fee:85},{maxWeeks:35, fee:95},{maxWeeks:999, fee:110}] },
-  courses: {
-    "standard":  { name:"General English Standard (21h/week)",   type:"wse", wseType:"standard",  commission:0.25, note:"2027年版。教材費は自動計上（週数ブラケット）。", weeklyPrices:{1:455,2:455,3:455,4:455,5:430,6:430,7:430,8:430,9:430,10:430,11:430,12:377,13:377,14:377,15:377,16:377,17:377,18:377,19:377,20:377,21:377,22:377,23:377,24:326,25:326,26:326,27:326,28:326,29:326,30:326,31:326,32:326,33:326,34:326,35:326,36:326} },
-    "intensive": { name:"General English Intensive (24.5h/week)",type:"wse", wseType:"intensive", commission:0.25, note:"2027年版。Standard＋1オプション。教材費は自動計上。", weeklyPrices:{1:513,2:513,3:513,4:513,5:486,6:486,7:486,8:486,9:486,10:486,11:486,12:408,13:408,14:408,15:408,16:408,17:408,18:408,19:408,20:408,21:408,22:408,23:408,24:357,25:357,26:357,27:357,28:357,29:357,30:357,31:357,32:357,33:357,34:357,35:357,36:357} },
-    "essential": { name:"General English Essential (17.5h/week)",type:"wse", wseType:"essential", commission:0.25, note:"2027年版。教材費は自動計上。", weeklyPrices:{1:397,2:397,3:397,4:397,5:374,6:374,7:374,8:374,9:374,10:374,11:374,12:346,13:346,14:346,15:346,16:346,17:346,18:346,19:346,20:346,21:346,22:346,23:346,24:295,25:295,26:295,27:295,28:295,29:295,30:295,31:295,32:295,33:295,34:295,35:295,36:295} },
-    "business":  { name:"Business English & Professional Skills (21h/week)", type:"wse", wseType:"standard", commission:0.25, note:"2027年版。最低年齢18歳・1-12週。Standard週額と同額。", weeklyPrices:{1:455,2:455,3:455,4:455,5:430,6:430,7:430,8:430,9:430,10:430,11:430,12:377,13:377,14:377,15:377,16:377,17:377,18:377,19:377,20:377,21:377,22:377,23:377,24:326,25:326,26:326,27:326,28:326,29:326,30:326,31:326,32:326,33:326,34:326,35:326,36:326} },
-    "ielts-standard": { name:"IELTS Preparation Standard (21h/week)", type:"wse", wseType:"standard", commission:0.25, note:"2027年版。開始日限定（1/4・3/15・5/24・7/26・10/11 Flexi Start可）。試験料別途（IELTS £290 approx）。", weeklyPrices:{1:455,2:455,3:455,4:455,5:430,6:430,7:430,8:430,9:430,10:430,11:430,12:377,13:377,14:377,15:377,16:377,17:377,18:377,19:377,20:377,21:377,22:377,23:377,24:326,25:326,26:326,27:326,28:326,29:326,30:326,31:326,32:326,33:326,34:326,35:326,36:326} },
-    "ielts-express": { name:"IELTS Express Academic (4週固定・6/28開始)", type:"wse-fixed", fixedPrice:455, fixedWeeks:4, commission:0.25, note:"2027年版。6/28〜7/23の4週固定（Standard週額£455×4週）。試験料別途。" },
-    "oet-prep": { name:"OET Preparation (24.5h/week・1週固定)", type:"wse-fixed", fixedPrice:540, fixedWeeks:1, commission:0.25, noMaterialsFee:true, note:"2027年版。1週£540（教材費・登録料込 → 教材費は自動計上されません。regFeeは0を手動選択）。開催: 3/15・6/14・9/20・11/29週。" },
-    "1to1": { name:"One-to-One (per lesson £90)", type:"wse-1to1", pricePerLesson:90, commission:0.25, note:"2027年版。£90/レッスン（60分）据え置き。教材費なし。" },
-  },
-  accom: {
-    "none":                    { name:"なし", low:0, peak:0 },
-    "homestay-std-bd":         { name:"Homestay Standard・Breakfast & dinner full week", low:280, peak:280, hsSupp:20, halfBoard:true },
-    "homestay-std-z56-bd":     { name:"Homestay Standard Zones 5&6・Breakfast & dinner", low:260, peak:260, hsSupp:20, halfBoard:true },
-    "homestay-stdplus-bd":     { name:"Homestay Standard Plus・Breakfast & dinner",      low:330, peak:330, hsSupp:20, halfBoard:true },
-    "homestay-superior-bd":    { name:"Homestay Superior・Breakfast & dinner",           low:375, peak:375, hsSupp:20, halfBoard:true },
-    "homestay-std-bo":         { name:"Homestay Standard・Breakfast only",               low:230, peak:230, hsSupp:20 },
-    "homestay-std-sc":         { name:"Homestay Standard・Self catering",                low:205, peak:205, hsSupp:20 },
-    "queens-lodge-ensuite":    { name:"Queens Lodge・Single ensuite",                    low:430, peak:430 },
-    "kings-lodge-ensuite":     { name:"Kings Lodge・Single ensuite",                     low:405, peak:405 },
-    "beverley-lodge-ensuite":  { name:"Beverley Lodge・Single ensuite",                  low:305, peak:305 },
-    "justin-james-ensuite":    { name:"Justin James Serviced・Single ensuite",           low:440, peak:440 },
-    "signal-house-ensuite":    { name:"Signal House Residence・Superior single ensuite（〜2027/8/31）", low:465, peak:465 },
-    "signal-house-ensuite-sep":{ name:"Signal House Residence・Superior single ensuite（2027/9/1〜）",  low:495, peak:495 },
-  },
-  airports: { "Heathrow (single)":180, "Heathrow (return)":325, "Gatwick (single)":210, "Gatwick (return)":380, "Stansted (single)":300, "Stansted (return)":540, "City (single)":190, "City (return)":340, "Luton (single)":250, "Luton (return)":450, "St Pancras (single)":175, "St Pancras (return)":315 }
-};
-PRIVATE_LESSON_PRICES.wse["wimbledon-2027"] = 90;
-PRICE_YEARS_OVERRIDE.wse = { "wimbledon": [2026], "wimbledon-2027": [2027] };
-
-
-// =====================================================================
-// 2026-09-28 Price List更新
-//  ・LSE 2027年版（Course Guide 2027）→ 別キャンパス「holland-park-2027」で2026年版と併存
-//  ・新規: IH Mexico City（2026）/ Les Ateliers FL（IH Paris）Au Pair（2026-27）/
-//          KAPITO Sprachschule Münster（2027）/ Duke Language School Bangkok（2026-27）
-//  ・UCI DCE（2026-2027 Tuition and Fees・2026/09/18取得）: 料金は既存登録と一致。
-//    コミッションを契約一覧（English/Cert等15%・STAR/ASAP10%）に合わせ修正、必須費用をAdd-on化
-//  ・TLI北京校: 受講料一覧は既存登録と一致（変更なし）
-//  ※［追加費用］で始まる項目はAdd-on「空港送迎」欄から選択（Excelでは「追加費用」表示）
-// =====================================================================
-
-// --- 通貨 ---
-CURRENCIES.ih_mexico = "USD";
-CURRENCIES.les_ateliers_fl = "EUR";
-CURRENCIES.kapito = "EUR";
-CURRENCIES.duke_bkk = "THB";
-
-// --- 年度 ---
-PRICE_YEARS_OVERRIDE.lse = { "holland-park": [2026], "holland-park-2027": [2027] };
-PRICE_YEARS_OVERRIDE.uci_dce = { "irvine": [2026, 2027] };
-PRICE_YEARS_OVERRIDE.ih_mexico = { "mexico-city": [2026] };
-PRICE_YEARS_OVERRIDE.les_ateliers_fl = { "paris": [2026, 2027] };
-PRICE_YEARS_OVERRIDE.kapito = { "muenster": [2027] };
-PRICE_YEARS_OVERRIDE.duke_bkk = { "bangkok": [2026, 2027] };
-
-// =====================================================================
-// The London School of English — 2027年版（Course Guide 2027）/ GBP
-// ・登録費: オンライン予約£95（既定）/ メール予約£125 / オンラインコース£35
-// ・休校: 2027/3/26-29・12/21-1/1
-// ・⚠️ 2027ガイドに宿泊ページなし → 宿泊は2026年版の値を暫定転記（要確認）
-// ・English and Art（要問合せ）・On Demand Closed Group（£9,750・単位不明）は未登録
-// =====================================================================
-SCHOOLS.lse.campuses["holland-park-2027"] = {
-  name: "Holland Park（2027年版）", country: "UK", regFee: 95, peakSupp: 0,
-  courses: {
-    "ge-fulltime":     { name:"General English Full Day (24h/week・20歳+)", type:"group", prices:[720,685,649,595], brackets:[1,5,13,24], commission:0.20, note:"2027年版。09:30-16:00。" },
-    "ge-pt-am":        { name:"General English Morning (12h/week・20歳+)", type:"group", prices:[495,455,430], brackets:[1,5,13], commission:0.20, note:"2027年版。09:30-12:15。" },
-    "ge-pt-pm":        { name:"General English Afternoon (12h/week・20歳+)", type:"group", prices:[375,350,330], brackets:[1,5,13], commission:0.20, note:"2027年版。13:15-16:00。" },
-    "ge-combination":  { name:"General English + Individual Tuition (27h/週)", type:"group", prices:[2100], brackets:[1], commission:0.20, note:"2027年版。週£2,100（2026: £1,975）。" },
-    "ge-business":     { name:"General English + Business English (27h/週・Lv5-7)", type:"group", prices:[1305], brackets:[1], commission:0.20, note:"2027年版・新設。週£1,305。" },
-    "beginners-4wk":   { name:"Beginners English (Lv2-3・15h/週 午前・4週固定)", type:"group", prices:[2396], brackets:[1], fixedWeeks:4, commission:0.20, note:"⚠️2027ガイドのWeekly Fee欄「£599」を週額と解釈し£599×4週=£2,396で登録（2026年版は4週総額£2,300）。総額£599の可能性もあるため要確認。開始: 1/4・2/1・3/1・4/5・5/3・6/7・7/5・8/2・9/6・10/4・11/1。" },
-    "fifty-plus":      { name:"50+ English & Cultural Programme (25h/週・1-2週)", type:"group", prices:[975], brackets:[1], commission:0.20, note:"2027年版。1週£975/2週£1,950。開始日限定（4/5・4/12・6/14・6/21・8/30・9/6・11/29・12/6。2週は4/5・6/14・8/30・11/29）。" },
-    "xmas-excursions": { name:"General English & Christmas Excursions (25h・1週)", type:"group", prices:[975], brackets:[1], fixedWeeks:1, commission:0.20, note:"2027年版・新設。開始: 12/6・12/13。" },
-    "biz-pt-am":       { name:"Business & Professional English AM (15h/週・25歳+)", type:"group", prices:[920], brackets:[1], commission:0.20, note:"2027年版。09:00-12:30。" },
-    "biz-pt-pm":       { name:"Business & Professional English PM (15h/週・25歳+)", type:"group", prices:[810], brackets:[1], commission:0.20, note:"2027年版。13:30-16:45。" },
-    "biz-fulltime":    { name:"Business & Professional English Full-time (30h/週・25歳+)", type:"group", prices:[1490], brackets:[1], commission:0.20, note:"2027年版。" },
-    "biz-combination": { name:"Business & Professional English + Individual Tuition (15+15h/週)", type:"group", prices:[2415], brackets:[1], commission:0.20, note:"2027年版。週£2,415（2026: £2,325）。" },
-    "biz-voice":       { name:"Business & Professional English + Voice & Accent (15+10h/週)", type:"group", prices:[2184], brackets:[1], commission:0.20, note:"2027年版・新設。" },
-    "english-hr":      { name:"English for HR Professionals (30h・1週)", type:"group", prices:[1570], brackets:[1], commission:0.20, note:"2027年版。開始: 3/1・5/17・10/4。" },
-    "english-banking": { name:"English for Banking & Finance (30h・1週)", type:"group", prices:[1570], brackets:[1], commission:0.20, note:"2027年版。開始: 2/22・5/10・9/27。" },
-    "english-medical": { name:"English for Medical Purposes (30h・1週)", type:"group", prices:[1570], brackets:[1], commission:0.20, note:"2027年版・新設。開始: 1/25・5/24・10/11。" },
-    "legal-commercial":{ name:"Legal English 30+ Commercial Lawyers (30h・1週)", type:"group", prices:[1570], brackets:[1], commission:0.20, note:"2027年版。開始: 2/15・5/3・9/20。" },
-    "legal-20-30-3wk": { name:"Legal English 20-30 (24h/週・3週固定)", type:"group", prices:[2230], brackets:[1], fixedWeeks:3, commission:0.20, note:"2027年版・3週コース新設。開始: 1/11・3/1・4/19・6/28・7/26・9/6・11/15。" },
-    "legal-20-30":     { name:"Legal English 20-30 (24h/週・4週固定)", type:"group", prices:[2980], brackets:[1], fixedWeeks:4, commission:0.20, note:"2027年版。総額£2,980＋TOLES試験料£220別途（2026: £156）。" },
-    "ielts-4wk":       { name:"IELTS Preparation (24h/週・4週固定)", type:"group", prices:[2980], brackets:[1], fixedWeeks:4, commission:0.20, note:"2027年版。開始: 1/11・3/15・4/19・6/28・10/11。" },
-    "teacher-training":{ name:"Teacher Training (24h/週・2週固定)", type:"group", prices:[1490], brackets:[1], fixedWeeks:2, commission:0.20, note:"⚠️2027年版・新設。Weekly Fee欄£1,490を2週総額と解釈（他の固定コースと同じ表記）。要確認。開始: 3/22・7/19・10/18。" },
-    "home-tuition-20": { name:"Home Tuition (20h/週・講師宅ホームステイ)", type:"group", prices:[2185], brackets:[1], commission:0.20, note:"2027年版（2026: £2,100）。" },
-    "home-tuition-25": { name:"Home Tuition (25h/週・講師宅ホームステイ)", type:"group", prices:[2610], brackets:[1], commission:0.20, note:"2027年版（2026: £2,510）。" },
-    "young-adults":    { name:"Young Adults Summer Programme (15-18歳・Business Pioneers/Global Leaders)", type:"grandline-fixed", priceTable:[0,0,4300,0,7700], commission:0.20, note:"2027年版。2週£4,300（7/12・7/26開始）/4週Back to back £7,700（7/12開始）。" },
-    "1to1-faceto":     { name:"1:1 Face to Face (Holland Park Gardens)", type:"1to1", pricePerHour:109, commission:0.20, note:"2027年版。15/20/30h/週。" },
-    "2to1-faceto":     { name:"2:1 Face to Face (Holland Park Gardens)", type:"1to1", pricePerHour:120, commission:0.20 },
-    "1to1-online":     { name:"1:1 Online Lessons", type:"1to1", pricePerHour:79, commission:0.20 },
-    "2to1-online":     { name:"2:1 Online Lessons", type:"1to1", pricePerHour:99, commission:0.20 },
-    "voice-online":    { name:"Voice & Accent Training (Online)", type:"1to1", pricePerHour:105, commission:0.20 },
-    "voice-faceto":    { name:"Voice & Accent Training (Face to Face)", type:"1to1", pricePerHour:135, commission:0.20 },
-  },
-  accom: {
-    "none":                { name:"なし", low:0, peak:0 },
-    "homestay-silver-bb":  { name:"⚠️2026年版価格 Homestay Silver・B&B",                 low:250, peak:250, placementFee:80 },
-    "homestay-silver-bb3d":{ name:"⚠️2026年版価格 Homestay Silver・B&B + 3 evening meals", low:305, peak:305, placementFee:80 },
-    "homestay-gold-bb":    { name:"⚠️2026年版価格 Homestay Gold (private bath)・B&B",     low:320, peak:320, placementFee:80 },
-    "homestay-gold-bb3d":  { name:"⚠️2026年版価格 Homestay Gold・B&B + 3 evening meals",  low:375, peak:375, placementFee:80 },
-  },
-  airports: {
-    "Heathrow (arrival)":145, "Heathrow (departure)":135,
-    "London City (arrival)":150, "London City (departure)":145,
-    "Gatwick/Luton (arrival)":210, "Gatwick/Luton (departure)":200,
-    "Stansted (arrival)":225, "Stansted (departure)":220,
-    "St Pancras (arrival)":130, "St Pancras (departure)":120,
-    "［追加費用］ランチ（週）":65, "［追加費用］保険（週）":7,
-    "［追加費用］登録費差額（メール予約£125−£95）":30,
-  }
-};
-PRIVATE_LESSON_PRICES.lse["holland-park-2027"] = 109;
-
-// =====================================================================
-// International House Mexico City — 2026年版 / USD
-// コミッション: 授業料25%・宿泊費（ホテル除く）10% → 本ツールは授業料分のみ計上（宿泊10%は粗利に未反映）
-// ・登録・レベルテスト・ソーシャルプログラム等はコース費用に込み → regFee 0
-// ・教材: Course book $60/レベル → 1レベル分を自動計上（複数レベル分は手動追加）
-// ・4/2開始週（祝日2日含む）は特別料金$175/週 → 自動計算なし（note参照）
-// ・キャンセル: 50%デポジット・残額は開始1週前・開始5日前までの通知で全額返金
-// =====================================================================
-SCHOOLS.ih_mexico = {
-  name: "International House Mexico",
-  currency: "USD",
-  campuses: {
-    "mexico-city": {
-      name: "Mexico City", country: "Mexico", regFee: 0, peakSupp: 0,
-      materialsFee: { type:"fixed", fee:60 },
-      courses: {
-        "intensive-20": { name:"Intensive Spanish (20h/週・最大8名)", type:"group", prices:[250,230,215,200], brackets:[1,5,13,24], commission:0.25, note:"2026年版。月-金 10:00-14:00。毎週月曜開始（完全初心者は指定日）。受講者1名のみの場合は個人10h/週に振替。教材$60/レベル（1レベル分自動計上）。4/2開始週は$175の特別料金（手動調整）。祝日の振替なし。" },
-        "private-1":  { name:"Private lessons 1時間",  type:"rennert-fixed", fixedPrice:38,  noMaterialsFee:true, commission:0.25, note:"2026年版。Business Spanish/DELE対策等。" },
-        "private-5":  { name:"Private lessons 5時間パック",  type:"rennert-fixed", fixedPrice:180, noMaterialsFee:true, commission:0.25 },
-        "private-10": { name:"Private lessons 10時間パック", type:"rennert-fixed", fixedPrice:340, noMaterialsFee:true, commission:0.25 },
-        "private-15": { name:"Private lessons 15時間パック", type:"rennert-fixed", fixedPrice:480, noMaterialsFee:true, commission:0.25 },
-        "private-20": { name:"Private lessons 20時間パック", type:"rennert-fixed", fixedPrice:600, noMaterialsFee:true, commission:0.25 },
+  SCHOOLS.els_malaysia = {
+    name: "ELS Language Centres Malaysia",
+    currency: "MYR",
+    campuses: {
+      "kuala-lumpur": {
+        name: "ELS Kuala Lumpur", country: "Malaysia", regFee: 530, peakSupp: 0,
+        courses: {
+          "ciep":      ciepIntl(SS_KL),
+          "siep":      siepIntl(SS_KL),
+          "siep-cls":  siepCls(SS_KL),
+          "gep": { name:"GEP General English（留学生）1セッション=4週", type:"session", sessionWeeks:4, commission:CM,
+            items:[{label:"Placement Test",fee:212,per:"once"},{label:"Tuition",fee:2862,per:"session",comm:true},{label:"Books and Materials",fee:100,per:"session"}],
+            note:`2026年版（2026/3/11〜）。1セッションRM2,962。${SST}。${SS_GEP}` },
+          "ciep-visa": ciepVisa(SS_KL),
+          "gep-visa": { name:"GEP 学生ビザ申請者（ELS経由ビザ）最低4セッション=16週", type:"session", sessionWeeks:4, minSessions:4, commission:CM,
+            items:[{label:"Visa Processing",fee:636,per:"once"},{label:"Airport Clearance and Pickup",fee:424,per:"once"},{label:"EMGS Fee（学生ビザ・ELS経由で支払い）",fee:1652,per:"once"},{label:"Placement Test",fee:212,per:"once"},
+                   {label:"Tuition",fee:2862,per:"session",comm:true},{label:"Books and Materials",fee:100,per:"session"}],
+            note:`2026年版（2026/3/11〜）。4ヶ月RM12,060＋申込時RM1,590＋EMGS RM1,652。追加1ヶ月RM2,962。${SS_GEP}` },
+          "hep-intensive": { name:"Holiday English Programme Option 1 Intensive（6h/日・4週パッケージ）", type:"session", sessionWeeks:4, commission:CM, regFee:0,
+            items:[{label:"HEP Intensive 4週パッケージ（登録・Placement・授業料・教材・週末遠足込）",fee:5553,per:"session",comm:true}],
+            note:"2026年版。RM5,553/4週（約USD1,420）。宿泊別。開始日: 6/29, 7/27, 9/1, 11/23のみ（席数限定）。" },
+          "hep-general": { name:"Holiday English Programme Option 2 General（4h/日・4週パッケージ）", type:"session", sessionWeeks:4, commission:CM, regFee:0,
+            items:[{label:"HEP General 4週パッケージ（登録・Placement・授業料・教材・週末遠足込）",fee:4552,per:"session",comm:true}],
+            note:"2026年版。RM4,552/4週（約USD1,170）。宿泊別。開始日: 6/29, 7/27, 9/1, 11/23のみ。" },
+          "ciep-my": ciepMy(SS_KL),
+          "gep-my": { name:"GEP（マレーシア国籍者料金）※マレーシア人専用", type:"session", sessionWeeks:4, commission:CM, regFee:300,
+            items:[{label:"Placement Test",fee:200,per:"once"},{label:"Tuition",fee:1750,per:"session",comm:true},{label:"Books and Materials",fee:100,per:"session"}],
+            note:`⚠️マレーシア国籍者専用（2026/4/9〜）。${SS_GEP}` },
+          "ciep-utm-kl": { name:"CIEP UTM在籍学生専用 @ELS KL（4ヶ月パッケージ）", type:"session", sessionWeeks:16, commission:CM, regFee:0,
+            items:[{label:"Placement Test",fee:212,per:"once"},{label:"Assessment and Resource",fee:848,per:"session"},{label:"Tuition",fee:11872,per:"session",comm:true},{label:"Books and Materials",fee:800,per:"session"}],
+            note:"⚠️UTM（マレーシア工科大学）在籍学生専用料金。4ヶ月RM13,520＋Placement RM212。" },
+        },
+        accom: { "none": { name:"なし（料金表に宿泊記載なし）", low:0, peak:0 } },
+        airports: {}
       },
-      accom: {
-        "none":         { name:"なし", low:0, peak:0 },
-        "host-family":  { name:"Host family", low:335, peak:335 },
-        "studio":       { name:"Studio", low:570, peak:570 },
-        "private-apt":  { name:"Private Apartment", low:625, peak:625 },
-        "shared-apt":   { name:"⚠️Shared Apartment（$525「for 2 persons」・1人あたりか2人総額か要確認）", low:525, peak:525 },
+      "upm": {
+        name: "ELS @ UPM（Serdang）", country: "Malaysia", regFee: 530, peakSupp: 0,
+        courses: {
+          "ciep":     ciepIntl(SS_UNI),
+          "siep":     siepIntl(SS_UNI),
+          "siep-cls": siepCls(SS_UNI),
+          "ciep-my":  ciepMy(SS_UNI),
+          "ciep-upm-sem": { name:"CIEP UPM在籍学生専用（1セメスター）", type:"session", sessionWeeks:16, commission:CM, regFee:0,
+            items:[{label:"Placement Test",fee:212,per:"once"},{label:"Assessment and Resource",fee:848,per:"session"},{label:"Tuition",fee:10812,per:"session",comm:true},{label:"Books and Materials",fee:800,per:"session"}],
+            note:"⚠️UPM在籍学生専用（2025/9/23〜）。1セメスターRM12,460＋Placement RM212。支払先UPMET（Flywire別）。" },
+        },
+        accom: { "none": { name:"なし（料金表に宿泊記載なし）", low:0, peak:0 } },
+        airports: {}
       },
-      airports: { "空港送迎 片道（1名）":135, "空港送迎 片道（2名以上・1人あたり）":85 },
+      "utm-johor": {
+        name: "ELS @ UTM（Johor）", country: "Malaysia", regFee: 530, peakSupp: 0,
+        courses: {
+          "ciep":      ciepIntl(SS_UNI),
+          "siep":      siepIntl(SS_UNI),
+          "siep-cls":  siepCls(SS_UNI),
+          "ciep-visa": ciepVisa(SS_UNI),
+          "ciep-my":   ciepMy(SS_UNI),
+          "ciep-utm-sem": { name:"CIEP UTM在籍学生専用（1セメスター）", type:"session", sessionWeeks:16, commission:CM, regFee:0,
+            items:[{label:"Placement Test",fee:212,per:"once"},{label:"Assessment and Resource",fee:848,per:"session"},{label:"Tuition",fee:10812,per:"session",comm:true},{label:"Books and Materials",fee:800,per:"session"}],
+            note:"⚠️UTM在籍学生専用。1セメスターRM12,460＋Placement RM212。" },
+        },
+        accom: { "none": { name:"なし（料金表に宿泊記載なし）", low:0, peak:0 } },
+        airports: {}
+      },
+      "online": {
+        name: "ELS Online Centre（オンライン）", country: "Online", regFee: 500, peakSupp: 0,
+        courses: {
+          "ciep-online": { name:"CIEP Online 1セッション=4週", type:"session", sessionWeeks:4, commission:CM,
+            items:[{label:"Placement Test",fee:200,per:"once"},{label:"Session Fee",fee:2200,per:"session",comm:true},{label:"Digital Resources",fee:200,per:"session"},{label:"Assessment",fee:100,per:"session"}],
+            note:"2026年版。1セッションRM2,500＋申込時RM700（登録500＋Placement 200）。開始日: 1/5, 2/3, 3/2, 4/6, 5/4, 6/2, 6/29, 7/27, 9/1, 9/28, 10/26, 11/23" },
+          "siep-online": { name:"SIEP Online 1セッション=4週", type:"session", sessionWeeks:4, commission:CM,
+            items:[{label:"Placement Test",fee:200,per:"once"},{label:"Session Fee",fee:900,per:"session",comm:true},{label:"Digital Resources",fee:100,per:"session"},{label:"Assessment",fee:50,per:"session"}],
+            note:"2026年版。1セッションRM1,050。⚠️PDFに「Total 1,55…」と途切れた記載あり（Customised Learning Support付の合計と思われる）→ 必要時はELSに確認。" },
+        },
+        accom: { "none": { name:"なし（オンライン）", low:0, peak:0 } },
+        airports: {}
+      }
     }
+  };
+  CURRENCIES.els_malaysia = "MYR";
+  PRIVATE_LESSON_PRICES.els_malaysia = { "kuala-lumpur":null, "upm":null, "utm-johor":null, "online":null };
+
+  // ---- CCEL 2027年版（2027年申込分）---------------------------------------
+  // 2026年版キャンパスと併存。ハイシーズン（ホームステイ）: 2027/5/29〜8/29（滞在日ベース）
+  SCHOOLS.ccel.campuses["vancouver-2027"] = {
+    name: "Vancouver（2027年版）", country: "Canada", regFee: 180, peakSupp: 0,
+    accomPeakStart: "05-29", accomPeakEnd: "08-29",
+    materialsFee: { type:"perWeek", fee:10 },
+    courses: {
+      "fti38": { name:"Full-Time Intensive 38レッスン/週", type:"group", prices:[480,460,440,420], brackets:[1,12,24,36], extraPerWeek:420, commission:0.25, note:"2027年版（2027年申込分）・値上げ（2026: $440〜）。※コミッション率要確認。教材費$10/週自動。Smrt ESL/EAP(8週ごと)/IELTS/BE(4週ごと)/Health & Wellnessはクラスオプション。手動追加: 医療保険$85/月・Custodianship$250" },
+      "ft28":  { name:"Full-Time 28レッスン/週",           type:"group", prices:[430,410,390,370], brackets:[1,12,24,36], extraPerWeek:370, commission:0.25, note:"2027年版・値上げ（2026: $390〜）" },
+      "pt18":  { name:"Part-Time 18レッスン/週",           type:"group", prices:[330], brackets:[1], extraPerWeek:330, commission:0.25, note:"2027年版（2026: $300）" },
+      "pl-5":   { name:"Private Lessons 5時間パック（登録費・教材費込）",   type:"fixed", fixedPrice:450,  commission:0.25, regFee:0, materialsFee:{type:"fixed",fee:0}, note:"2027年版・据え置き。申込料・教材費込" },
+      "pl-10":  { name:"Private Lessons 10時間パック（登録費・教材費込）",  type:"fixed", fixedPrice:850,  commission:0.25, regFee:0, materialsFee:{type:"fixed",fee:0} },
+      "pl-20":  { name:"Private Lessons 20時間パック（登録費・教材費込）",  type:"fixed", fixedPrice:1600, commission:0.25, regFee:0, materialsFee:{type:"fixed",fee:0} },
+      "spl-5":  { name:"Semi-Private Lessons 5時間パック/人（2-3名・込み）",  type:"fixed", fixedPrice:250, commission:0.25, regFee:0, materialsFee:{type:"fixed",fee:0} },
+      "spl-10": { name:"Semi-Private Lessons 10時間パック/人（2-3名・込み）", type:"fixed", fixedPrice:450, commission:0.25, regFee:0, materialsFee:{type:"fixed",fee:0} },
+      "spl-20": { name:"Semi-Private Lessons 20時間パック/人（2-3名・込み）", type:"fixed", fixedPrice:800, commission:0.25, regFee:0, materialsFee:{type:"fixed",fee:0} },
+    },
+    accom: {
+      "none": { name:"なし", low:0, peak:0 },
+      "hs-single":     { name:"ホームステイ 個室・共用バス（通常$320/週・ハイ5/29-8/29 $340/週）", low:320, peak:340, placementFee:230 },
+      "hs-single-u17": { name:"ホームステイ 個室 16-17歳（通年$390/週・3食）",                 low:390, peak:390, placementFee:230 },
+      "res-shared": { name:"レジデンス 相部屋（$1,100/月・最短1〜最長3ヶ月・2027年3月末まで）",       perMonth:1100, minMonths:1, maxMonths:3, placementFee:230 },
+      "res-single": { name:"レジデンス 個室（$1,450/月・最短1〜最長3ヶ月・2027年3月末まで）",         perMonth:1450, minMonths:1, maxMonths:3, placementFee:230 },
+      "res-studio": { name:"レジデンス Studio 2名可（$2,200/月・最短1〜最長3ヶ月・2027年3月末まで）", perMonth:2200, minMonths:1, maxMonths:3, placementFee:230 },
+    },
+    airports: { "Pick Up": 140, "Drop Off (Return)": 240 }
+  };
+  SCHOOLS.ccel.campuses["online-2027"] = {
+    name: "CCEL Live オンライン（2027年版）", country: "Online", regFee: 50, peakSupp: 0,
+    materialsFee: { type:"perWeek", fee:10 },
+    courses: {
+      "live": { name:"CCEL Live Online（グループ・90分/日 月-金）", type:"group", prices:[70], brackets:[1], extraPerWeek:70, commission:0.25, note:"2027年版・据え置き。$70/週+教材$10/週+申込料$50。※コミッション率要確認" },
+    },
+    accom: { "none": { name:"なし（オンライン）", low:0, peak:0 } },
+    airports: {}
+  };
+  // 2026年版のホームステイ・ハイシーズン（5/30〜8/30）を宿泊計算に反映
+  SCHOOLS.ccel.campuses["vancouver"].accomPeakStart = "05-30";
+  SCHOOLS.ccel.campuses["vancouver"].accomPeakEnd   = "08-30";
+  if (SCHOOLS.canadian_college?.campuses?.vancouver) {
+    SCHOOLS.canadian_college.campuses.vancouver.accomPeakStart = "05-30";
+    SCHOOLS.canadian_college.campuses.vancouver.accomPeakEnd   = "08-30";
   }
-};
-PRIVATE_LESSON_PRICES.ih_mexico = { "mexico-city": 38 };
+  PRIVATE_LESSON_PRICES.ccel["vancouver-2027"] = null;
+  PRIVATE_LESSON_PRICES.ccel["online-2027"] = null;
+  PRICE_YEARS_OVERRIDE.ccel = { "vancouver":[2026], "online":[2026], "vancouver-2027":[2027], "online-2027":[2027] };
+})();
 
 // =====================================================================
-// Les Ateliers FL（IH Paris）— Programme Au Pair 2026-2027 / EUR
-// ・対象: オペア（フランス人家庭滞在）17歳+。10h/週（対面6h＝8レッスン＋自習4h）。月・木 or 火・金
-// ・学期: 秋 2026/9/21-12/11・冬 2027/1/4-3/26・春 2027/3/30-6/18（学校休暇・祝日は授業なし）
-// ・登録料 €45（1・2学期）/ 3学期申込は無料（noRegFeeで自動）
-// ・学期途中入学は週€50で按分（開始日により調整）
-// ・コミッション: 契約一覧に記載なし → 0%で計算（要確認 📝）
+// 2026-10-29 追加②: ILSC 2027年版 / ILSC・Greystone Canada Q4 2026日本向け特別価格 /
+//   CISL 2027年版 / LSE追加コース / UCI諸費用 / IH Paris(Les Ateliers FL) / KAPITO 2027 /
+//   BEI Houston / Duke Language School（Bangkok）
 // =====================================================================
-SCHOOLS.les_ateliers_fl = {
-  name: "Les Ateliers FL（IH Paris）",
-  currency: "EUR",
-  campuses: {
-    "paris": {
-      name: "Paris（Au Pair 2026-27）", country: "France", regFee: 45, peakSupp: 0,
-      courses: {
-        "aupair-1term": { name:"Au Pair 1学期 (10h/週)", type:"group", prices:[455], brackets:[1], fixedWeeks:12, commission:0, note:"📝コミッション率未確認のため0%。1学期€455＋登録€45。" },
-        "aupair-2term": { name:"Au Pair 2学期 (10h/週)", type:"group", prices:[795], brackets:[1], fixedWeeks:24, commission:0, note:"📝コミッション0%（要確認）。€795（通常€910）＋登録€45。" },
-        "aupair-3term": { name:"Au Pair 3学期 (10h/週)", type:"group", prices:[1075], brackets:[1], fixedWeeks:36, noRegFee:true, commission:0, note:"📝コミッション0%（要確認）。€1,075（通常€1,365）。3学期申込は登録料無料（自動で登録費なし）。" },
-        "aupair-weekly":{ name:"Au Pair 学期途中入学 (週€50)", type:"group", prices:[50], brackets:[1], commission:0, note:"📝学期途中からの入学時の週割（初心者は不可）。" },
-      },
-      accom: { "none": { name:"なし（オペア家庭に滞在）", low:0, peak:0 } },
-      airports: {},
-    }
-  }
-};
-PRIVATE_LESSON_PRICES.les_ateliers_fl = { "paris": null };
+(function(){
+  // 教材費ブラケット生成: 1-4週=first、5週以降=週単価×週数（上限cap）
+  const matBr = (first, perWk, cap, maxW=60) => {
+    const b=[{maxWeeks:4, fee:first}];
+    for (let w=5; w<=maxW; w++) b.push({maxWeeks:w, fee:Math.min(perWk*w, cap)});
+    b.push({maxWeeks:999, fee:cap});
+    return { type:"bracket", brackets:b };
+  };
+  const H = (o)=>Object.assign({ placementFee:0 }, o);
 
-// =====================================================================
-// KAPITO Sprachschule — Münster, Germany / 2027年版 / EUR
-// コミッション: コース料金の20%（契約一覧より自動適用）
-// ・登録費 €39・教材費 €20/4週（自動計上）
-// ・夏季サプリメント €30/週（2027/7/5〜8/27・Intensive / Intensive Plus）
-// ・宿泊は1-4週が総額表・5週以上は週単価（weekTotals）。KAPITOは仲介（宿泊費はホストへ全額送金）
-// ・冬季休校 2027/12/20-2028/1/3。空港送迎は要問合せ
-// ・Extension on site（現地延長）料金は代理店見積対象外のため未登録
-// =====================================================================
-SCHOOLS.kapito = {
-  name: "KAPITO Sprachschule",
-  currency: "EUR",
-  campuses: {
-    "muenster": {
-      name: "Münster（2027年版）", country: "Germany", regFee: 39, peakSupp: 0,
-      peakStart: "07-05", peakEnd: "08-27",
-      materialsFee: { type:"bracket", brackets:[4,8,12,16,20,24,28,32,36,40,44,48,52,56,60].map((w,i)=>({maxWeeks:w, fee:20*(i+1)})).concat([{maxWeeks:999, fee:320}]) },
-      courses: {
-        "intensive":      { name:"Intensive Course (20L/週＋学習サポート10h・最大12名)", type:"elc", prices:[210,190,180,170,160], brackets:[1,5,9,17,24], peakSupp:30, commission:0.20, note:"2027年版。9:00-12:30。毎週月曜開始（完全初心者は指定日）。夏季7/5-8/27は+€30/週（自動）。" },
-        "intensive-plus": { name:"Intensive Course Plus (24L/週＋学習サポート10h・最大12名)", type:"elc", prices:[250,230,210,200,190], brackets:[1,5,9,17,24], peakSupp:30, commission:0.20, note:"2027年版。午後2コマ（会話・試験対策）。夏季+€30/週（自動）。" },
-        "compact":        { name:"Compact Course (グループ20L＋個人10L/週)", type:"firstN", firstWeeks:1, firstPrice:760, addlPrice:710, commission:0.20, note:"2027年版。初週€760・追加€710/週。" },
-        "individual-20":  { name:"Individual Course (個人20L/週)", type:"group", prices:[1100], brackets:[1], commission:0.20, note:"2027年版。同レベルの2人目は無料。午後の追加10Lは別コース行で追加。" },
-        "individual-add10":{ name:"Individual Course 追加10L/週（午後）", type:"group", prices:[550], brackets:[1], noMaterialsFee:true, noRegFee:true, commission:0.20, note:"2027年版。Individual Courseと併用（登録費・教材費は本体行で計上）。" },
-        "pathway-uni":    { name:"Pathway University（A1.1→C1・24L/週・44週固定）", type:"group", prices:[6800], brackets:[1], fixedWeeks:44, commission:0.20, note:"2027年版。開始: 1/4・4/5・8/2・8/30。教材費は週数に応じ自動計上（要確認）。" },
-        "pathway-voc":    { name:"Pathway Vocational/Studienkolleg（A1.1→B2・24L/週・36週固定）", type:"group", prices:[5800], brackets:[1], fixedWeeks:36, commission:0.20, note:"2027年版。開始: 1/4・4/5・8/2・8/30。" },
-        "vocational-fee": { name:"Vocational training program 手配料（ドイツ語コース併用必須）", type:"rennert-fixed", fixedPrice:750, noMaterialsFee:true, noRegFee:true, commission:0.20, note:"2027年版。登録費はドイツ語コース行で計上。" },
-        "online-telc":    { name:"Online telc B2/C1 Hochschule 試験対策（2週・火木18:00-19:30）", type:"rennert-fixed", fixedPrice:80, noMaterialsFee:true, commission:0.20, note:"2027年版。毎月開始。" },
-      },
-      accom: {
-        "none":         { name:"なし", low:0, peak:0 },
-        "single-nomeal":{ name:"Single room 食事なし（キッチン利用可・18歳+）", weekTotals:{1:290,2:390,3:525,4:660}, low:165, peak:165 },
-        "single-bf":    { name:"Single room 朝食付", weekTotals:{1:330,2:450,3:615,4:780}, low:195, peak:195 },
-        "single-hb":    { name:"Single room ハーフボード（週末フルボード）", weekTotals:{1:400,2:590,3:825,4:1060}, low:265, peak:265, halfBoard:true },
-        "apartment":    { name:"Apartment 食事なし（専用バス・簡易キッチン・23歳+）from €270/週＋デポジット", low:270, peak:270 },
-        "studio":       { name:"KAPITO Studio 食事なし（18歳+）from €300/週＋デポジット", low:300, peak:300 },
-      },
-      airports: {
-        "［追加費用］telc Deutsch A1/A2 受験料":120, "［追加費用］telc Deutsch B1/B2 受験料":180,
-        "［追加費用］telc Deutsch C1 Hochschule 受験料":210, "［追加費用］TestDaF 受験料":215, "［追加費用］TestAS 受験料":170,
-      },
-    }
-  }
-};
-PRIVATE_LESSON_PRICES.kapito = { "muenster": null };
+  // ================= ILSC Australia 2027（AUD）=================
+  const auCourses = (withAft)=>{
+    const c = {
+      "ft-am":  { name:"Full-Time Morning FT AM (24L・20h/週) GE/EAP/IELTS/Business等", type:"group", prices:[470,450,430], brackets:[1,13,26], commission:0.25, note:"2027年版（2027年申込分）。週単価は1-12週/13-25週/26週+。登録費$250(非返金)・教材費1-4週$60/5週+$15/週(上限$450)。U18は$175別途。" },
+      "ft-aft": { name:"Full-Time Afternoon FT AFT (24L・20h/週 13:15-17:15)", type:"group", prices:[390], brackets:[1], commission:0.25, note:"2027年版。⚠️2026年版ではBrisbane/Melbourne/Sydneyのみ開講 → 他キャンパスは開講要確認" },
+      "ft-pm":  { name:"Full-Time Evening FT PM (24L・20h/週 17:30-21:30)", type:"group", prices:[390], brackets:[1], commission:0.25 },
+      "pt-am":  { name:"Part-Time Morning PT AM (14.5L・12h/週 月-水)", type:"group", prices:[410], brackets:[1], commission:0.25 },
+      "pt-pm":  { name:"Part-Time Evening PT PM (14.5L・12h/週 月-水)", type:"group", prices:[380], brackets:[1], commission:0.25 },
+      "cambridge-mastery": { name:"Cambridge B2 First / C1 Advanced Mastery (FT AM・10-12週)", type:"group", prices:[470,450,430], brackets:[1,13,26], commission:0.25,
+        addFees:[{label:"Cambridge 試験料＋教材費（Exam & material fees）",fee:220}], note:"2027年版。B2 First: Brisbaneのみ（3/23, 7/13, 10/5開始）、C1 Advanced: Sydneyのみ（3/23, 10/5開始）。PDF上は試験料$400・教材$120とも記載あり→合計額は要確認" },
+      "tutoring-private": { name:"Tutoring Private (個人レッスン・2週〜)", type:"1to1", pricePerHour:120, commission:0.25 },
+      "tutoring-semi":    { name:"Tutoring Semi-Private (1人あたり・2週〜)", type:"1to1", pricePerHour:70, commission:0.25 },
+    };
+    return c;
+  };
+  const auHs = (a18,u18)=>({
+    "homestay-18":  { name:`Homestay Half board・昼食なし (18+) ※4週(28日)〜 $${a18}/週`, low:a18, peak:a18, placementFee:370, halfBoard:true },
+    "homestay-u18": { name:`Homestay Half board・昼食なし (U18) ※4週〜 $${u18}/週（U18サービス料$175別途）`, low:u18, peak:u18, placementFee:370, halfBoard:true },
+  });
+  const auRes = (nm,p)=>({ name:`${nm}（2-12週$${p[0]}/13-39週$${p[1]}/40週+$${p[2]}）`, tiers:{brackets:[1,13,40],prices:p}, placementFee:370 });
+  const auMat = matBr(60,15,450);
+  const auBase = (name)=>({ name:`${name}（2027年版）`, country:"Australia", regFee:250, peakSupp:0, materialsFee:auMat, courses:auCourses(), airports:{ "空港送迎（片道）":200, "Gold Coast空港（片道）":225 } });
+  const ilscAu = SCHOOLS.ilsc_australia.campuses;
+  ilscAu["adelaide-2027"]  = Object.assign(auBase("Adelaide"),  { accom:Object.assign({ "none":{name:"なし",low:0,peak:0} }, auHs(400,425)) });
+  ilscAu["perth-2027"]     = Object.assign(auBase("Perth"),     { accom:Object.assign({ "none":{name:"なし",low:0,peak:0} }, auHs(410,435), { "res-4bed": auRes("4-Bed Shared Apartment 相部屋バス By Campus Perth",[364,322,315]) }) });
+  ilscAu["brisbane-2027"]  = Object.assign(auBase("Brisbane"),  { accom:Object.assign({ "none":{name:"なし",low:0,peak:0} }, auHs(415,440), {
+    "res-cbd-single": auRes("5-Bedroom CBD Single 相部屋バス By Student One",[553,469,427]),
+    "res-twin":       auRes("Twin Shared Apartment 相部屋バス By Student One",[406,378,343]) }) });
+  ilscAu["melbourne-2027"] = Object.assign(auBase("Melbourne"), { accom:Object.assign({ "none":{name:"なし",low:0,peak:0} }, auHs(430,455), {
+    "res-studio":     auRes("Studio Single ensuite By Campus Melbourne",[497,462,385]),
+    "res-iglu-cbd":   auRes("6-Bedroom CBD Single ensuite By Iglu",[623,588,546]),
+    "res-carlton-en": auRes("6-Bedroom Carlton Single ensuite By Scape",[609,560,539]),
+    "res-carlton-sh": auRes("6-Bedroom Carlton Single 相部屋バス By Scape",[574,518,483]) }) });
+  ilscAu["sydney-2027"]    = Object.assign(auBase("Sydney"),    { accom:Object.assign({ "none":{name:"なし",low:0,peak:0} }, auHs(430,455), {
+    "res-chatswood":  auRes("5-Bedroom Chatswood Single ensuite By Iglu",[700,679,616]),
+    "res-twin-scape": auRes("Large Twin Shared Apartment Sydney Central 相部屋バス By Scape",[567,532,497]) }) });
 
-// =====================================================================
-// Duke Language School — Bangkok（タイ語）/ 2026-27 / THB
-// ・1コース = 40時間（月-金2h×20日＝約4週）฿8,000。S1〜S4の時間帯から選択
-// ・スペシャルプロモーション: 5コース ฿36,000 / 7コース ฿49,000（期間未記載・申込前に要確認）
-// ・オリジナルテキスト ฿500（自動計上）。登録料の記載なし → regFee 0
-// ・コミッション: 契約一覧に記載なし → 0%で計算（要確認 📝）
-// =====================================================================
-SCHOOLS.duke_bkk = {
-  name: "Duke Language School",
-  currency: "THB",
-  campuses: {
-    "bangkok": {
-      name: "Bangkok", country: "Thailand", regFee: 0, peakSupp: 0,
-      materialsFee: { type:"fixed", fee:500 },
-      courses: {
-        "course-weekly": { name:"タイ語コース（1コース40h＝4週 ฿8,000・週数で按分）", type:"group", prices:[2000], brackets:[1], commission:0, note:"📝コミッション0%（要確認）。4週＝1コース。週数は4の倍数で入力。" },
-        "promo-5":       { name:"タイ語 5コースパック（200h・20週）฿36,000", type:"group", prices:[36000], brackets:[1], fixedWeeks:20, commission:0, note:"📝プロモーション価格（通常฿40,000）。期間要確認。" },
-        "promo-7":       { name:"タイ語 7コースパック（280h・28週）฿49,000", type:"group", prices:[49000], brackets:[1], fixedWeeks:28, commission:0, note:"📝プロモーション価格（通常฿56,000）。期間要確認。" },
-      },
-      accom: { "none": { name:"なし", low:0, peak:0 } },
-      airports: {},
+  // ================= ILSC Canada 2027（CAD）=================
+  const caMat = matBr(60,15,450);
+  const caHs = {
+    "homestay-fb-18":  { name:"Homestay Full board 3食 (18+)（ハイ5/22-9/11）",  low:365, peak:405, placementFee:250, halfBoard:true },
+    "homestay-hb-18":  { name:"Homestay Half board 2食 (18+)（ハイ5/22-9/11）",  low:340, peak:380, placementFee:250, halfBoard:true },
+    "homestay-fb-u18": { name:"Homestay Full board 3食 (U18)",                   low:395, peak:435, placementFee:250, halfBoard:true },
+    "homestay-hb-u18": { name:"Homestay Half board 2食 (U18)",                   low:370, peak:410, placementFee:250, halfBoard:true },
+  };
+  const caRes = (nm,w,l)=>({ name:`${nm}（$${w}/週・26週+$${l}・夏期+$42/週）`, tiers:{brackets:[1,26],prices:[w,l]}, hsSupp:42, placementFee:250 });
+  const caCourses = (city)=>{
+    const tv = city!=="montreal";
+    const c = {
+      "fti":   { name:`Full-Time Intensive FTI (30L/週)${city==="montreal"?"（英語/フランス語）":""}`, type:"group", prices:[490,470,460], brackets:[1,13,26], commission:0.25, note:"2027年版（2027年申込分）。1-12週/13-25週/26週+。登録費$220(非返金)・教材費1-4週$60/5週+$15/週(上限$450)。Volunteer Experienceはサービス料$825別途（Montréal/Toronto）。学生ビザ(PAL)はToronto/Vancouverで$750（Allocation $530＋登録$220）先払い" },
+      "ft-am": { name:"Full-Time Morning FT AM (24L/週)", type:"group", prices:[440,420,410], brackets:[1,13,26], commission:0.25 },
+      "ft-aft":{ name:"Full-Time Afternoon FT AFT (24L/週)", type:"group", prices:[370], brackets:[1], commission:0.25 },
+      "pt-am": { name:"Part-Time Morning PT AM (17L/週)", type:"group", prices:[330], brackets:[1], commission:0.25 },
+      "pt-aft":{ name:"Part-Time Afternoon PT AFT (15L/週 月-水)", type:"group", prices:[210], brackets:[1], commission:0.25 },
+      "tutor-ge-1":  { name:"Private Tutoring 一般英語/仏語 1名", type:"1to1", pricePerHour: tv?90:85, commission:0.25, note:"5〜30時間/週" },
+      "tutor-ge-2":  { name:"Private Tutoring 一般英語/仏語 2名以上（1人あたり）", type:"1to1", pricePerHour: tv?60:55, commission:0.25 },
+      "tutor-sp-1":  { name:"Private Tutoring 専門英語/仏語 1名", type:"1to1", pricePerHour: tv?105:100, commission:0.25 },
+      "tutor-sp-2":  { name:"Private Tutoring 専門英語/仏語 2名以上（1人あたり）", type:"1to1", pricePerHour: tv?85:80, commission:0.25 },
+      "exec-be-1":   { name:"Executive Business English 個人（週単位）", type:"group", prices:[tv?1700:1650], brackets:[1], commission:0.25, note:"2027年版。教材費・登録費は通常どおり加算（要確認）" },
+      "exec-be-sg":  { name:"Executive Business English カスタマイズ少人数（週単位）", type:"group", prices:[tv?1300:1250], brackets:[1], commission:0.25 },
+    };
+    if (tv) c["ft-am30"] = { name:"Full-Time Morning ILSC 30Plus FT AM30+ (24L+活動2/週)", type:"group", prices:[490,470,460], brackets:[1,13,26], commission:0.25, note:"30歳以上。開講期間: 2027/1/1-6/18、9/13-2028/6/16（夏期休止）" };
+    if (city==="toronto") {
+      c["hs-fasttrack"]  = { name:"ILSC High School: Fast Track to Higher Education (32週固定)", type:"group", prices:[14190], brackets:[1], fixedWeeks:32, commission:0.25, materialsFee:{ type:"fixed", fee:450 }, note:"2027年版。Torontoのみ" };
+      c["hs-foundation"] = { name:"ILSC High School: Foundation Year (40週固定)", type:"group", prices:[18500], brackets:[1], fixedWeeks:40, commission:0.25, materialsFee:{ type:"fixed", fee:450 } };
     }
-  }
-};
-PRIVATE_LESSON_PRICES.duke_bkk = { "bangkok": null };
+    return c;
+  };
+  const caBase = (city, name)=>({ name:`${name}（2027年版）`, country:"Canada", regFee:220, peakSupp:0, peakStart:"05-22", peakEnd:"09-11", materialsFee:caMat, courses:caCourses(city), airports:{ "空港送迎（片道）":135, "空港送迎（往復）":270 } });
+  const ilscCa = SCHOOLS.ilsc_canada.campuses;
+  ilscCa["montreal-2027"]  = Object.assign(caBase("montreal","Montréal"), { accom:Object.assign({ "none":{name:"なし",low:0,peak:0} }, caHs, { "res-lamarq": caRes("La Marq Single 相部屋バス",490,476) }) });
+  ilscCa["toronto-2027"]   = Object.assign(caBase("toronto","Toronto"), { accom:Object.assign({ "none":{name:"なし",low:0,peak:0} }, caHs, {
+    "res-harrington-eco": caRes("Harrington Economy Single 相部屋バス",406,392),
+    "res-harrington":     caRes("Harrington Single 相部屋バス",462,448),
+    "res-harrington-en":  caRes("Harrington Ensuite Single 専用バス",511,497),
+    "res-maddox":         caRes("Maddox Sherbourne Single 相部屋バス",476,462),
+    "res-replin-upper-sh":caRes("Replin Co-Living 女性専用 Single Upper 相部屋バス",420,406),
+    "res-replin-lower":   caRes("Replin Co-Living 女性専用 Single Lower ensuite",469,455),
+    "res-replin-upper":   caRes("Replin Co-Living 女性専用 Single Upper ensuite",504,490),
+    "res-elm-shared":     caRes("The Elm & The Ledbury Shared Room 相部屋バス",413,399),
+    "res-elm-flex":       caRes("The Elm & The Ledbury Premium Single Flex",525,511),
+    "res-elm-single":     caRes("The Elm & The Ledbury Single 相部屋バス",581,567),
+    "res-elm-private":    caRes("The Elm & The Ledbury Single 専用バス",637,623),
+    "res-parker-shared":  caRes("The Parker Shared Room 相部屋バス",399,385),
+    "res-parker-flex":    caRes("The Parker Premium Single Flex",504,490),
+    "res-parker-single":  caRes("The Parker Single 相部屋バス",546,532),
+    "res-parker-private": caRes("The Parker Single 専用バス",616,602) }) });
+  ilscCa["vancouver-2027"] = Object.assign(caBase("vancouver","Vancouver"), { accom:Object.assign({ "none":{name:"なし",low:0,peak:0} }, caHs, {
+    "res-apt-studio":     caRes("APT Living Private Studio 専用バス",595,581),
+    "res-meadow-shared":  caRes("Meadow Co-Living 女性専用可 Shared room",322,308),
+    "res-meadow-single":  caRes("Meadow Co-Living Single room 相部屋バス",483,469),
+    "res-meadow-ensuite": caRes("Meadow Co-Living Single ensuite",525,511),
+    "res-grant-shared":   caRes("Grant Co-Living Shared room",322,308),
+    "res-grant-single":   caRes("Grant Co-Living Single room 相部屋バス",483,469),
+    "res-grant-ensuite":  caRes("Grant Co-Living Single ensuite",525,511) }) });
+  // 2026年版キャンパスに宿泊ハイシーズン（2026: 5/16〜9/6）は既存peakStartで反映済み
+
+  // ================= ILSC Dublin 2027（EUR）=================
+  SCHOOLS.ilsc_dublin.campuses["dublin-2027"] = {
+    name: "Dublin（2027年版）", country: "Ireland", regFee: 75, peakSupp: 0,
+    peakStart: "06-12", peakEnd: "08-15",
+    materialsFee: matBr(20,5,120),
+    courses: {
+      "dublin-exp": { name:"NEW Dublin Experience (30L・25h/週・最大10週)", type:"group", prices:[410,380], brackets:[1,13], commission:0.25, note:"2027年版。開始日6/29〜9/4の月曜のみ・最大10週。午後学習2回/週" },
+      "30plus":     { name:"NEW ILSC 30Plus (30L・25h/週)", type:"group", prices:[410], brackets:[1], commission:0.25, note:"2027年版。一部遠足は入場料別途" },
+      "ft-am": { name:"General English Full-Time Morning FT AM (22.5L・19h/週)", type:"group", prices:[370,340,310], brackets:[1,13,26], commission:0.25, note:"2027年版。登録費€75・教材費1-4週€20/5週+€5/週(上限€120)。非EU保険€125・TIE€130・IELTS€235は必要に応じ別途" },
+      "st-am": { name:"General English Standard Morning ST AM (18L・15h/週 月-木)", type:"group", prices:[310,280,250], brackets:[1,13,26], commission:0.25 },
+      "st-aft":{ name:"General English Standard Afternoon ST AFT (18L・15h/週 月-木)", type:"group", prices:[235], brackets:[1], commission:0.25 },
+      "sw-am": { name:"Study & Work 25週 Standard Morning + 8週休暇（パッケージ）", type:"group", prices:[6000], brackets:[1], fixedWeeks:33, commission:0.25,
+        addFees:[{label:"保険（33週Study & Work・非EU必須）",fee:125},{label:"Learner Protection Fee",fee:40}], note:"2027年版。授業料+TIE試験料込。非EU/EEA・25週以上対象" },
+      "sw-aft":{ name:"Study & Work 25週 Standard Afternoon + 8週休暇（パッケージ）", type:"group", prices:[5750], brackets:[1], fixedWeeks:33, commission:0.25,
+        addFees:[{label:"保険（33週Study & Work・非EU必須）",fee:125},{label:"Learner Protection Fee",fee:40}] },
+    },
+    accom: {
+      "none":          { name:"なし", low:0, peak:0 },
+      "homestay-std":  { name:"Homestay Standard (18+) Single 相部屋バス Half board（ハイ6/12-8/15）", low:300, peak:325, placementFee:75, halfBoard:true },
+      "homestay-std-u18": { name:"Homestay Standard (U18) Half board", low:320, peak:350, placementFee:75, halfBoard:true },
+      "homestay-twin": { name:"Homestay Twin Room Half board（2名同時申込のみ）", low:260, peak:295, placementFee:75, halfBoard:true },
+      "homestay-twin-u18": { name:"Homestay Twin Room (U18) Half board", low:280, peak:315, placementFee:75, halfBoard:true },
+      "res-point":     { name:"Point Campus Private Bedroom ensuite（€360/週・寝具パック€90別途）", low:360, peak:360, placementFee:75 },
+    },
+    airports: { "空港送迎（片道）":115, "Express Courier Service":75 }
+  };
+
+  // ================= ILSC New Delhi 2027（USD）=================
+  SCHOOLS.ilsc_delhi.campuses["new-delhi-2027"] = {
+    name: "New Delhi（2027年版）", country: "India", regFee: 75, peakSupp: 0,
+    materialsFee: { type:"fixed", fee:35 },
+    courses: {
+      "ft-am": { name:"Full-Time Morning FT AM (24L/週) 英/仏/ヒンディー", type:"group", prices:[185,165], brackets:[1,12], commission:0.25, note:"2027年版。1-11週/12週+。登録・アセスメント費$75・教材費$35。※2026年版のFTI(30L)は2027年版に記載なし" },
+      "ft-aft":{ name:"Full-Time Afternoon FT AFT (24L/週)", type:"group", prices:[165,150], brackets:[1,12], commission:0.25 },
+      "pt-pm": { name:"Part-Time Evening PT PM (12L/週)", type:"group", prices:[115,105], brackets:[1,12], commission:0.25 },
+      "yoga-2wk": { name:"Yoga Package 2週（週4日・5h）", type:"group", prices:[150], brackets:[1], fixedWeeks:2, commission:0.25, note:"2027年版（2026: $250）" },
+      "yoga-4wk": { name:"Yoga Package 4週（週4日・5h）", type:"group", prices:[300], brackets:[1], fixedWeeks:4, commission:0.25 },
+      "tutor-em-2wk": { name:"Early Morning Tutoring Package 2週（週4日・5h）", type:"group", prices:[200], brackets:[1], fixedWeeks:2, commission:0.25 },
+      "tutor-em-4wk": { name:"Early Morning Tutoring Package 4週（週4日・5h）", type:"group", prices:[355], brackets:[1], fixedWeeks:4, commission:0.25 },
+      "tutor-private": { name:"Tutoring Private（英/仏/ヒンディー・最低8h/週）", type:"1to1", pricePerHour:35, commission:0.25 },
+      "tutor-mini":    { name:"Tutoring Mini-group 2-3名（1人あたり）", type:"1to1", pricePerHour:25, commission:0.25 },
+    },
+    accom: {
+      "none":        { name:"なし", low:0, peak:0 },
+      "homestay-hb": { name:"Homestay Half board（1-23週$280/24週+$250）", tiers:{brackets:[1,24],prices:[280,250]}, placementFee:200, halfBoard:true },
+      "apt-single":  { name:"Student Apartment Single（1-23週$225/24週+$205・デポジット別途返金可）", tiers:{brackets:[1,24],prices:[225,205]}, placementFee:200 },
+      "apt-shared":  { name:"Student Apartment Shared（1-23週$155/24週+$140）", tiers:{brackets:[1,24],prices:[155,140]}, placementFee:200 },
+    },
+    airports: { "空港送迎（片道）":40, "空港送迎（往復）":75 }
+  };
+
+  // ================= ILSC Online 2027（CAD）=================
+  const onlMat = { type:"perWeek", fee:15 };
+  SCHOOLS.ilsc_online.campuses["hello-english-2027"] = {
+    name: "ILSC Hello オンライン英語（2027年版）", country: "Online", regFee: 130, peakSupp: 0, materialsFee: onlMat,
+    courses: {
+      "io":  { name:"Intensive Online IO (24L・20h/週)", type:"group", prices:[160], brackets:[1], commission:0.25, note:"2027年版（CAD/AUD同額$160）。登録費$130・教材費$15/週" },
+      "sio": { name:"Semi-Intensive Online SIO (18L・15h/週)", type:"group", prices:[130], brackets:[1], commission:0.25 },
+      "eo":  { name:"Elective Online EO (6L・5h/週)", type:"group", prices:[100], brackets:[1], commission:0.25 },
+      "hs-fasttrack":  { name:"ILSC High School Online: Fast Track (32週固定)", type:"group", prices:[13390], brackets:[1], fixedWeeks:32, commission:0.25, materialsFee:{ type:"fixed", fee:450 } },
+      "hs-foundation": { name:"ILSC High School Online: Foundation Year (40週固定)", type:"group", prices:[17000], brackets:[1], fixedWeeks:40, commission:0.25, materialsFee:{ type:"fixed", fee:450 } },
+      "hs-credit-tvo": { name:"ILSC HS Online: TVO ILC Credit 1単位 (8週固定)", type:"group", prices:[1750], brackets:[1], fixedWeeks:8, commission:0.25, materialsFee:{ type:"fixed", fee:80 } },
+    },
+    accom: { "none": { name:"なし（オンライン）", low:0, peak:0 } }, airports: {}
+  };
+  SCHOOLS.ilsc_online.campuses["allo-french-2027"] = {
+    name: "ILSC Allo オンライン仏語（2027年版）", country: "Online", regFee: 130, peakSupp: 0, materialsFee: onlMat,
+    courses: {
+      "io":  { name:"Intensive Online IO (24L・20h/週) General French/TEF", type:"group", prices:[160], brackets:[1], commission:0.25, note:"2027年版" },
+      "sio": { name:"Semi-Intensive Online SIO (18L・15h/週)", type:"group", prices:[130], brackets:[1], commission:0.25 },
+      "eo":  { name:"Elective Online EO (6L・5h/週) TEF Preparation", type:"group", prices:[100], brackets:[1], commission:0.25 },
+    },
+    accom: { "none": { name:"なし（オンライン）", low:0, peak:0 } }, airports: {}
+  };
+
+  // ILSC 2027 年度設定
+  const yr = (obj, keys26, keys27)=>{ const o={}; keys26.forEach(k=>o[k]=[2026]); keys27.forEach(k=>o[k]=[2027]); return o; };
+  PRICE_YEARS_OVERRIDE.ilsc_australia = yr(0, ["adelaide","brisbane","melbourne","perth","sydney"], ["adelaide-2027","brisbane-2027","melbourne-2027","perth-2027","sydney-2027"]);
+  PRICE_YEARS_OVERRIDE.ilsc_canada    = yr(0, ["montreal","toronto","vancouver"], ["montreal-2027","toronto-2027","vancouver-2027"]);
+  PRICE_YEARS_OVERRIDE.ilsc_dublin    = yr(0, ["dublin"], ["dublin-2027"]);
+  PRICE_YEARS_OVERRIDE.ilsc_delhi     = yr(0, ["new-delhi"], ["new-delhi-2027"]);
+  PRICE_YEARS_OVERRIDE.ilsc_online    = yr(0, ["hello-english","allo-french"], ["hello-english-2027","allo-french-2027"]);
+  ["adelaide","brisbane","melbourne","perth","sydney"].forEach(k=>PRIVATE_LESSON_PRICES.ilsc_australia[k+"-2027"]=120);
+  ["montreal","toronto","vancouver"].forEach(k=>PRIVATE_LESSON_PRICES.ilsc_canada[k+"-2027"]=k==="montreal"?85:90);
+  PRIVATE_LESSON_PRICES.ilsc_dublin["dublin-2027"]=null;
+  PRIVATE_LESSON_PRICES.ilsc_delhi["new-delhi-2027"]=35;
+  PRIVATE_LESSON_PRICES.ilsc_online["hello-english-2027"]=null;
+  PRIVATE_LESSON_PRICES.ilsc_online["allo-french-2027"]=null;
+
+  // ================= ILSC & Greystone Canada Q4 2026 日本向け特別価格（CAD）=================
+  // 申込受付 2026/10/1〜12/31 の申込に適用（開始日は問わない）
+  const Q4N = "🇯🇵Q4 2026日本向け特別価格（2026/10/1〜12/31の申込分・開始日問わず）。";
+  const q4Hs = {
+    "homestay-hb-18":  { name:"Homestay Half board 2食 (18+)（ハイ5/16-9/6）", low:325, peak:365, placementFee:250, halfBoard:true },
+    "homestay-fb-18":  { name:"Homestay Full board 3食 (18+)",                low:350, peak:390, placementFee:250, halfBoard:true },
+    "homestay-hb-u18": { name:"Homestay Half board 2食 (U18)",                low:345, peak:385, placementFee:250, halfBoard:true },
+    "homestay-fb-u18": { name:"Homestay Full board 3食 (U18)",                low:370, peak:410, placementFee:250, halfBoard:true },
+  };
+  const q4Res = (nm,w,l)=>({ name:`${nm}（$${w}/週・25週+$${l}・夏期+$42/週）`, tiers:{brackets:[1,25],prices:[w,l]}, hsSupp:42, placementFee:250 });
+  const q4Courses = (city)=>{
+    const tv = city!=="montreal";
+    const c = {
+      "fti":   { name:"Full-Time Intensive FTI (30L/週)【Q4特価】", type:"group", prices:[400,380,365], brackets:[1,13,26], commission:0.25, note:Q4N+"通常価格$480/$460/$440。登録費$220・教材費1-4週$60/5週+$15/週(上限$450)。Greystoneと組み合わせる場合は合計期間の単価適用可。Montréalは26週超のCAQ発行不可" },
+      "ft-am": { name:"Full-Time Morning FT AM (24L/週)【Q4特価】", type:"group", prices:[355,340,330], brackets:[1,13,26], commission:0.25, note:Q4N+"通常価格$430/$410" },
+      "ft-aft":{ name:"Full-Time Afternoon FT AFT (24L/週)【Q4特価】", type:"group", prices:[275], brackets:[1], commission:0.25, note:Q4N },
+      "pt-am": { name:"Part-Time AM (17L/週)", type:"group", prices:[325], brackets:[1], commission:0.25, note:Q4N },
+      "pt-pm": { name:"Part-Time PM (15L/週)", type:"group", prices:[200], brackets:[1], commission:0.25, note:Q4N },
+      "tutoring": { name:"Private Tutoring（英語/仏語）$55〜$105/h・要見積", type:"1to1", pricePerHour:90, commission:0.25, note:"単価は場所・内容により$55〜$105/h（既定$90で計算・要確認）" },
+    };
+    if (tv) c["ft-am30"] = { name:"Full-Time Morning 30Plus (24L+活動2/週)【Q4特価】", type:"group", prices:[400,380,365], brackets:[1,13,26], commission:0.25, note:Q4N+"開講: 2026/9/8〜2027/6/18 ほか（夏期休止）" };
+    if (city==="montreal" || city==="toronto") c["celta-int"] = { name:"CELTA Intensive（対面・4週固定）", type:"group", prices:[2940], brackets:[1], fixedWeeks:4, commission:0.25, materialsFee:{type:"fixed",fee:0}, note:"ネイティブレベル。開始日はWeb参照" };
+    c["celta-online"] = { name:"CELTA Fully Online（9-12週）", type:"group", prices:[2760], brackets:[1], fixedWeeks:9, commission:0.25, materialsFee:{type:"fixed",fee:0}, note:"ネイティブレベル" };
+    if (city==="toronto") {
+      c["hs-fasttrack"]  = { name:"ILSC High School: Fast Track (32週固定)", type:"group", prices:[14190], brackets:[1], fixedWeeks:32, commission:0.25, materialsFee:{ type:"fixed", fee:450 } };
+      c["hs-foundation"] = { name:"ILSC High School: Foundation Year (40週固定)", type:"group", prices:[18500], brackets:[1], fixedWeeks:40, commission:0.25, materialsFee:{ type:"fixed", fee:450 } };
+    }
+    return c;
+  };
+  const q4Base = (city,name)=>({ name:`ILSC ${name}【Q4特価】`, country:"Canada", regFee:220, peakSupp:0, peakStart:"05-16", peakEnd:"09-06", materialsFee:caMat, courses:q4Courses(city), airports:{ "空港送迎（片道）":135, "空港送迎（往復）":270 } });
+  const mc = (nm,mat,wk,price)=>({ name:`Micro-credential: ${nm}（${wk}）【Q4特価】`, type:"group", prices:[price||995], brackets:[1], fixedWeeks:wk.includes("6")&&!wk.includes("4")?6:4, commission:0.25, materialsFee:{type:"fixed",fee:mat}, note:Q4N+`通常$${price===1495?"2,500":"1,575"}。午前4週/夜間6週。最大3つまで特価適用` });
+  const gp = (nm,wk,price,reg,mat)=>({ name:`${nm}（${wk}週）【Q4特価】`, type:"group", prices:[price], brackets:[1], fixedWeeks:parseInt(wk), commission:0.25, materialsFee:{type:"fixed",fee:mat}, note:Q4N+`通常授業料$${reg.toLocaleString()}` });
+  SCHOOLS.ilsc_greystone_q4 = {
+    name: "ILSC & Greystone Canada【Q4 2026 日本向け特別価格】",
+    currency: "CAD",
+    campuses: {
+      "ilsc-montreal":  Object.assign(q4Base("montreal","Montréal"), { accom:Object.assign({ "none":{name:"なし",low:0,peak:0} }, q4Hs, { "res-lamarq": q4Res("La Marq Single 相部屋バス",462,441) }) }),
+      "ilsc-toronto":   Object.assign(q4Base("toronto","Toronto"), { accom:Object.assign({ "none":{name:"なし",low:0,peak:0} }, q4Hs, {
+        "res-harrington-eco": q4Res("Harrington Economy Single 相部屋バス",392,371),
+        "res-harrington":     q4Res("Harrington Single 相部屋バス",448,427),
+        "res-harrington-en":  q4Res("Harrington Single Ensuite",497,476),
+        "res-maddox":         q4Res("Maddox Sherbourne Single 相部屋バス",462,441),
+        "res-replin":         q4Res("Replin Co-Living 女性専用 Single",406,385),
+        "res-replin-lower":   q4Res("Replin Co-Living 女性専用 Lower ensuite",455,434),
+        "res-replin-upper":   q4Res("Replin Co-Living 女性専用 Upper ensuite",497,483),
+        "res-elm-shared":     q4Res("The Elm & The Ledbury Shared Room",399,378),
+        "res-elm-flex":       q4Res("The Elm & The Ledbury Premium Single Flex",497,476),
+        "res-elm-single":     q4Res("The Elm & The Ledbury Single 相部屋バス",539,518),
+        "res-elm-private":    q4Res("The Elm & The Ledbury Single 専用バス",616,595),
+        "res-parker-shared":  q4Res("The Parker Shared Room",385,364),
+        "res-parker-flex":    q4Res("The Parker Premium Single Flex",483,462),
+        "res-parker-single":  q4Res("The Parker Single 相部屋バス",525,504),
+        "res-parker-private": q4Res("The Parker Single 専用バス",595,574) }) }),
+      "ilsc-vancouver": Object.assign(q4Base("vancouver","Vancouver"), { accom:Object.assign({ "none":{name:"なし",low:0,peak:0} }, q4Hs, {
+        "res-apt-studio":     q4Res("APT Living Private Studio",567,553),
+        "res-marzena-shared": q4Res("Marzena Co-Living Shared room",301,280),
+        "res-marzena-single": q4Res("Marzena Co-Living Single room",455,434),
+        "res-marzena-ensuite":q4Res("Marzena Co-Living Single ensuite",504,483),
+        "res-meadow-shared":  q4Res("Meadow Co-Living 女性専用 Shared room",301,280),
+        "res-meadow-single":  q4Res("Meadow Co-Living 女性専用 Single room",455,434),
+        "res-meadow-ensuite": q4Res("Meadow Co-Living 女性専用 Single ensuite",504,483),
+        "res-grant-shared":   q4Res("Grant House Co-Living Shared room",301,280),
+        "res-grant-single":   q4Res("Grant House Co-Living Single room",455,434),
+        "res-grant-ensuite":  q4Res("Grant House Co-Living Single ensuite",504,483),
+        "res-gateway-shared": q4Res("Gateway Shared room",434,413),
+        "res-gateway-single": q4Res("Gateway Single room",637,616),
+        "res-oceanpark":      q4Res("Ocean Park Single room 相部屋バス",448,434) }) }),
+      "greystone-vancouver": {
+        name: "Greystone College Vancouver【Q4特価】", country: "Canada", regFee: 220, peakSupp: 0,
+        courses: {
+          "cert-bus-comms-e": gp("Certificate in Business Communications 夜間","46",9940,13500,600),
+          "cert-ibm-m":       gp("Certificate in International Business Management 午前","24",7790,10500,810),
+          "cert-org-comm":    gp("Certificate in Organizational Communication Skills 午前（8-16週）","8",1990,3320,180),
+          "cert-bm":          gp("Certificate in Business Management 午前（8-16週）","8",1990,3320,180),
+          "cert-ibt":         gp("Certificate in International Business and Trade 午前（8-16週）","8",1990,3320,185),
+          "cert-dm-social":   gp("Certificate in Digital Marketing: Social Media 夜間","46",9940,13500,950),
+          "cert-dm-website":  gp("Certificate in Digital Marketing: Website Management and Design 夜間","46",9940,13500,950),
+          "dip-dm-prof":      gp("Diploma in Digital Marketing Professional 夜間","70",10840,13350,1450),
+          "coop-bus-comms":   gp("Certificate in Business Communications Co-op 夜間（50-52+Co-op36）","86",11500,13500,600),
+          "coop-ibm":         gp("Certificate in International Business Management Co-op 午前（24+Co-op24）","48",9995,10500,810),
+          "coop-dip-pm":      gp("Diploma in Project Management Co-op 夜間（64-66+Co-op50）","114",11240,17000,1350),
+          "coop-dm-social":   gp("Certificate in Digital Marketing: Social Media Co-op 夜間（50-52+36）","86",11500,13500,950),
+          "coop-dm-website":  gp("Certificate in Digital Marketing: Website Mgmt & Design Co-op 夜間","86",11500,13500,950),
+          "coop-dip-dm-prof": gp("Diploma in Digital Marketing Professional Co-op 夜間（70-72+40）","128",11730,13350,1450),
+          "mc-intl-business": mc("International Business",85,"午前4週"),
+          "mc-marketing":     mc("Marketing",100,"午前4週"),
+          "mc-org-behaviour": mc("Organizational Behaviour",100,"午前4週/夜間6週"),
+          "mc-managerial-comm": mc("Managerial Communications",80,"午前4週/夜間6週"),
+          "mc-intro-mgmt":    mc("Introduction to Management",100,"午前4週"),
+          "mc-team-mgmt":     mc("Business Excellence in Team Management",255,"夜間6週"),
+          "mc-comm-workplace":mc("Communication for the Workplace",255,"夜間6週"),
+          "mc-crm":           mc("Customer Relationship Management",0,"夜間6週"),
+          "mc-personal-dev":  mc("Personal Development Strategies and Techniques",255,"夜間6週"),
+          "mc-professionalism": mc("Professionalism in a Diverse Workplace",255,"夜間6週"),
+          "mc-pm-essentials": mc("Project Management Essentials",155,"夜間6週",1495),
+          "mc-workplace-skills": mc("Workplace Skills and Tools",345,"午前4週/夜間6週"),
+          "mc-hosp-workplace-comm": mc("Workplace Communication（Hospitality）",45,"夜間6週"),
+          "mc-hosp-front-office":   mc("Front Office Operations（Hospitality）",70,"夜間6週"),
+          "mc-dm-advertising":  mc("Advertising（DM）",185,"夜間6週"),
+          "mc-dm-branding":     mc("Digital Marketing Fundamentals - Branding",140,"夜間6週"),
+          "mc-dm-domain":       mc("DM Fundamentals - Domain, Online, Email Marketing",140,"夜間6週"),
+          "mc-dm-seo":          mc("Search Engine Optimization",155,"夜間6週"),
+          "mc-dm-social":       mc("Social Media Marketing Strategies",140,"夜間6週"),
+          "mc-dm-web-analytics":mc("Strategic Web Design - Analytics and Beyond",155,"夜間6週"),
+          "mc-dm-web-creative": mc("Strategic Web Design - The Creative Effort",155,"夜間6週"),
+          "mc-dm-writing":      mc("Writing for the Web",140,"夜間6週"),
+        },
+        accom: { "none": { name:"なし（宿泊は同校「ILSC Vancouver【Q4特価】」キャンパスを参照）", low:0, peak:0 } },
+        airports: { "空港送迎（片道）":135, "空港送迎（往復）":270 }
+      },
+      "greystone-montreal": {
+        name: "Greystone College Montréal【Q4特価】", country: "Canada", regFee: 220, peakSupp: 0,
+        courses: {
+          "aec-ibm-en": gp("AEC International Business Management with Practicum 英語 夜間（60+実習20）","80",10200,14325,750),
+          "aec-dm-en":  gp("AEC Digital Marketing Specialist with Practicum 英語 夜間（72+実習20）","92",11730,13350,1450),
+        },
+        accom: { "none": { name:"なし（宿泊は同校「ILSC Montréal【Q4特価】」を参照）", low:0, peak:0 } },
+        airports: { "空港送迎（片道）":135, "空港送迎（往復）":270 }
+      },
+      "greystone-toronto": {
+        name: "Greystone College Toronto【Q4価格】", country: "Canada", regFee: 220, peakSupp: 0,
+        courses: {
+          "healthcare-comm": { name:"Communication in Healthcare（3週・午前）※登録費/教材費込パッケージ", type:"group", prices:[2715], brackets:[1], fixedWeeks:3, commission:0.25, regFee:0, materialsFee:{type:"fixed",fee:0}, note:Q4N+"登録費・授業料・教材込。開始日: 2027/1/11, 7/5" },
+          "healthcare-observership": { name:"Communication in Healthcare with Observership（4週・午前）※込み価格", type:"group", prices:[4215], brackets:[1], fixedWeeks:4, commission:0.25, regFee:0, materialsFee:{type:"fixed",fee:0}, note:Q4N+"登録費・授業料・教材込" },
+        },
+        accom: { "none": { name:"なし（宿泊は同校「ILSC Toronto【Q4特価】」を参照）", low:0, peak:0 } },
+        airports: { "空港送迎（片道）":135, "空港送迎（往復）":270 }
+      },
+    }
+  };
+  CURRENCIES.ilsc_greystone_q4 = "CAD";
+  PRIVATE_LESSON_PRICES.ilsc_greystone_q4 = { "ilsc-montreal":null, "ilsc-toronto":null, "ilsc-vancouver":null, "greystone-vancouver":null, "greystone-montreal":null, "greystone-toronto":null };
+  // 申込時期で適用される価格のため、開始年に関係なく年版警告を出さない
+  PRICE_YEARS_OVERRIDE.ilsc_greystone_q4 = {};
+  Object.keys(SCHOOLS.ilsc_greystone_q4.campuses).forEach(k=>PRICE_YEARS_OVERRIDE.ilsc_greystone_q4[k]=[2026,2027,2028]);
+
+  // ================= CISL 2027年版（USD）=================
+  SCHOOLS.cisl.campuses["san-diego-2027"] = {
+    name: "San Diego（2027年版）", country: "USA", regFee: 160, peakSupp: 0,
+    accomPeakStart: "06-12", accomPeakEnd: "08-31",
+    courses: {
+      "standard":       { name:"Standard English (20L/週)",            type:"group", prices:[390,375,370,350,335], brackets:[1,3,8,13,25], commission:0.20, note:"2027年版（〜2027/12）。1-2/3-7/8-12/13-24/25+週。教材・アクティビティ込" },
+      "business":       { name:"Business English (20L/週)",            type:"group", prices:[390,375,370,350,335], brackets:[1,3,8,13,25], commission:0.20 },
+      "standard-f1":    { name:"Standard/Business Plus F-1 (22L/週・4週〜)", type:"group", prices:[380,375,355,340], brackets:[4,8,13,25], commission:0.20, note:"F-1は最低4週" },
+      "intensive-f1":   { name:"Intensive English F-1 (28L/週・4週〜)", type:"group", prices:[450,445,425,410], brackets:[4,8,13,25], commission:0.20 },
+      "afternoon-only": { name:"Afternoon Elective Only (8L/週)",     type:"group", prices:[190], brackets:[1], commission:0.20 },
+      "executive":      { name:"Premier: Executive English (20L/週・最大4名)", type:"group", prices:[875,865,860,855,840], brackets:[1,3,8,13,25], commission:0.20, note:"2027年版（2026の3-4週$870/4-7週$865等から区分変更）" },
+      "executive-f1":   { name:"Premier: Executive Intensive F-1 (28L/週・4週〜)", type:"group", prices:[940,935,910,895], brackets:[4,8,13,25], commission:0.20 },
+      "golf-tennis":    { name:"General English + Golf or Tennis (20+2/週)", type:"group", prices:[475,460,455,435,420], brackets:[1,3,8,13,25], commission:0.20, note:"2027年版で新規掲載" },
+      "surfing":        { name:"General English + Surfing (20+2/週)",       type:"group", prices:[665,650,645,625,610], brackets:[1,3,8,13,25], commission:0.20, note:"2027年版で新規掲載" },
+      "ielts-4wk":      { name:"C1 Advanced / IELTS Preparation (4週固定)",  type:"group", prices:[1500], brackets:[1], fixedWeeks:4,  commission:0.20, note:"CAE開始6/7。IELTS開始 6/14・10/25。試験料別途（CAE約$450・IELTS $215-310）" },
+      "ielts-8wk":      { name:"C1 Advanced / IELTS Preparation (8週固定)",  type:"group", prices:[2960], brackets:[1], fixedWeeks:8,  commission:0.20, note:"IELTS開始 5/17・10/4" },
+      "ielts-12wk":     { name:"C1 Advanced / IELTS Preparation (12週固定)", type:"group", prices:[4440], brackets:[1], fixedWeeks:12, commission:0.20, note:"IELTS開始 4/19・9/6" },
+      "career-english": { name:"Career English（6週+企業実習6-8週）Placement $950込", type:"fixed", fixedPrice:3140, commission:0.20, note:"「$3,140+」最低額（Placement $950＋授業$2,190+）。12/15-1/15の配属は限定" },
+      "ayp":            { name:"Academic Year Program（Intensive 16週＋Grossmont College 1学期）", type:"fixed", fixedPrice:7630, commission:0.20, note:"「$7,630+」最低額（管理費$750込）。カレッジ授業料・教科書別" },
+      "pathway":        { name:"University Pathway（12週+ Intensive + EAP）", type:"fixed", fixedPrice:7630, commission:0.20, note:"「$7,630+」最低額（管理費$750込）" },
+      "pl-5":  { name:"One-to-One 5レッスンパック",  type:"fixed", fixedPrice:420,  commission:0.20, regFee:0, note:"他コース併用時は1レッスン$75〜" },
+      "pl-10": { name:"One-to-One 10レッスンパック", type:"fixed", fixedPrice:790,  commission:0.20, regFee:0 },
+      "pl-15": { name:"One-to-One 15レッスンパック", type:"fixed", fixedPrice:1145, commission:0.20, regFee:0 },
+      "pl-20": { name:"One-to-One 20レッスンパック", type:"fixed", fixedPrice:1525, commission:0.20, regFee:0 },
+      "1to1":  { name:"One-to-One Private Lessons（単発 $95/レッスン）", type:"1to1", pricePerHour:95, commission:0.20 },
+    },
+    accom: {
+      "none":         { name:"なし", low:0, peak:0 },
+      "homestay-hb":  { name:"Homestay 個室・共用バス 朝夕食（夏期6/12-8/31到着は+$25/週）", low:420, peak:420, hsSupp:25, placementFee:160, halfBoard:true },
+      "homestay-bo":  { name:"Homestay 個室・共用バス 朝食のみ（夏期+$25/週）",               low:370, peak:370, hsSupp:25, placementFee:160 },
+      "homestay-exec":{ name:"Executive Homestay 個室・専用バス 朝夕食（Premier受講生のみ・夏期+$25/週）", low:460, peak:460, hsSupp:25, placementFee:160, halfBoard:true },
+      "res-li-single":{ name:"Little Italy Residence 個室・専用バス（4週〜・デポジット$500返金制）", low:499, peak:499, placementFee:160 },
+      "res-li-double":{ name:"Little Italy Residence 2人部屋・専用バス（2名同時・1人あたり）",     low:299, peak:299, placementFee:160 },
+      "res-usd-single":{ name:"University of San Diego 夏期寮 個室（6/28-8/9のみ・食事別）", low:675, peak:675, placementFee:160 },
+      "res-usd-double":{ name:"University of San Diego 夏期寮 2人部屋（6/28-8/9のみ）",        low:510, peak:510, placementFee:160 },
+    },
+    airports: { "San Diego空港 片道":170, "ホームステイ送迎 片道":120, "LAX 片道":525 }
+  };
+  SCHOOLS.cisl.campuses["juniors-2027"] = {
+    name: "CISL Juniors 夏期・通年（2027年版・10-17歳）", country: "USA", regFee: 0, peakSupp: 0,
+    courses: {
+      "barnard":   { name:"Barnard/Columbia Univ. NYC (14-17歳・7/4-8/1) 宿泊込パッケージ", type:"grandline-fixed", priceTable:[0,3150,5650,7900,9950], commission:0.20, note:"授業・寮・食事・アクティビティ込（1-4週）" },
+      "stpeters":  { name:"Saint Peter's Univ. NYC (13-17歳・6/27-8/7) 宿泊込",          type:"grandline-fixed", priceTable:[0,2600,5100,7200,9000], commission:0.20 },
+      "pepperdine":{ name:"Pepperdine Univ. Malibu (10-17歳・6/27-7/31) 宿泊込",          type:"grandline-fixed", priceTable:[0,2600,5100,7200,9000], commission:0.20 },
+      "ucla":      { name:"UCLA Los Angeles (13-17歳・6/27-7/25) 宿泊込",                 type:"grandline-fixed", priceTable:[0,3155,5825,8480,10975], commission:0.20 },
+      "berkeley":  { name:"UC Berkeley (10-17歳・6/27-8/8) 宿泊込",                       type:"grandline-fixed", priceTable:[0,2600,5100,7200,9000], commission:0.20 },
+      "georgetown":{ name:"Georgetown Univ. Washington D.C. (13-17歳・7/11-7/24) 宿泊込", type:"grandline-fixed", priceTable:[0,3750,7500], commission:0.20, note:"1-2週のみ" },
+      "usd":       { name:"University of San Diego (10-17歳・7/4-8/1) 宿泊込",            type:"grandline-fixed", priceTable:[0,2600,5100,7200,9000], commission:0.20 },
+      "sd-homestay":{ name:"San Diego Homestay 通年 (14-17歳) ホームステイ込",             type:"grandline-fixed", priceTable:[0,1750,3500,4950,6500], commission:0.20, note:"例: 1/3-1/31, 2/28-3/28, 6/27-7/25。2人部屋・週14食・遠足込" },
+      "commuter-classes": { name:"Commuter（宿泊なし）Classes Only",                       type:"grandline-fixed", priceTable:[0,525,1000,1450,1800], commission:0.20 },
+      "commuter-lunch":   { name:"Commuter Classes+Lunch+平日アクティビティ",               type:"grandline-fixed", priceTable:[0,1000,2000,3000,3950], commission:0.20 },
+      "commuter-full":    { name:"Commuter Classes+Lunch+平日/週末アクティビティ",          type:"grandline-fixed", priceTable:[0,1400,2700,4000,5250], commission:0.20 },
+    },
+    accom: { "none": { name:"なし（パッケージに宿泊込）", low:0, peak:0 } },
+    airports: { "SAN ↔ USD/Homestay 片道":120, "LAX ↔ USD 片道":525, "LAX ↔ Pepperdine/UCLA 片道":250, "JFK/LGA ↔ NYC 片道":275, "Newark ↔ NYC 片道":250, "Dulles ↔ Georgetown 片道":250, "SFO ↔ UC Berkeley 片道":250, "UNMS 到着":150, "UNMS 出発":185, "時間外(21-6時) 片道加算":125 }
+  };
+  PRIVATE_LESSON_PRICES.cisl["san-diego-2027"] = 95;
+  PRIVATE_LESSON_PRICES.cisl["juniors-2027"] = null;
+  PRICE_YEARS_OVERRIDE.cisl = { "san-diego":[2026], "san-diego-2027":[2027], "juniors-2027":[2027] };
+
+  // ================= LSE（2026・追加コース）=================
+  const lseC = SCHOOLS.lse.campuses["holland-park"].courses;
+  lseC["ge-business"]    = { name:"General English + Business English (27h/週・Full day)", type:"group", prices:[1240], brackets:[1], commission:0.25, note:"2026 Fees & Courses（NEW版）で掲載" };
+  lseC["voice-combo"]    = { name:"Voice & Accent Training Combination (Business Group15h+Voice個人10h・25h/週)", type:"group", prices:[2100], brackets:[1], commission:0.25 };
+  lseC["closed-group"]   = { name:"On Demand Closed Group（最大10名・週額）", type:"group", prices:[9355], brackets:[1], commission:0.25, note:"グループ全体の週額（1人あたりではない）→人数で按分して使用" };
+  ["toles-adv","fifty-plus","young-adults"].forEach(k=>{ if(lseC[k]) lseC[k].note = "⚠️2026 Fees & Courses（NEW版）に記載なし → 募集継続・価格を要確認。" + (lseC[k].note?" "+lseC[k].note:""); });
+  ["1to1-online","2to1-online","voice-online"].forEach(k=>{ if(lseC[k]) lseC[k].regFee = 35; });
+  if (lseC["1to1-online"]) lseC["1to1-online"].note = "オンライン受講の登録費は£35（対面は£95・電話/メール申込は£125）";
+
+  // ================= UCI DCE（2026-2027・必須諸費用を追加）=================
+  const uci = SCHOOLS.uci_dce.campuses["irvine"].courses;
+  const svc = (q)=>({label:`Student Services Fee $250 × ${q}クォーター`, fee:250*q});
+  const ins = (q)=>({label:`健康保険（UCI・必須）$675 × ${q}クォーター`, fee:675*q});
+  Object.entries(uci).forEach(([k,c])=>{
+    let q=0;
+    if (k.startsWith("acp-") && k!=="acp-internship") q=1;
+    else if (/-3m$/.test(k)) q=1; else if (/-6m$/.test(k)) q=2; else if (/-9m$/.test(k)) q=3;
+    if (q>0) { c.addFees=[svc(q), ins(q)]; c.note=(c.note?c.note+" ":"")+`2026-27料金表: 諸費用（Student Services・保険）を自動計上。プログラムデポジットは授業料に充当（別途請求なし）。教科書$150-400/クォーター（概算）は別途。`; }
+    if (k.startsWith("isp-")) { const n=c.fixedWeeks/2; c.addFees=[{label:`Student Services Fee $100 × ${n}（2週ごと）`, fee:100*n}]; c.note="保険は任意（$150/2週）→必要時はAdd-onで追加"; }
+  });
+  if (uci["acp-internship"]) uci["acp-internship"].note = "⚠️2026-27料金表（Tuition and Fees）に記載なし → 掲載継続・価格を要確認";
+
+  // ================= Les Ateliers FL - IH Paris（Au Pair Programme 2026-27・EUR）=================
+  SCHOOLS.ih_paris = {
+    name: "Les Ateliers FL - IH Paris",
+    currency: "EUR",
+    campuses: {
+      "paris": {
+        name: "Paris（8区・2026-27年版）", country: "France", regFee: 45, peakSupp: 0,
+        courses: {
+          "aupair-1t": { name:"Programme Au Pair 1学期（週10h: 対面6h+自習4h・約12週）", type:"fixed", fixedPrice:455, commission:0, note:"登録料€45。学期: 秋2026/9/21-12/11・冬2027/1/4-3/26・春3/30-6/18（学校休暇除く）。17歳〜。📝コミッション率未確認のため0%" },
+          "aupair-2t": { name:"Programme Au Pair 2学期（€910→€795）", type:"fixed", fixedPrice:795, commission:0, note:"登録料€45" },
+          "aupair-3t": { name:"Programme Au Pair 3学期（€1,365→€1,075・登録料無料）", type:"fixed", fixedPrice:1075, commission:0, regFee:0, note:"登録料無料" },
+          "aupair-wk": { name:"Programme Au Pair 途中入学（週単価€50）", type:"group", prices:[50], brackets:[1], commission:0, note:"学期途中からの入学は週単価で調整（初心者は不可）" },
+        },
+        accom: { "none": { name:"なし（オペア家庭に滞在）", low:0, peak:0 } },
+        airports: {}
+      }
+    }
+  };
+  CURRENCIES.ih_paris = "EUR";
+  PRIVATE_LESSON_PRICES.ih_paris = { "paris": null };
+  PRICE_YEARS_OVERRIDE.ih_paris = { "paris": [2026, 2027] };
+
+  // ================= KAPITO（Münster・ドイツ・2027年版・EUR）=================
+  const kpMat = { type:"bracket", brackets: Array.from({length:13},(_,i)=>({maxWeeks:(i+1)*4, fee:20*(i+1)})).concat([{maxWeeks:999, fee:280}]) };
+  SCHOOLS.kapito = {
+    name: "KAPITO Sprachschule（Münster）",
+    currency: "EUR",
+    campuses: {
+      "muenster": {
+        name: "Münster（2027年版）", country: "Germany", regFee: 39, peakSupp: 30,
+        peakStart: "07-05", peakEnd: "08-27",
+        materialsFee: kpMat,
+        courses: {
+          "intensive": { name:"Intensive Course 20L/週（+学習サポート10h）", type:"group", prices:[210,190,180,170,160], brackets:[1,5,9,17,24], commission:0, note:"2027年版。1-4/5-8/9-16/17-23/24週+。夏期7/5-8/27は+€30/週（自動）。登録料€39・教材€20/4週。現地延長は別単価。📝コミッション率未確認のため0%" },
+          "intensive-plus": { name:"Intensive Course Plus 24L/週（午後会話・試験対策）", type:"group", prices:[250,230,210,200,190], brackets:[1,5,9,17,24], commission:0, note:"2027年版。夏期+€30/週（自動）" },
+          "compact": { name:"Compact Course 30L/週（グループ20+個人10）", type:"firstN", firstWeeks:1, firstPrice:760, addlPrice:710, commission:0, note:"1週€760・追加€710/週" },
+          "individual": { name:"Individual Course 20L/週（2人目は同レベルなら無料）", type:"firstN", firstWeeks:1, firstPrice:1100, addlPrice:1100, commission:0 },
+          "extra-10": { name:"午後追加10レッスン（個人）", type:"firstN", firstWeeks:1, firstPrice:550, addlPrice:550, commission:0, materialsFee:{type:"fixed",fee:0} },
+          "pathway-uni": { name:"Pathway University（A1→C1・44週）", type:"group", prices:[6800], brackets:[1], fixedWeeks:44, commission:0, note:"開始: 2027/1/4, 4/5, 8/2, 8/30" },
+          "pathway-voc": { name:"Pathway Vocational/Studienkolleg（A1→B2・36週）", type:"group", prices:[5800], brackets:[1], fixedWeeks:36, commission:0 },
+          "online-exam": { name:"Online telc B2/C1 Hochschule 試験対策（2週・火木18:00-19:30）", type:"fixed", fixedPrice:80, commission:0, regFee:0, materialsFee:{type:"fixed",fee:0} },
+          "vocational-fee": { name:"Vocational training program 手数料（ドイツ語コースと併用）", type:"fixed", fixedPrice:750, commission:0, regFee:0, materialsFee:{type:"fixed",fee:0} },
+        },
+        accom: {
+          "none": { name:"なし", low:0, peak:0 },
+          "host-nomeal": { name:"ホスト宅 個室 食事なし（1週€290〜4週€660・5週+€165/週・18歳〜）", weekTable:[0,290,390,525,660], afterRate:165 },
+          "host-bf":     { name:"ホスト宅 個室 朝食付（1週€330〜4週€780・5週+€195/週）",             weekTable:[0,330,450,615,780], afterRate:195 },
+          "host-hb":     { name:"ホスト宅 個室 2食付（週末3食）（1週€400〜4週€1,060・5週+€265/週）", weekTable:[0,400,590,825,1060], afterRate:265, halfBoard:true },
+          "apartment":   { name:"アパートメント 専用バス・簡易キッチン（€270/週〜＋デポジット・23歳〜）", low:270, peak:270 },
+          "studio":      { name:"KAPITO Studio 専用バス・簡易キッチン（€300/週〜＋デポジット）",          low:300, peak:300 },
+        },
+        airports: { "FMO/DTM/DUS 送迎（要見積）":0 }
+      }
+    }
+  };
+  CURRENCIES.kapito = "EUR";
+  PRIVATE_LESSON_PRICES.kapito = { "muenster": null };
+  PRICE_YEARS_OVERRIDE.kapito = { "muenster": [2027] };
+
+  // ================= BEI（Bilingual Education Institute・Houston・2026-27・USD）=================
+  SCHOOLS.bei_houston = {
+    name: "BEI（Bilingual Education Institute）Houston",
+    currency: "USD",
+    campuses: {
+      "houston": {
+        name: "Houston（2026-27年版）", country: "USA", regFee: 75, peakSupp: 0,
+        courses: {
+          "iep-f1": { name:"Intensive English Program 午前（20h/週）F-1・1サイクル=7週・最低2サイクル", type:"session", sessionWeeks:7, minSessions:2, commission:0,
+            items:[{label:"Initial I-20 Registration（F-1新規）",fee:150,per:"once"},{label:"Tuition（1サイクル）",fee:1820,per:"session",comm:true}],
+            note:"$1,820/サイクル。SEVIS I-901 $350は本人がfmjfee.comで別途支払い。教材費はプログラムにより別途（要確認）。⚠️資料の『7サイクル授業料$10,920』は6サイクル分（$1,820×6）の金額で不整合→要確認。📝コミッション率未確認のため0%" },
+          "iep-pre3": { name:"IEP 前払い3サイクル（約半年・21週）$5,000", type:"group", prices:[5000], brackets:[1], fixedWeeks:21, commission:0, addFees:[{label:"Initial I-20 Registration（F-1新規）",fee:150}], note:"通常$5,460→$460割引" },
+          "iep-pre6": { name:"IEP 前払い6サイクル（約1年・42週）$8,400", type:"group", prices:[8400], brackets:[1], fixedWeeks:42, commission:0, addFees:[{label:"Initial I-20 Registration（F-1新規）",fee:150}], note:"通常$10,920→$2,520割引" },
+          "iep-resident": { name:"Intensive English Program（米国居住者のみ）1サイクル=7週", type:"session", sessionWeeks:7, commission:0, items:[{label:"Tuition（1サイクル）",fee:1550,per:"session",comm:true}], note:"⚠️米国居住者限定" },
+          "medical": { name:"Intensive Medical English（8週）", type:"session", sessionWeeks:8, commission:0, items:[{label:"Tuition",fee:2200,per:"session",comm:true}] },
+          "toefl":   { name:"TOEFL Prep（10h/週・8週・B2+）", type:"session", sessionWeeks:8, commission:0, items:[{label:"Tuition",fee:649,per:"session",comm:true}], note:"2026開始: 2/9, 4/13, 6/15, 8/17, 10/19" },
+          "everyday":{ name:"Everyday English（10h/週・6週・パートタイム）", type:"session", sessionWeeks:6, commission:0, items:[{label:"Tuition",fee:499,per:"session",comm:true}] },
+          "spanish": { name:"FL Group Spanish Lessons（1サイクル）", type:"session", sessionWeeks:7, commission:0, items:[{label:"Tuition",fee:549,per:"session",comm:true}], note:"サイクル期間は要確認" },
+        },
+        accom: { "none": { name:"なし（料金表に宿泊記載なし）", low:0, peak:0 } },
+        airports: {}
+      }
+    }
+  };
+  CURRENCIES.bei_houston = "USD";
+  PRIVATE_LESSON_PRICES.bei_houston = { "houston": null };
+  PRICE_YEARS_OVERRIDE.bei_houston = { "houston": [2026, 2027] };
+
+  // ================= Duke Language School（Bangkok・タイ語・THB）=================
+  SCHOOLS.duke_bangkok = {
+    name: "Duke Language School（Bangkok・タイ語）",
+    currency: "THB",
+    campuses: {
+      "bangkok": {
+        name: "Bangkok", country: "Thailand", regFee: 0, peakSupp: 0,
+        courses: {
+          "thai-1": { name:"タイ語グループ 1コース=20日（4週・40時間・2h/日）", type:"session", sessionWeeks:4, commission:0,
+            items:[{label:"オリジナルテキスト代",fee:500,per:"once"},{label:"受講料（1コース40時間）",fee:8000,per:"session",comm:true}],
+            note:"月〜金 S1 9:00/S2 11:10/S3 13:20/S4 15:30（各2h）。📝コミッション率未確認のため0%" },
+          "thai-5": { name:"タイ語 5コースパック（20週・プロモ ฿36,000）", type:"group", prices:[36000], brackets:[1], fixedWeeks:20, commission:0, addFees:[{label:"オリジナルテキスト代",fee:500}], note:"スペシャルプロモーション（通常฿40,000）→ 適用期限を要確認" },
+          "thai-7": { name:"タイ語 7コースパック（28週・プロモ ฿49,000）", type:"group", prices:[49000], brackets:[1], fixedWeeks:28, commission:0, addFees:[{label:"オリジナルテキスト代",fee:500}], note:"スペシャルプロモーション（通常฿56,000）→ 適用期限を要確認" },
+        },
+        accom: { "none": { name:"なし", low:0, peak:0 } },
+        airports: {}
+      }
+    }
+  };
+  CURRENCIES.duke_bangkok = "THB";
+  PRIVATE_LESSON_PRICES.duke_bangkok = { "bangkok": null };
+  PRICE_YEARS_OVERRIDE.duke_bangkok = { "bangkok": [2026, 2027] };
+})();
