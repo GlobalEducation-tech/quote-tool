@@ -97,6 +97,13 @@ h1 { font-size: 20px; font-weight: 500; margin-bottom: 24px; color: #1a1a18; }
 .compare-table tr.profit-row td { background:#f0fdf4; color:#166534; font-weight:500; }</style>
 <!-- 行の色付けのため、書式出力に対応したSheetJS互換版（xlsx-js-style）を使用 -->
 <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
+<script>
+// 書式対応版が読み込めない環境（社内フィルタ等）では通常版SheetJSに切り替え（色なしで出力）
+if (typeof XLSX === "undefined") {
+  window._xlsxNoStyle = true;
+  document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"><\/script>');
+}
+</script>
 </head>
 <body>
 <!-- ═══ パスワードゲート ═══
@@ -125,7 +132,7 @@ if(sessionStorage.getItem("getc_auth")==="1"){document.addEventListener("DOMCont
 else{document.addEventListener("DOMContentLoaded",()=>{const i=document.getElementById("pw-input");if(i)i.focus();});}
 </script>
 <div class="app">
-  <h1>海外プログラム見積計算ツール</h1>
+  <h1>海外プログラム見積計算ツール <span id="app-version" style="font-size:11px;color:#999;font-weight:400">ver 2026-10-29c</span></h1>
 
   <!-- 保存済み見積もり -->
   <div class="card">
@@ -2325,6 +2332,7 @@ function _exportToExcel(targets, filename) {
     XLSX.utils.book_append_sheet(wb, lws, "Price List");
   }
   XLSX.writeFile(wb, `${filename}.xlsx`);
+  if (window._xlsxNoStyle) alert("⚠️ 書式対応ライブラリ（cdn.jsdelivr.net）が読み込めなかったため、色なしで出力しました。");
 }
 
 // 初期化
