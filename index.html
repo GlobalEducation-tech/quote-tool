@@ -132,7 +132,7 @@ if(sessionStorage.getItem("getc_auth")==="1"){document.addEventListener("DOMCont
 else{document.addEventListener("DOMContentLoaded",()=>{const i=document.getElementById("pw-input");if(i)i.focus();});}
 </script>
 <div class="app">
-  <h1>海外プログラム見積計算ツール <span id="app-version" style="font-size:11px;color:#999;font-weight:400">ver 2026-11-02b</span></h1>
+  <h1>海外プログラム見積計算ツール <span id="app-version" style="font-size:11px;color:#999;font-weight:400">ver 2026-11-02c</span></h1>
 
   <!-- 保存済み見積もり -->
   <div class="card">
@@ -2466,6 +2466,10 @@ function _buildWorkbook(targets) {
     program:  { fill:{ patternType:"solid", fgColor:{ rgb:"DDEBF7" } }, font:{ bold:true, color:{ rgb:"1F3864" } } },
     total:    { fill:{ patternType:"solid", fgColor:{ rgb:"FFF2CC" } }, font:{ bold:true, color:{ rgb:"000000" } } },
     subtotal: { fill:{ patternType:"solid", fgColor:{ rgb:"F2F2F2" } }, font:{ bold:true, color:{ rgb:"000000" } }, border:{ top:thin, bottom:thin } },
+    // 見積書に記入する金額（▶海外プログラム費用 小計・コーディネーション費用）: 大きい文字＋オレンジ帯＋太線
+    quote:    { fill:{ patternType:"solid", fgColor:{ rgb:"FCE4D6" } }, font:{ bold:true, sz:13, color:{ rgb:"833C0B" } },
+                border:{ top:{ style:"medium", color:{ rgb:"C65911" } }, bottom:{ style:"medium", color:{ rgb:"C65911" } } } },
+    legend:   { font:{ bold:true, color:{ rgb:"833C0B" } } },
     colhead:  { font:{ bold:true, color:{ rgb:"595959" } }, border:{ bottom:thin } },
     note:     { font:{ italic:true, color:{ rgb:"7F7F7F" } } },
     yr:       { font:{ bold:true, color:{ rgb:"1565C0" } } },
@@ -2477,7 +2481,7 @@ function _buildWorkbook(targets) {
   const allLinks = [];
 
   targets.forEach((q, qi) => {
-    const rows = [], rowStyles = [], formulas = [], hyperlinks = [], pctCells = [], cellStyles = [];
+    const rows = [], rowStyles = [], formulas = [], hyperlinks = [], pctCells = [], cellStyles = [], tallRows = [];
     const push = (arr, style) => { rows.push(arr); const r = rows.length; if (style) rowStyles.push({ r:r-1, style }); return r; };
     const addManF = (r, val) => { rows[r-1][5] = manCeil(val); formulas.push({ r:r-1, c:5, f:`ROUNDUP(E${r}/10000,0)` }); };
     const thisSheet = sheetName(q, qi);
@@ -2485,6 +2489,8 @@ function _buildWorkbook(targets) {
     push([`■ 見積書　${q.client||""}　${q.project||""}${q.tabName?`　[${q.tabName}]`:""}　${q.date||""}`], STYLE.title);
     const meta = [q.author?`作成者: ${q.author}`:"", q.reviewer?`確認者: ${q.reviewer}`:"", APP_VERSION?`出力ツール: ${APP_VERSION}`:""].filter(Boolean).join("　");
     if (meta) push([meta], STYLE.note);
+    const lg = push(["■ オレンジの行（大きい文字）＝見積書に記入する金額（▶ 海外プログラム費用・コーディネーション費用）"], STYLE.legend);
+    cellStyles.push({ r:lg-1, c:0, style:{ fill:{ patternType:"solid", fgColor:{ rgb:"FCE4D6" } } } });
     push([]);
 
     if (q.links && q.links.length > 0) {
@@ -2553,7 +2559,8 @@ function _buildWorkbook(targets) {
         });
         const sumArgs = [...detailRows.map(r=>`E${r}`), `E${progRow}`, ...inclRows.map(r=>`E${r}`)];
         const localArgs = detailRows.map(r=>`B${r}`);
-        const sr = push([`　▶ ${l.label} 小計`, Math.round((l.local||0)*100)/100, cur, Math.round(effRate*100)/100, Math.round(l.jpy)], STYLE.subtotal);
+        const sr = push([`　▶ ${l.label} 小計`, Math.round((l.local||0)*100)/100, cur, Math.round(effRate*100)/100, Math.round(l.jpy)], STYLE.quote);
+        tallRows.push(sr-1);
         if (localArgs.length) formulas.push({ r:sr-1, c:1, f:`SUM(${localArgs.join(",")})` });
         formulas.push({ r:sr-1, c:4, f:`SUM(${sumArgs.join(",")})` });
         addManF(sr, l.jpy);
@@ -2565,7 +2572,9 @@ function _buildWorkbook(targets) {
         push([`▼ 円建て費用${multiSchool?`（学校${si+1}）`:""}`], STYLE.total);
         push(["　項目", "", "通貨", "", "金額（円）", "金額（万円・繰上げ）"], STYLE.colhead);
         jpys.forEach(l => {
-          const r = push([`　${l.label}`, "", "JPY", "", Math.round(l.jpy)]);
+          const isCoord = l.kind==="coord" || (!l.kind && /コーディネーション/.test(l.label||""));
+          const r = push([`　${isCoord?"▶ ":""}${l.label}`, "", "JPY", "", Math.round(l.jpy)], isCoord ? STYLE.quote : null);
+          if (isCoord) tallRows.push(r-1);
           addManF(r, l.jpy);
           schoolRefs.push(`E${r}`);
         });
@@ -2623,7 +2632,8 @@ function _buildWorkbook(targets) {
     formulas.forEach(({r,c,f}) => { const a = XLSX.utils.encode_cell({ r, c }); if (!ws[a]) ws[a] = { t:"n", v:0 }; ws[a].f = f; });
     hyperlinks.forEach(({r,c,url}) => { const a = XLSX.utils.encode_cell({ r, c }); if (!ws[a]) ws[a] = { t:"s", v:url }; ws[a].l = { Target:url, Tooltip:url }; cellStyles.push({ r, c, style:STYLE.link }); });
     _paintSheet(ws, rows.length, 6, rowStyles, cellStyles, NUMFMT, pctCells);
-    ws["!cols"] = [{wch:66},{wch:13},{wch:6},{wch:18},{wch:14},{wch:18}];
+    ws["!rows"] = []; tallRows.forEach(r => { ws["!rows"][r] = { hpt:24 }; });
+    ws["!cols"] = [{wch:76},{wch:14},{wch:7},{wch:20},{wch:16},{wch:20}];
     XLSX.utils.book_append_sheet(wb, ws, thisSheet);
   });
 
@@ -2662,6 +2672,12 @@ function _paintSheet(ws, nrows, ncol, rowStyles, cellStyles, numFmts, pctCells) 
     });
   }
   cellStyles.filter(x=>x.fmtOverride).forEach(({ r, c, fmtOverride }) => { const a = XLSX.utils.encode_cell({ r, c }); if (ws[a]) { ws[a].z = fmtOverride; ws[a].s = merge(ws[a].s, { numFmt:fmtOverride }); } });
+  // 全セルを Meiryo UI に統一（サイズ指定がないセルは10pt）
+  Object.keys(ws).forEach(a => {
+    if (a[0]==="!") return;
+    const f = (ws[a].s && ws[a].s.font) || {};
+    ws[a].s = merge(ws[a].s, { font: Object.assign({ sz:10 }, f, { name:"Meiryo UI" }) });
+  });
   pctCells.forEach(({ r, c }) => { const a = XLSX.utils.encode_cell({ r, c }); if (ws[a]) { ws[a].z = "0.0%"; ws[a].s = merge(ws[a].s, { numFmt:"0.0%" }); } });
 }
 
