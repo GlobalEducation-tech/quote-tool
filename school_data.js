@@ -3292,3 +3292,45 @@ PRICE_YEARS_OVERRIDE.anglocontinental = { "bournemouth": [2026], "bournemouth-20
   PRIVATE_LESSON_PRICES.duke_bangkok = { "bangkok": null };
   PRICE_YEARS_OVERRIDE.duke_bangkok = { "bangkok": [2026, 2027] };
 })();
+
+// =====================================================================
+// 2026-11-02 追加: ELS Malaysia 宿泊（ELS提供の各センター Accommodation 資料より）
+// ・すべて月額（MYR）。ツールでは4週=1ヶ月として切り上げ計算（perMonth）
+// ・料金に幅があるもの（例 MYR 1,790-1,980）は上限額で計算（見積は高い側で安全に）
+// ・デポジット（Security/Rental/Utilities）・光熱費・Wifi・契約料・アクセスカードは別途（金額記載なし）→ 必要時は「その他（外貨建て）」Add-onで追加
+// ・ELSの手配手数料（placement fee）の記載なし → 0
+// ・Scarletz Suites（KL）は「期間・季節で変動／1-3ヶ月滞在は+15%」で金額記載なし、
+//   Grand Paragon Hotel（UTM）は客室タイプのみで金額記載なし → 未登録（都度見積）
+// =====================================================================
+(function(){
+  const els = SCHOOLS.els_malaysia && SCHOOLS.els_malaysia.campuses;
+  if (!els) return;
+  const M = (name, perMonth, extra) => Object.assign({ name, perMonth, minMonths:1 }, extra||{});
+  const KL_N = "別途: デポジット・光熱費・Wifi。2週間前までに予約";
+  Object.assign(els["kuala-lumpur"].accom, {
+    "sky-master": M(`Sky Suites KLCC Master VIP Room（専用バス）MYR1,790-1,980/月→上限で計算・徒歩10-15分（${KL_N}）`, 1980),
+    "sky-medium": M(`Sky Suites KLCC Medium VIP Room MYR1,590-1,780/月→上限で計算・徒歩10-15分（${KL_N}）`, 1780),
+    "sky-small":  M(`Sky Suites KLCC Small VIP Room MYR1,290-1,390/月→上限で計算・徒歩10-15分（${KL_N}）`, 1390),
+    "crest-master": M(`Crest Residence Master Bedroom（専用バス）MYR1,650-1,850/月→上限で計算・徒歩15-20分（${KL_N}）`, 1850),
+    "crest-medium": M(`Crest Residence Medium Room MYR1,400-1,520/月→上限で計算・徒歩15-20分（${KL_N}）`, 1520),
+    "crest-small":  M(`Crest Residence Small Room MYR1,050-1,120/月→上限で計算・徒歩15-20分（${KL_N}）`, 1120),
+  });
+  const UPM_N = "2寝室＋書斎のユニット全体の月額・シェア時は人数で按分。別途: デポジット・光熱費デポジット等";
+  Object.assign(els["upm"].accom, {
+    "univ360":   M(`Univ 360 Place 2寝室＋書斎 ユニット全体 MYR2,000/月・車9-12分（${UPM_N}）`, 2000),
+    "east-lake": M(`East Lake Residence 2寝室＋書斎 ユニット全体 MYR2,200/月・車20-25分（${UPM_N}）`, 2200),
+    "one-south": M(`One South Condominium 2寝室＋書斎 ユニット全体 MYR2,300/月・車14-25分（${UPM_N}）`, 2300),
+  });
+  const UTM_N = "別途: アクセスカード・鍵・デポジット・エアコン代";
+  Object.assign(els["utm-johor"].accom, {
+    "klg-single": M(`KLG Campus Residence Single（専用バス）MYR650/月・車8分（${UTM_N}）`, 650),
+    "klg-twin":   M(`KLG Campus Residence Twin Sharing（専用バス）MYR460/月・車8分（${UTM_N}）`, 460),
+    "klg-triple": M(`KLG Campus Residence Triple Sharing（専用バス）MYR395/月・車8分（${UTM_N}）`, 395),
+    "goodhope-twin":    M(`Goodhope Hotel Standard Twin 朝食なし MYR3,000/月・車12分（${UTM_N}）`, 3000),
+    "goodhope-twin-bf": M(`Goodhope Hotel Standard Twin 朝食付 MYR3,600/月・車12分（${UTM_N}）`, 3600),
+    "goodhope-king":    M(`Goodhope Hotel Superior King 朝食なし MYR3,300/月・車12分（${UTM_N}）`, 3300),
+    "goodhope-king-bf": M(`Goodhope Hotel Superior King 朝食付 MYR3,900/月・車12分（${UTM_N}）`, 3900),
+  });
+  // 宿泊欄の「なし」表記を更新
+  ["kuala-lumpur","upm","utm-johor"].forEach(k=>{ if (els[k].accom.none) els[k].accom.none.name = "なし"; });
+})();

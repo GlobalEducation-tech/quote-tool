@@ -132,15 +132,17 @@ if(sessionStorage.getItem("getc_auth")==="1"){document.addEventListener("DOMCont
 else{document.addEventListener("DOMContentLoaded",()=>{const i=document.getElementById("pw-input");if(i)i.focus();});}
 </script>
 <div class="app">
-  <h1>海外プログラム見積計算ツール <span id="app-version" style="font-size:11px;color:#999;font-weight:400">ver 2026-10-29c</span></h1>
+  <h1>海外プログラム見積計算ツール <span id="app-version" style="font-size:11px;color:#999;font-weight:400">ver 2026-11-02b</span></h1>
 
   <!-- 保存済み見積もり -->
   <div class="card">
     <div class="card-header">
       <span class="card-title">保存済み見積もり</span>
       <div style="display:flex;gap:8px">
-        <button class="btn btn-sm" onclick="exportExcel()">Excel一覧を出力</button>
+        <button class="btn btn-sm" onclick="importShareFile()" title="同僚から受け取ったZIP、またはZIP内の「…_共有用.json」を読み込みます">📂 ZIP / JSONを読み込む</button>
+        <button class="btn btn-sm" onclick="exportExcel()">全件Excel一覧</button>
         <button class="btn btn-sm btn-danger" onclick="clearAllQuotes()">全件削除</button>
+        <input type="file" id="import-file" accept=".zip,.json,application/json,application/zip" style="display:none" onchange="onImportFile(this)">
       </div>
     </div>
     <div class="card-body" id="saved-quotes-list" style="max-height:320px;overflow-y:auto">
@@ -235,12 +237,28 @@ else{document.addEventListener("DOMContentLoaded",()=>{const i=document.getEleme
   <div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
       <span style="font-size:11px;font-weight:500;color:#888;text-transform:uppercase;letter-spacing:0.05em">プログラム（案ごとにタブ追加）</span>
-      <button class="btn btn-sm" onclick="showCompare()" id="compare-btn" style="display:none;background:#1565c0;color:#fff;border-color:#1565c0">📊 案を比較</button>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-sm" onclick="openPriorCompare()" title="表示中の案を、過去の見積（前年など）と比較して差額の要因を分解します">🔍 過去の見積と比較</button>
+        <button class="btn btn-sm" onclick="showCompare()" id="compare-btn" style="display:none;background:#1565c0;color:#fff;border-color:#1565c0">📊 案を比較</button>
+      </div>
     </div>
     <div class="tabs-bar" id="tabs-bar"></div>
     <div class="tab-content" id="tab-content">
       <div id="school-sections-container"></div>
       <button class="btn-add" onclick="addSchoolSection()" style="margin-top:12px">＋ 学校を追加</button>
+      <div id="discount-box"></div>
+    </div>
+  </div>
+
+  <!-- 過去の見積と比較モーダル -->
+  <div id="prior-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;overflow:auto">
+    <div style="background:#fff;border-radius:12px;padding:24px;max-width:960px;width:92%;margin:40px auto">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <span style="font-size:15px;font-weight:600">🔍 過去の見積と比較</span>
+        <button class="btn btn-sm" onclick="closePriorCompare()">閉じる</button>
+      </div>
+      <div id="prior-content"></div>
+      <input type="file" id="prior-file" accept=".zip,.json,application/json,application/zip,.xlsx,.xls" style="display:none" onchange="onPriorFile(this)">
     </div>
   </div>
 
@@ -273,7 +291,8 @@ else{document.addEventListener("DOMContentLoaded",()=>{const i=document.getEleme
       <div id="breakdown" style="margin-bottom:14px"></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn" onclick="saveQuote()" style="flex:1;background:#166534;color:#fff;border-color:#166534">この見積もりを保存</button>
-        <button class="btn" onclick="exportPDF()" style="flex:1;background:#1565c0;color:#fff;border-color:#1565c0">📄 PDFで出力</button>
+        <button class="btn" onclick="exportCurrentZip()" style="flex:1;background:#1565c0;color:#fff;border-color:#1565c0">📦 ZIPで出力（Excel＋共有用JSON）</button>
+        <button class="btn" onclick="exportPDF()" style="flex:1">📄 PDFで出力</button>
       </div>
     </div>
   </div>
@@ -361,7 +380,7 @@ let activeTabIdx = 0;
 let tabIdx = 0;
 
 function newTabData() {
-  return { id: ++tabIdx, name: "新規案", schoolSections: [], result: null };
+  return { id: ++tabIdx, name: "新規案", schoolSections: [], result: null, discount: { mode:"none", value:"", label:"" } };
 }
 
 function getActiveTab() { return tabs[activeTabIdx]; }
@@ -508,16 +527,27 @@ function showCompare() {
   html += `</tr>`;
 
   // その他（円建てAdd-ons）
-  const hasOther = results.some(r => (r.result.jpyAddons||[]).length > 0);
+  const _otherJ = r => (r.result.jpyAddons||[]).filter(a=>!a.included).reduce((s,a)=>s+a.jpy,0);
+  const hasOther = results.some(r => _otherJ(r) > 0);
   if (hasOther) {
     html += `<tr class="section-row"><td>その他費用</td>`;
     results.forEach(r => {
-      const total = (r.result.jpyAddons||[]).reduce((s,a)=>s+a.jpy,0);
+      const total = _otherJ(r);
       html += `<td>${total>0?fmt(total):"—"}</td>`;
     });
     html += `</tr>`;
   }
 
+  if (results.some(r=>(r.result.totalAdj||0)>0)) {
+    html += `<tr class="section-row"><td>追加上乗せ</td>`;
+    results.forEach(r => { html += `<td>${(r.result.totalAdj||0)>0?fmt(r.result.totalAdj):"—"}</td>`; });
+    html += `</tr>`;
+  }
+  if (results.some(r=>(r.result.discountTotal||0)>0)) {
+    html += `<tr class="section-row" style="color:#c0392b"><td style="color:#c0392b">▲ 割引</td>`;
+    results.forEach(r => { html += `<td style="color:#c0392b">${(r.result.discountTotal||0)>0?"−"+fmtJPY(r.result.discountTotal):"—"}</td>`; });
+    html += `</tr>`;
+  }
   // 合計
   html += `<tr class="total-row"><td>合計</td>`;
   results.forEach(r => { html += `<td>${fmt(r.result.total)}</td>`; });
@@ -554,7 +584,35 @@ function removeSchoolSection(id) {
   renderSchoolSections(); calcAll();
 }
 
+function renderDiscountBox() {
+  const t = tabs[activeTabIdx]; if (!t) return;
+  if (!t.discount) t.discount = { mode:"none", value:"", label:"" };
+  const d = t.discount;
+  const el = document.getElementById("discount-box"); if (!el) return;
+  const on = d.mode!=="none";
+  el.innerHTML = `<div style="margin-top:12px;border:1px solid ${on?"#f5c6c3":"#e0e0dc"};background:${on?"#fff8f7":"#fafafa"};border-radius:10px;padding:12px 14px">
+    <div style="font-size:11px;font-weight:600;color:${on?"#c0392b":"#666"};text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">▲ 全体割引（この案）</div>
+    <div class="field-grid g3" style="margin-bottom:4px">
+      <div class="field"><label>割引の方法</label><select onchange="updateDiscount('mode',this.value)">
+        <option value="none" ${d.mode==="none"?"selected":""}>割引なし</option>
+        <option value="amount" ${d.mode==="amount"?"selected":""}>金額指定（円）</option>
+        <option value="percent" ${d.mode==="percent"?"selected":""}>総額の○%</option>
+      </select></div>
+      <div class="field"><label>${d.mode==="percent"?"割引率（%）":"割引額（円）"}</label><input type="number" value="${d.value||""}" min="0" ${on?"":"disabled"} placeholder="${d.mode==="percent"?"例：5":"例：100000"}" onchange="updateDiscount('value',this.value)"></div>
+      <div class="field"><label>表示ラベル（見積書に表示）</label><input type="text" value="${(d.label||"").replace(/"/g,"&quot;")}" ${on?"":"disabled"} placeholder="例：コーディネーション費用お値引き" onchange="updateDiscount('label',this.value)"></div>
+    </div>
+    <div style="font-size:11px;color:#888;line-height:1.5">見積表・印刷・Excelに赤字の「▲ 割引」行として表示し、見積合計と粗利から差し引きます。割引額は万円に丸めず円単位のまま計上します（総額%は割引前合計×%を円未満四捨五入）。</div>
+  </div>`;
+}
+function updateDiscount(field, val) {
+  const t = tabs[activeTabIdx]; if (!t) return;
+  if (!t.discount) t.discount = { mode:"none", value:"", label:"" };
+  t.discount[field] = val;
+  renderDiscountBox(); calcAll();
+}
+
 function renderSchoolSections() {
+  renderDiscountBox();
   document.getElementById("school-sections-container").innerHTML =
     schoolSections.map((s,i)=>renderSchoolSection(s,i)).join("");
   // 後方互換性：旧変数を更新
@@ -630,7 +688,7 @@ function renderSchoolSection(s, si) {
       <div style="font-size:11px;font-weight:500;color:#3b5bdb;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">上乗せ・コーディネーション・ビザ</div>
       <div class="field-grid g4">
         <div class="field">
-          <label>プログラム/来年度上乗せ率（%）</label>
+          <label>来年度上乗せ率（%）</label>
           <input type="number" value="${s.progMarkup||0}" min="0" max="100" oninput="updateSection(${s.id},'progMarkup',this.value)">
         </div>
         <div class="field">
@@ -657,6 +715,17 @@ function renderSchoolSection(s, si) {
             <option value="300000" ${s.visaType==="300000"?"selected":""}>米国・外国籍（¥300,000）</option>
             <option value="300000b" ${s.visaType==="300000b"?"selected":""}>その他・外国籍（¥300,000+実費）</option>
           </select>
+        </div>
+      </div>
+      <div class="field-grid g2" style="margin-top:8px;margin-bottom:0">
+        <div class="field">
+          <label>追加上乗せ または 割引（円）※割引はマイナス入力</label>
+          <input type="number" value="${s.adjJPY||""}" placeholder="0" step="1000" onchange="updateSection(${s.id},'adjJPY',this.value)">
+        </div>
+        <div class="field" style="justify-content:flex-end">
+          <div style="font-size:11px;line-height:1.5;color:${(parseFloat(s.adjJPY)||0)<0?"#c0392b":"#666"}">${(parseFloat(s.adjJPY)||0)<0
+            ? `▲ 割引 ${Math.abs(parseFloat(s.adjJPY)).toLocaleString()}円：見積合計の直前に「▲ 割引」行として表示し、見積合計・粗利から差し引きます（円単位そのまま）`
+            : (parseFloat(s.adjJPY)||0)>0 ? `追加上乗せ ${parseFloat(s.adjJPY).toLocaleString()}円：この学校の円建て費用に計上し、粗利に含めます` : `プラス＝追加上乗せ（粗利に計上）／マイナス＝割引`}</div>
         </div>
       </div>
     </div>
@@ -1073,7 +1142,7 @@ function renderAccomBlock(b, i, sid) {
   const w=b.start&&b.end?calcWeeks(b.start,b.end):null;
   let info="";
   const _ad=cd&&b.accom?cd.accom[b.accom]:null;
-  if(w){info+=`<span class="info-badge weeks">${w.total}週間</span>`;const _pk=Math.min(w.total,calcPeakWeeksFor(b.start,b.end,cd,_ad));const _pp=getPeakPeriod(cd,_ad);if(_pk>0&&_ad&&((_ad.peak!==undefined&&_ad.peak!==_ad.low)||_ad.hsSupp))info+=`<span class="info-badge peak">ピーク ${_pk}週（${_pp[0].replace("-","/")}〜${_pp[1].replace("-","/")}）</span>`;if(hasChristmas(b.start,b.end))info+=`<span class="info-badge peak">Christmas supplement £38</span>`;}
+  if(w){info+=`<span class="info-badge weeks">${w.total}週間</span>`;const _pk=Math.min(w.total,calcPeakWeeksFor(b.start,b.end,cd,_ad));const _pp=getPeakPeriod(cd,_ad);if(_pk>0&&_ad&&((_ad.peak!==undefined&&_ad.peak!==_ad.low)||_ad.hsSupp))info+=`<span class="info-badge peak">ピーク ${_pk}週（${_pp[0].replace("-","/")}〜${_pp[1].replace("-","/")}）</span>`;if(b.school==="stgiles"&&hasChristmas(b.start,b.end))info+=`<span class="info-badge peak">Christmas supplement £38</span>`;}
   const accomData=cd&&b.accom?cd.accom[b.accom]:null;
   const dietField=accomData?.halfBoard?`<div class="field"><label>特別食（週）</label><input type="number" value="${b.dietWeeks||0}" min="0" oninput="updateAccom(${b.id},'dietWeeks',this.value)"></div>`:"";
   return `<div class="course-block">
@@ -1329,7 +1398,11 @@ function renderAddonBlock(b, i, sid) {
   } else if (b.type==="jpy-other") {
     extraHtml=`<div class="field-grid g2">
       <div class="field"><label>説明</label><input type="text" id="addon-desc-${b.id}" value="${(b.desc||'').replace(/"/g,'&quot;')}" placeholder="例：上乗せ、サポート費など" onchange="updateAddon(${b.id},'desc',this.value)"></div>
-      <div class="field"><label>金額（円）</label><input type="number" value="${b.amountJPY||''}" min="0" placeholder="0" oninput="updateAddon(${b.id},'amountJPY',this.value)"></div></div>`;
+      <div class="field"><label>金額（円）</label><input type="number" value="${b.amountJPY||''}" min="0" placeholder="0" oninput="updateAddon(${b.id},'amountJPY',this.value)"></div></div>
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#444;margin-top:2px;cursor:pointer">
+        <input type="checkbox" ${b.included?"checked":""} onchange="updateAddon(${b.id},'included',this.checked)">
+        海外プログラム費用の小計に含める（内包）<span style="color:#888">— 見積書では円建て費用ではなくプログラム費用の中に表示されます。粗利への計上は変わりません</span>
+      </label>`;
   } else if (["gl-fieldwork","gl-dinner","gl-lunch","gl-speaking","gl-lesson","gl-night","gl-arrange","gl-meal-breaks","gl-meal-air"].includes(b.type)) {
     const glUnitLabels={"gl-fieldwork":"回","gl-dinner":"回","gl-lunch":"回","gl-speaking":"回","gl-lesson":"時間","gl-night":"泊","gl-arrange":"回","gl-meal-breaks":"日","gl-meal-air":"日"};
     const glPriceMap={"gl-fieldwork":18000,"gl-dinner":15000,"gl-lunch":15000,"gl-speaking":15000,"gl-lesson":3000,"gl-night":7000,"gl-arrange":50000,"gl-meal-breaks":5000,"gl-meal-air":7000};
@@ -1360,10 +1433,12 @@ function calcAll() {
 
   const freeeLines = [];
   let grandTotalJPY=0, totalCommJPY=0, totalProgMarkupJPY=0, totalTTSMarkupJPY=0;
-  let totalCoord=0, totalVisa=0, visaHasExtra=false;
+  let totalCoord=0, totalVisa=0, visaHasExtra=false, totalAdj=0;
+  const discounts=[];
   const allJpyAddons=[];
 
   schoolSections.forEach((s, si) => {
+    const _flStart = freeeLines.length, _jaStart = allJpyAddons.length;
     const progMarkupPct = parseFloat(s.progMarkup)||0;
     const ttsMarkupPct  = parseFloat(s.ttsMarkup??10);
     const schoolGroups = {};
@@ -1601,7 +1676,7 @@ function calcAll() {
       if(b.school==="ih"){if(accom.bookingFee){subLocal+=accom.bookingFee;subItems.push({label:`Booking Fee`,local:accom.bookingFee});}if(accom.ihSummerSupp){const ihsw=calcIHSummerWeeks(b.start,b.end);if(ihsw>0){const ss=accom.ihSummerSupp*ihsw;subLocal+=ss;subItems.push({label:`夏季サプリメント × ${ihsw}週`,local:ss,formula:`${accom.ihSummerSupp}*${ihsw}`});}}}
       if(b.school==="wse"&&accom.low>0&&!accom.halfBoard){subLocal+=60;subItems.push({label:`First week supplement`,local:60});}
       if(b.school==="wse"&&hasChristmas(b.start,b.end)){subLocal+=80;subItems.push({label:`Christmas supplement`,local:80});}
-      if(b.school!=="wse"&&b.school!=="ih"&&hasChristmas(b.start,b.end)){subLocal+=38;subItems.push({label:`Christmas supplement`,local:38});}
+      if(b.school==="stgiles"&&hasChristmas(b.start,b.end)){subLocal+=38;subItems.push({label:`Christmas supplement`,local:38});}
       if(["elc_brighton","elc_chester","elc_eastbourne"].includes(b.school)){const campD=getCampData(b.school,b.campus);if(campD?.peakStart){const esw=calcCustomSummerWeeks(b.start,b.end,campD.peakStart,campD.peakEnd);if(esw>0&&campD.peakSupp>0){subLocal+=campD.peakSupp*esw;subItems.push({label:`サマーサプリメント × ${esw}週`,local:campD.peakSupp*esw,formula:`${campD.peakSupp}*${esw}`});}}if(hasChristmas(b.start,b.end)&&accom.halfBoard){subLocal+=50;subItems.push({label:`Christmas supplement`,local:50});}}
       if(b.school==="manhattan"){const mhsw=calcCustomSummerWeeks(b.start,b.end,"06-09","09-20");if(mhsw>0){subLocal+=30*mhsw;subItems.push({label:`夏季サプリメント × ${mhsw}週`,local:30*mhsw,formula:`30*${mhsw}`});}}
       if(b.school==="rennert"&&accom.rennertSummer){const rsw=calcCustomSummerWeeks(b.start,b.end,"06-01","08-31");if(rsw>0){subLocal+=35*rsw;subItems.push({label:`サマーサプリメント × ${rsw}週`,local:35*rsw,formula:`35*${rsw}`});}if(hasChristmas(b.start,b.end)){subLocal+=50;subItems.push({label:`Christmas supplement`,local:50});}}
@@ -1648,7 +1723,7 @@ function calcAll() {
         return;
       }
       if(glPrices[b.type]){const amtJPY=glPrices[b.type]*qty;const el=document.getElementById("d"+b.id+"-sub");if(el)el.textContent=fmtJPY(amtJPY);b._jpyTotal=amtJPY;b._label=`GrandLine ${glLabels[b.type]} × ${qty}`;allJpyAddons.push({label:b._label,jpy:amtJPY,type:b.type});return;}
-      if(b.type==="jpy-other"){const amtJPY=(parseFloat(b.amountJPY)||0)*qty;const el=document.getElementById("d"+b.id+"-sub");if(el)el.textContent=fmtJPY(amtJPY);b._jpyTotal=amtJPY;b._label=b.desc||"その他費用";allJpyAddons.push({label:b._label,jpy:amtJPY,type:b.type});return;}
+      if(b.type==="jpy-other"){const amtJPY=(parseFloat(b.amountJPY)||0)*qty;const el=document.getElementById("d"+b.id+"-sub");if(el)el.textContent=fmtJPY(amtJPY);b._jpyTotal=amtJPY;b._label=b.desc||"その他費用";allJpyAddons.push({label:b._label,jpy:amtJPY,type:b.type,included:!!b.included});return;}
       if(b.type==="transfer"){const cd=getCampData(s.school,s.campus);const price=cd&&b.airport?(cd.airports[b.airport]||0):0;subLocal=price*qty;subItems.push({label:`${b.airport||"空港"}`,local:subLocal});if(s.school&&s.campus){const grp=getGroup(s.school,s.campus);grp.items.push({section:`空港送迎 ${i+1}`,lines:subItems,subtotal:subLocal});grp.totalLocal+=subLocal;}}
       else{currency=b.currency||getSchoolCurrency(s.school)||"GBP";subLocal=(parseFloat(b.amount)||0)*qty;subItems.push({label:b.desc||b.type,local:subLocal});if(s.school&&s.campus){const grp=getGroup(s.school,s.campus);grp.items.push({section:`Add-on: ${b.desc||b.type}`,lines:subItems,subtotal:subLocal});grp.totalLocal+=subLocal;}}
       const el=document.getElementById("d"+b.id+"-sub");if(el)el.textContent=fmtC(subLocal,currency);
@@ -1665,27 +1740,49 @@ function calcAll() {
       const commJPY=Math.round(grp.commissionLocal*tts);
       grandTotalJPY+=programFee;totalCommJPY+=commJPY;
       totalProgMarkupJPY+=Math.round(progGainJPY);totalTTSMarkupJPY+=Math.round(ttsGainJPY);
-      freeeLines.push({label:`海外プログラム費用（${grp.label}）`,jpy:programFee,currency:grp.currency,local:grp.totalLocal,tts,effectiveFX,costJPY,ttsGainJPY,progGainJPY,items:grp.items,commJPY,progMarkupPct,ttsMarkupPct});
+      freeeLines.push({label:`海外プログラム費用（${grp.label}）`,jpy:programFee,currency:grp.currency,local:grp.totalLocal,tts,effectiveFX,costJPY,ttsGainJPY,progGainJPY,items:grp.items,commJPY,progMarkupPct,ttsMarkupPct,yrLabel:grp.yrLabel,kind:"program"});
     });
 
     // コーディネーション・ビザ（セクションごと）
-    if(s.coord>0){totalCoord+=s.coord;freeeLines.push({label:`コーディネーション費用（学校 ${si+1}）`,jpy:s.coord,isJPY:true});}
+    if(s.coord>0){totalCoord+=s.coord;freeeLines.push({label:`コーディネーション費用（学校 ${si+1}）`,jpy:s.coord,isJPY:true,kind:"coord"});}
     const sVisa=s.visaType==="300000b"?300000:(parseInt(s.visaType)||0);
-    if(sVisa>0){totalVisa+=sVisa;if(s.visaType==="300000b")visaHasExtra=true;freeeLines.push({label:`ビザ申請費用（学校 ${si+1}）${s.visaType==="300000b"?" *":""}`,jpy:sVisa,isJPY:true});}
+    if(sVisa>0){totalVisa+=sVisa;if(s.visaType==="300000b")visaHasExtra=true;freeeLines.push({label:`ビザ申請費用（学校 ${si+1}）${s.visaType==="300000b"?" *":""}`,jpy:sVisa,isJPY:true,kind:"visa"});}
+    // 追加上乗せ（プラス）／学校ごとの割引（マイナス）
+    const adj=Math.round(parseFloat(s.adjJPY)||0);
+    if(adj>0){totalAdj+=adj;freeeLines.push({label:`追加上乗せ（学校 ${si+1}）`,jpy:adj,isJPY:true,kind:"adj"});}
+    else if(adj<0){discounts.push({label:`割引（学校 ${si+1}）`,jpy:-adj,schoolIdx:si,kind:"school"});}
+    // 学校番号タグ（Excelで学校ごとにブロック化するため）
+    for (let k=_flStart;k<freeeLines.length;k++) freeeLines[k].schoolIdx = si;
+    for (let k=_jaStart;k<allJpyAddons.length;k++) allJpyAddons[k].schoolIdx = si;
   }); // end schoolSections.forEach
 
   // 円建てAdd-ons
-  allJpyAddons.forEach(a=>{freeeLines.push({label:a.label,jpy:a.jpy,isJPY:true});grandTotalJPY+=a.jpy;});
+  allJpyAddons.forEach(a=>{
+    const host = a.included ? freeeLines.find(l=>!l.isJPY&&l.schoolIdx===a.schoolIdx) : null;
+    if (host) { host.jpy+=a.jpy; (host.includedJpy=host.includedJpy||[]).push({label:a.label,jpy:a.jpy}); }
+    else freeeLines.push({label:a.label,jpy:a.jpy,isJPY:true,schoolIdx:a.schoolIdx,addonType:a.type});
+    grandTotalJPY+=a.jpy;
+  });
 
-  const totalAll=grandTotalJPY+totalCoord+totalVisa;
+  const totalBeforeDiscount=grandTotalJPY+totalCoord+totalVisa+totalAdj;
+  // 案（タブ）ごとの全体割引（円単位そのまま・万円繰上げしない）
+  const _disc = tabs[activeTabIdx]?.discount;
+  if (_disc && _disc.mode!=="none" && (parseFloat(_disc.value)||0)>0) {
+    const v=parseFloat(_disc.value);
+    const amt = _disc.mode==="percent" ? Math.round(totalBeforeDiscount*v/100) : Math.round(v);
+    const lbl = (_disc.label||"").trim() || (_disc.mode==="percent" ? `全体割引（総額の${v}%）` : "全体割引");
+    discounts.push({label:lbl, jpy:amt, kind:"tab", mode:_disc.mode, pct:_disc.mode==="percent"?v:null});
+  }
+  const discountTotal=discounts.reduce((t,d)=>t+d.jpy,0);
+  const totalAll=totalBeforeDiscount-discountTotal;
   const jpyOtherTotal=allJpyAddons.filter(a=>a.type==="jpy-other").reduce((s,a)=>s+a.jpy,0);
   const actionLearningTotal=allJpyAddons.filter(a=>a.type==="action-learning").reduce((s,a)=>s+a.jpy,0);
   const glOptTotal=allJpyAddons.filter(a=>a.type&&a.type.startsWith("gl-")).reduce((s,a)=>s+a.jpy,0);
-  const grossProfit=totalCommJPY+totalCoord+jpyOtherTotal+actionLearningTotal+glOptTotal+totalTTSMarkupJPY+totalProgMarkupJPY;
+  const grossProfit=totalCommJPY+totalCoord+jpyOtherTotal+actionLearningTotal+glOptTotal+totalTTSMarkupJPY+totalProgMarkupJPY+totalAdj-discountTotal;
 
   if(freeeLines.length===0){document.getElementById("result-section").style.display="none";return;}
 
-  document.getElementById("r-total").textContent=fmt(totalAll);
+  document.getElementById("r-total").textContent = discountTotal>0 ? `${fmt(totalAll)}（割引後 ${fmtJPY(totalAll)}）` : fmt(totalAll);
   document.getElementById("r-profit").textContent=fmt(grossProfit);
 
   // 内訳
@@ -1694,14 +1791,23 @@ function calcAll() {
     html+=`<div class="section-divider">${l.label}</div>`;
     html+=`<div class="breakdown-line"><span>原価合計 (${l.currency})</span><span class="bv">${fmtC(l.local,l.currency)}</span></div>`;
     html+=`<div class="breakdown-line"><span>× TTS ${l.tts} → 実効レート ${l.effectiveFX.toFixed(2)}（TTS+${l.ttsMarkupPct||0}%）</span><span class="bv">${fmt(l.costJPY+l.ttsGainJPY)}</span></div>`;
-    if((l.progMarkupPct||0)>0)html+=`<div class="breakdown-line"><span>プログラム/来年度上乗せ +${l.progMarkupPct}%</span><span class="bv">${fmt(l.progGainJPY)}</span></div>`;
+    if((l.progMarkupPct||0)>0)html+=`<div class="breakdown-line"><span>来年度上乗せ +${l.progMarkupPct}%</span><span class="bv">${fmt(l.progGainJPY)}</span></div>`;
+    (l.includedJpy||[]).forEach(x=>{html+=`<div class="breakdown-line"><span>＋ ${x.label}（円建て・内包）</span><span class="bv">${fmtJPY(x.jpy)}</span></div>`;});
     html+=`<div class="breakdown-line" style="font-weight:500"><span>→ 海外プログラム費用</span><span class="bv">${fmt(l.jpy)}</span></div>`;
     l.items.forEach(item=>{html+=`<div style="margin:6px 0 2px;font-size:11px;color:#999;text-transform:uppercase;">${item.section}</div>`;item.lines.forEach(ln=>{html+=`<div class="breakdown-line" style="padding-left:8px"><span>${ln.label}</span><span class="bv">${fmtC(ln.local,l.currency)}</span></div>`;});});
   });
+  if(discounts.length){
+    html+=`<div class="section-divider" style="color:#c0392b">割引</div>`;
+    html+=`<div class="breakdown-line"><span>割引前合計</span><span class="bv">${fmtJPY(totalBeforeDiscount)}</span></div>`;
+    discounts.forEach(d=>{html+=`<div class="breakdown-line" style="color:#c0392b"><span>▲ ${d.label}</span><span class="bv" style="color:#c0392b">−${fmtJPY(d.jpy)}</span></div>`;});
+    html+=`<div class="breakdown-line" style="font-weight:500"><span>見積合計（割引後・円単位）</span><span class="bv">${fmtJPY(totalAll)}</span></div>`;
+  }
   html+=`<div class="section-divider">粗利内訳</div>`;
   html+=`<div class="breakdown-line"><span>コミッション（授業料 × コミッション率）</span><span class="bv" style="color:#166534">${fmt(totalCommJPY)}</span></div>`;
   if(totalCoord>0)html+=`<div class="breakdown-line"><span>コーディネーション費用合計</span><span class="bv" style="color:#166534">${fmt(totalCoord)}</span></div>`;
   allJpyAddons.filter(a=>(a.jpy||0)>0).forEach(a=>{html+=`<div class="breakdown-line"><span>${a.label}</span><span class="bv" style="color:#166534">${fmt(a.jpy)}</span></div>`;});
+  if(totalAdj>0)html+=`<div class="breakdown-line"><span>追加上乗せ合計</span><span class="bv" style="color:#166534">${fmt(totalAdj)}</span></div>`;
+  discounts.forEach(d=>{html+=`<div class="breakdown-line"><span style="color:#c0392b">▲ ${d.label}（粗利から控除）</span><span class="bv" style="color:#c0392b">−${fmtJPY(d.jpy)}</span></div>`;});
   html+=`<div class="breakdown-line" style="font-weight:500;padding-top:6px;border-top:0.5px solid #bbf7d0"><span style="color:#166534">粗利合計</span><span class="bv" style="color:#166534">${fmt(grossProfit)}</span></div>`;
   if(visaHasExtra)html+=`<div style="font-size:11px;color:#888;margin-top:8px">* 翻訳等の実費は別途ご請求</div>`;
   document.getElementById("breakdown").innerHTML=html;
@@ -1719,6 +1825,7 @@ function calcAll() {
     gbpTTS:parseFloat(document.getElementById("fx-gbp").value)||200,
     usdTTS:parseFloat(document.getElementById("fx-usd").value)||155,
     jpyAddons:allJpyAddons,
+    totalAdj, discounts, discountTotal, totalBeforeDiscount,
   };
 
   // アクティブタブにresultを保存・タブ名を更新
@@ -1779,6 +1886,9 @@ function exportPDF() {
             </tr>`;
           });
         });
+        (l.includedJpy||[]).forEach(x => {
+          html += `<tr style="border-bottom:0.5px solid #eee"><td style="padding:4px 6px 4px 14px">${x.label}</td><td style="text-align:center;padding:4px 6px">1名</td><td style="text-align:right;padding:4px 6px">${fmt(x.jpy)}</td><td style="text-align:right;padding:4px 6px">${fmt(x.jpy)}</td></tr>`;
+        });
         html += `<tr style="background:#e8f0fe"><td colspan="2" style="padding:5px 6px 5px 14px;font-weight:600">小計（${l.label}）</td><td></td><td style="text-align:right;padding:5px 6px;font-weight:600">${fmt(l.jpy)}</td></tr>`;
       } else {
         html += `<tr style="border-bottom:0.5px solid #eee">
@@ -1789,7 +1899,10 @@ function exportPDF() {
         </tr>`;
       }
     });
-    html += `<tr style="background:#1a1a18"><td colspan="2" style="padding:8px;color:#fff;font-weight:700;font-size:13px">合計</td><td></td><td style="text-align:right;padding:8px;color:#fff;font-weight:700;font-size:14px">${fmt(r.total)}</td></tr>`;
+    (r.discounts||[]).forEach(d => {
+      html += `<tr style="border-bottom:0.5px solid #eee;color:#c0392b"><td style="padding:4px 6px;font-weight:600">▲ ${d.label}</td><td></td><td></td><td style="text-align:right;padding:4px 6px;font-weight:600">−${fmtJPY(d.jpy)}</td></tr>`;
+    });
+    html += `<tr style="background:#1a1a18"><td colspan="2" style="padding:8px;color:#fff;font-weight:700;font-size:13px">合計${(r.discountTotal||0)>0?"（割引後）":""}</td><td></td><td style="text-align:right;padding:8px;color:#fff;font-weight:700;font-size:14px">${(r.discountTotal||0)>0?fmtJPY(r.total):fmt(r.total)}</td></tr>`;
     html += `</tbody></table>`;
 
     // 粗利
@@ -1804,7 +1917,7 @@ function exportPDF() {
       html += `<div style="margin-bottom:6px">
         <div style="font-weight:600;color:#333;margin-bottom:2px">${l.label}</div>
         <div style="padding-left:8px">原価 ${fmtC(l.local,l.currency)} × TTS ${l.tts} → 実効レート ${(l.effectiveFX||l.tts).toFixed(2)} = ${fmt(l.costJPY+l.ttsGainJPY)}</div>
-        ${(l.progGainJPY||0)>0?`<div style="padding-left:8px">プログラム/来年度上乗せ +${l.progMarkupPct}% = ${fmt(l.progGainJPY)}</div>`:""}
+        ${(l.progGainJPY||0)>0?`<div style="padding-left:8px">来年度上乗せ +${l.progMarkupPct}% = ${fmt(l.progGainJPY)}</div>`:""}
       </div>`;
     });
     html += `</div></div>`;
@@ -1847,6 +1960,11 @@ function exportPDF() {
     html += `</tr>`;
 
     // 合計
+    if (readyTabs.some(t=>(t.result.discountTotal||0)>0)) {
+      html += `<tr style="color:#c0392b;font-weight:600"><td style="padding:4px 8px">▲ 割引</td>`;
+      readyTabs.forEach(t=>{ html+=`<td style="text-align:right;padding:4px 8px">${(t.result.discountTotal||0)>0?"−"+fmtJPY(t.result.discountTotal):"—"}</td>`; });
+      html += `</tr>`;
+    }
     html += `<tr style="border-top:2px solid #1a1a18;font-weight:700;font-size:12px"><td style="padding:7px 8px">合計費用</td>`;
     readyTabs.forEach(t=>{ html+=`<td style="text-align:right;padding:7px 8px">${fmt(t.result.total)}</td>`; });
     html += `</tr>`;
@@ -1917,9 +2035,8 @@ function migrateOldData() {
   } catch(e) {}
 }
 
-function saveQuote() {
-  syncTabSections();
-  // 目視確認チェック：未確認の学校があれば保存不可
+function _checkVerified(actionLabel) {
+  // 目視確認チェック：未確認の学校があれば保存・出力不可
   const unverified = [];
   tabs.forEach(t => {
     (t.schoolSections||[]).forEach((s, si) => {
@@ -1931,16 +2048,19 @@ function saveQuote() {
     });
   });
   if (unverified.length > 0) {
-    alert(`⚠️ 保存できません。\n\n以下の学校について「Price Listまたはウェブサイトと目視で確認しました」のチェックが入っていません：\n\n${unverified.join("\n")}\n\n価格を目視で照合のうえ、各学校セクションのチェックボックスをオンにしてから保存してください。`);
-    return;
+    alert(`⚠️ ${actionLabel}できません。\n\n以下の学校について「Price Listまたはウェブサイトと目視で確認しました」のチェックが入っていません：\n\n${unverified.join("\n")}\n\n価格を目視で照合のうえ、各学校セクションのチェックボックスをオンにしてから${actionLabel}してください。`);
+    return false;
   }
+  return true;
+}
+
+// 画面の入力内容から保存用データ（＝共有用JSONの中身）を組み立てる
+function _currentProjectData(existingId) {
   const client = document.getElementById("client-name").value || "（未設定）";
   const project = document.getElementById("project-name").value || "（未設定）";
   const date = document.getElementById("quote-date").value || new Date().toISOString().split("T")[0];
-  const projects = loadProjects();
-  const existingIdx = projects.findIndex(p=>p.client===client&&p.project===project);
-  const projectData = {
-    id: existingIdx>=0 ? projects[existingIdx].id : Date.now(),
+  return {
+    id: existingId || Date.now(),
     client, project, date,
     age: document.getElementById("person-age").value||"",
     nationality: document.getElementById("person-nationality").value||"",
@@ -1964,14 +2084,28 @@ function saveQuote() {
     },
     tabs: tabs.map(t=>({
       id:t.id, name:getTabName(t), schoolSections:t.schoolSections,
+      discount:t.discount||{ mode:"none", value:"", label:"" },
+      links:_collectLinks(t.schoolSections),
       result:t.result?{ freeeLines:t.result.freeeLines, coord:t.result.coord,
         visa:t.result.visa, total:t.result.total, grossProfit:t.result.grossProfit,
         totalCommJPY:t.result.totalCommJPY||0, totalTTSMarkupJPY:t.result.totalTTSMarkupJPY||0,
         totalProgMarkupJPY:t.result.totalProgMarkupJPY||0,
-        jpyAddons:t.result.jpyAddons||[] }:null,
+        jpyAddons:t.result.jpyAddons||[],
+        totalAdj:t.result.totalAdj||0, discounts:t.result.discounts||[],
+        discountTotal:t.result.discountTotal||0, totalBeforeDiscount:t.result.totalBeforeDiscount||t.result.total }:null,
     })),
     savedAt: new Date().toISOString(),
   };
+}
+
+function saveQuote() {
+  syncTabSections();
+  if (!_checkVerified("保存")) return;
+  const client = document.getElementById("client-name").value || "（未設定）";
+  const project = document.getElementById("project-name").value || "（未設定）";
+  const projects = loadProjects();
+  const existingIdx = projects.findIndex(p=>p.client===client&&p.project===project);
+  const projectData = _currentProjectData(existingIdx>=0 ? projects[existingIdx].id : null);
   if (existingIdx>=0) {
     if (!confirm(`「${client} / ${project}」はすでに保存されています。上書きしますか？`)) return;
     projects[existingIdx]=projectData;
@@ -1994,13 +2128,14 @@ function loadProject(id) {
   document.getElementById("reviewer-name").value=p.reviewer||"";
   document.getElementById("reviewer-date").value=p.reviewerDate||"";
   onNationalityChange();
+  if (p.country && document.getElementById("person-country")) document.getElementById("person-country").value = p.country;
   if (p.fx) {
     ["gbp","cad","usd","eur","nzd","thb","sgd","aud","chf","cny","myr"].forEach(c=>{
       const el=document.getElementById("fx-"+c);
       if(el&&p.fx[c]!==undefined) el.value=p.fx[c];
     });
   }
-  tabs=(p.tabs||[]).map(t=>({ id:t.id||++tabIdx, name:t.name||"案",
+  tabs=(p.tabs||[]).map(t=>({ id:t.id||++tabIdx, name:t.name||"案", discount:t.discount||{ mode:"none", value:"", label:"" },
     schoolSections:t.schoolSections||[], result:t.result||null }));
   if (tabs.length===0) tabs=[newTabData()];
   activeTabIdx=0;
@@ -2029,16 +2164,14 @@ function renderSavedQuotes() {
     return;
   }
   el.innerHTML=`
-    <div style="margin-bottom:8px;display:flex;gap:8px">
-      <button class="btn btn-sm" onclick="exportExcel()">📥 全件をExcel出力</button>
-    </div>`+
+    <div style="font-size:11px;color:#888;margin-bottom:8px">「📦 ZIP」でExcel（見積書）と共有用JSONをまとめてダウンロードします。BOXの案件フォルダにZIPごと保存してください。</div>`+
   projects.map(p=>{
     const savedAt=p.savedAt?new Date(p.savedAt).toLocaleDateString("ja-JP"):p.date;
     return `<div style="border:0.5px solid #e0e0dc;border-radius:10px;padding:12px 14px;margin-bottom:8px;background:#fafafa">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
         <div style="flex:1;min-width:0">
           <div style="font-size:13px;font-weight:500;margin-bottom:2px">${p.client}　<span style="color:#666;font-weight:400">${p.project}</span></div>
-          <div style="font-size:11px;color:#888;margin-bottom:6px">保存日: ${savedAt}</div>
+          <div style="font-size:11px;color:#888;margin-bottom:6px">保存日: ${savedAt}${p.importedAt?`　<span style="color:#1565c0">📂 共有ファイルから読込（${new Date(p.importedAt).toLocaleDateString("ja-JP")}）</span>`:""}</div>
           <div style="font-size:11px;line-height:1.8">
             ${(p.tabs||[]).map(t=>{const r=t.result;
               return `<span style="display:inline-block;background:#f0f5ff;border-radius:4px;padding:2px 8px;margin:2px 4px 2px 0;color:#1565c0">${t.name||"案"}${r?` • ${fmt(r.total)}`:" • 未計算"}</span>`;
@@ -2047,7 +2180,7 @@ function renderSavedQuotes() {
         </div>
         <div style="display:flex;gap:6px;flex-shrink:0">
           <button class="btn btn-sm btn-primary" onclick="loadProject(${p.id})">開く</button>
-          <button class="btn btn-sm" onclick="exportProjectExcel(${p.id})">📥 Excel</button>
+          <button class="btn btn-sm" onclick="exportProjectZip(${p.id})" title="Excel（見積書）＋共有用JSONをZIPでダウンロード" style="background:#1565c0;color:#fff;border-color:#1565c0">📦 ZIP</button>
           <button class="btn btn-sm btn-danger" onclick="deleteQuote(${p.id})">削除</button>
         </div>
       </div>
@@ -2059,42 +2192,89 @@ function toggleAllQuotes(checked) {
   document.querySelectorAll(".quote-checkbox").forEach(cb=>cb.checked=checked);
 }
 
-// 現在の見積をExcelで出力
-function exportCurrentExcel() {
-  syncTabSections();
-  const client=document.getElementById("client-name").value||"見積";
-  const project=document.getElementById("project-name").value||"";
-  const date=document.getElementById("quote-date").value||new Date().toISOString().split("T")[0];
-  const targets=tabs.filter(t=>t.result).map(t=>({
-    client, project, date, tabName:getTabName(t),
-    freeeLines:t.result.freeeLines, coord:t.result.coord, visa:t.result.visa,
-    total:t.result.total, grossProfit:t.result.grossProfit,
-    totalCommJPY:t.result.totalCommJPY||0, progMarkupPct:t.result.progMarkupPct||0,
-    ttsMarkupPct:t.result.ttsMarkupPct||0, jpyAddons:t.result.jpyAddons||[],
-    links:_collectLinks(t.schoolSections),
-  }));
-  if (targets.length===0) { alert("先に計算してください"); return; }
-  _exportToExcel(targets, `GETC_見積_${client}_${date}`);
+// ===================== 出力（Excel / 共有用JSON / ZIP） =====================
+const APP_VERSION = (document.getElementById("app-version")||{}).textContent || "";
+const SHARE_FORMAT = "GETC-quote-share";
+
+function _safeName(s) { return String(s||"").replace(/[\\/:*?"<>|\r\n]+/g, "_").replace(/\s+/g, " ").trim(); }
+function _fileBase(p) {
+  return _safeName(`GETC見積_${p.client||"未設定"}_${p.project||""}_${p.date||new Date().toISOString().split("T")[0]}`).replace(/_+$/,"");
 }
 
-// 案件（プロジェクト）単位でのExcel出力
+// 保存済み（またはその場で組み立てた）案件データ → Excel出力用ターゲット
+function _projectToTargets(p) {
+  return (p.tabs||[]).filter(t=>t.result).map(t => ({
+    client:p.client, project:p.project, date:p.date,
+    author:p.author||"", reviewer:p.reviewer||"",
+    tabName:t.name||"案",
+    freeeLines:t.result.freeeLines||[],
+    coord:t.result.coord||0, visa:t.result.visa||0,
+    total:t.result.total||0, grossProfit:t.result.grossProfit||0,
+    totalCommJPY:t.result.totalCommJPY||0,
+    totalTTSMarkupJPY:t.result.totalTTSMarkupJPY||0,
+    totalProgMarkupJPY:t.result.totalProgMarkupJPY||0,
+    jpyAddons:t.result.jpyAddons||[],
+    totalAdj:t.result.totalAdj||0, discounts:t.result.discounts||[],
+    links:(t.links&&t.links.length) ? t.links : _collectLinks(t.schoolSections),
+  }));
+}
+
+// 共有用JSON（BOXで同僚に渡す・後で読み込む用）
+function _shareJSON(p) {
+  const proj = JSON.parse(JSON.stringify(p));
+  (proj.tabs||[]).forEach(t => { if (!t.links) t.links = _collectLinks(t.schoolSections); });
+  return JSON.stringify({ format:SHARE_FORMAT, version:2, app:APP_VERSION, exportedAt:new Date().toISOString(), project:proj }, null, 2);
+}
+
+// 画面の現在の見積をZIP出力（保存前でも可・目視確認チェックは必須）
+function exportCurrentZip() {
+  syncTabSections();
+  if (!tabs.some(t=>t.result)) { alert("先に計算してください"); return; }
+  if (!_checkVerified("出力")) return;
+  const client = document.getElementById("client-name").value || "（未設定）";
+  const project = document.getElementById("project-name").value || "（未設定）";
+  const ex = loadProjects().find(p=>p.client===client&&p.project===project);
+  _downloadProjectZip(_currentProjectData(ex ? ex.id : null));
+}
+
+// 保存済み案件をZIP出力
+function exportProjectZip(id) {
+  const p = loadProjects().find(x=>x.id===id);
+  if (!p) return;
+  _downloadProjectZip(p);
+}
+
+function _downloadProjectZip(p) {
+  const targets = _projectToTargets(p);
+  if (targets.length===0) { alert("この案件に計算済みの見積がありません"); return; }
+  const base = _fileBase(p);
+  const wb = _buildWorkbook(targets);
+  const xlsxBytes = new Uint8Array(XLSX.write(wb, { bookType:"xlsx", type:"array" }));
+  const jsonBytes = new TextEncoder().encode(_shareJSON(p));
+  const zip = _makeZip([
+    { name:`${base}.xlsx`, data:xlsxBytes },
+    { name:`${base}_共有用.json`, data:jsonBytes },
+  ]);
+  _downloadBlob(new Blob([zip], { type:"application/zip" }), `${base}.zip`);
+  if (window._xlsxNoStyle) alert("⚠️ 書式対応ライブラリ（cdn.jsdelivr.net）が読み込めなかったため、Excelは色なしで出力しました。");
+}
+
+// 現在の見積をExcelのみ出力（旧ボタン互換）
+function exportCurrentExcel() {
+  syncTabSections();
+  const p = _currentProjectData(null);
+  const targets = _projectToTargets(p);
+  if (targets.length===0) { alert("先に計算してください"); return; }
+  _exportToExcel(targets, _fileBase(p));
+}
+
+// 案件（プロジェクト）単位でのExcel出力（旧ボタン互換）
 function exportProjectExcel(id) {
   const p = loadProjects().find(x=>x.id===id);
   if (!p) return;
-  const targets = [];
-  (p.tabs||[]).filter(t=>t.result).forEach(t=>{
-    targets.push({ client:p.client, project:p.project, date:p.date,
-      tabName:t.name||"案", freeeLines:t.result.freeeLines||[],
-      coord:t.result.coord||0, visa:t.result.visa||0,
-      total:t.result.total||0, grossProfit:t.result.grossProfit||0,
-      totalCommJPY:t.result.totalCommJPY||0,
-      totalTTSMarkupJPY:t.result.totalTTSMarkupJPY||0,
-      totalProgMarkupJPY:t.result.totalProgMarkupJPY||0,
-      jpyAddons:t.result.jpyAddons||[],
-      links:_collectLinks(t.schoolSections) });
-  });
+  const targets = _projectToTargets(p);
   if (targets.length===0) { alert("この案件に計算済みの見積がありません"); return; }
-  _exportToExcel(targets, `GETC_見積_${p.client}_${p.project}`);
+  _exportToExcel(targets, _fileBase(p));
 }
 
 function exportSelectedExcel() { exportExcel(); }
@@ -2102,18 +2282,118 @@ function exportExcel() {
   const projects=loadProjects();
   if (projects.length===0) { alert("保存済みの案件がありません"); return; }
   const targets=[];
-  projects.forEach(p=>{
-    (p.tabs||[]).filter(t=>t.result).forEach(t=>{
-      targets.push({ client:p.client, project:p.project, date:p.date,
-        tabName:t.name||"案", freeeLines:t.result.freeeLines||[],
-        coord:t.result.coord||0, visa:t.result.visa||0,
-        total:t.result.total||0, grossProfit:t.result.grossProfit||0,
-        jpyAddons:t.result.jpyAddons||[],
-        links:_collectLinks(t.schoolSections) });
-    });
-  });
+  projects.forEach(p=>targets.push(..._projectToTargets(p)));
   if (targets.length===0) { alert("計算済みの案件がありません"); return; }
-  _exportToExcel(targets, `GETC_見積一覧_${new Date().toISOString().split("T")[0]}`);
+  _exportToExcel(targets, `GETC見積一覧_${new Date().toISOString().split("T")[0]}`);
+}
+
+function _downloadBlob(blob, filename) {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.style.display = "none";
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 3000);
+}
+
+// ---------- 自前ZIP生成（無圧縮・外部ライブラリ不要・UTF-8ファイル名） ----------
+const _CRC_TABLE = (()=>{ const t=new Uint32Array(256); for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=(c&1)?(0xEDB88320^(c>>>1)):(c>>>1);t[n]=c>>>0;} return t; })();
+function _crc32(u8) { let c=0xFFFFFFFF; for (let i=0;i<u8.length;i++) c=_CRC_TABLE[(c^u8[i])&0xFF]^(c>>>8); return (c^0xFFFFFFFF)>>>0; }
+function _makeZip(files) {
+  const enc = new TextEncoder();
+  const d = new Date();
+  const dosTime = (d.getHours()<<11)|(d.getMinutes()<<5)|(Math.floor(d.getSeconds()/2));
+  const dosDate = ((d.getFullYear()-1980)<<9)|((d.getMonth()+1)<<5)|d.getDate();
+  const locals=[], centrals=[]; let offset=0;
+  files.forEach(f=>{
+    const name=enc.encode(f.name), data=f.data, crc=_crc32(data);
+    const lh=new DataView(new ArrayBuffer(30));
+    lh.setUint32(0,0x04034b50,true); lh.setUint16(4,20,true); lh.setUint16(6,0x0800,true); lh.setUint16(8,0,true);
+    lh.setUint16(10,dosTime,true); lh.setUint16(12,dosDate,true); lh.setUint32(14,crc,true);
+    lh.setUint32(18,data.length,true); lh.setUint32(22,data.length,true); lh.setUint16(26,name.length,true); lh.setUint16(28,0,true);
+    locals.push(new Uint8Array(lh.buffer), name, data);
+    const ch=new DataView(new ArrayBuffer(46));
+    ch.setUint32(0,0x02014b50,true); ch.setUint16(4,20,true); ch.setUint16(6,20,true); ch.setUint16(8,0x0800,true); ch.setUint16(10,0,true);
+    ch.setUint16(12,dosTime,true); ch.setUint16(14,dosDate,true); ch.setUint32(16,crc,true);
+    ch.setUint32(20,data.length,true); ch.setUint32(24,data.length,true); ch.setUint16(28,name.length,true);
+    ch.setUint32(42,offset,true);
+    centrals.push(new Uint8Array(ch.buffer), name);
+    offset += 30+name.length+data.length;
+  });
+  const cdSize = centrals.reduce((n,a)=>n+a.length,0);
+  const end=new DataView(new ArrayBuffer(22));
+  end.setUint32(0,0x06054b50,true); end.setUint16(8,files.length,true); end.setUint16(10,files.length,true);
+  end.setUint32(12,cdSize,true); end.setUint32(16,offset,true);
+  const parts=[...locals,...centrals,new Uint8Array(end.buffer)];
+  const out=new Uint8Array(parts.reduce((n,a)=>n+a.length,0)); let pos=0;
+  parts.forEach(a=>{out.set(a,pos);pos+=a.length;});
+  return out;
+}
+
+// ZIPから .json を取り出す（このツールの無圧縮ZIP・BOX等で再圧縮されたdeflateの両方に対応）
+async function _readJsonFromZip(buf) {
+  const u8=new Uint8Array(buf), dv=new DataView(buf);
+  let eocd=-1;
+  for (let i=u8.length-22;i>=Math.max(0,u8.length-65558);i--) { if (dv.getUint32(i,true)===0x06054b50) { eocd=i; break; } }
+  if (eocd<0) throw new Error("ZIPファイルとして読み込めませんでした");
+  const n=dv.getUint16(eocd+10,true); let p=dv.getUint32(eocd+16,true);
+  for (let k=0;k<n;k++) {
+    const method=dv.getUint16(p+10,true), csize=dv.getUint32(p+20,true);
+    const nl=dv.getUint16(p+28,true), el=dv.getUint16(p+30,true), cl=dv.getUint16(p+32,true), lo=dv.getUint32(p+42,true);
+    const name=new TextDecoder().decode(u8.subarray(p+46,p+46+nl));
+    p += 46+nl+el+cl;
+    if (!/\.json$/i.test(name) || /^__MACOSX\//.test(name)) continue;
+    const ds = lo+30+dv.getUint16(lo+26,true)+dv.getUint16(lo+28,true);
+    const raw = u8.subarray(ds, ds+csize);
+    if (method===0) return new TextDecoder().decode(raw);
+    if (method===8 && typeof DecompressionStream!=="undefined") {
+      const stream = new Blob([raw]).stream().pipeThrough(new DecompressionStream("deflate-raw"));
+      return await new Response(stream).text();
+    }
+    throw new Error("このZIPの圧縮形式には対応していません。中の .json を取り出して読み込んでください");
+  }
+  throw new Error("ZIPの中に共有用JSON（.json）が見つかりませんでした");
+}
+
+// 共有用JSON / ZIP の読み込み（同僚から受け取った見積を取り込む）
+function importShareFile() { document.getElementById("import-file").click(); }
+async function onImportFile(input) {
+  const file = input.files && input.files[0];
+  input.value = "";
+  if (!file) return;
+  try {
+    if (/\.xlsx?$/i.test(file.name)) { alert("Excelファイルは読み込めません。ZIP、またはZIPの中の「…_共有用.json」を選んでください。"); return; }
+    const buf = await file.arrayBuffer();
+    const isZip = new Uint8Array(buf.slice(0,2))[0]===0x50 && new Uint8Array(buf.slice(0,2))[1]===0x4b;
+    const text = isZip ? await _readJsonFromZip(buf) : new TextDecoder().decode(buf);
+    const obj = JSON.parse(text);
+    let list = [];
+    if (obj && obj.format===SHARE_FORMAT && obj.project) list=[obj.project];
+    else if (obj && Array.isArray(obj.projects)) list=obj.projects;
+    else if (Array.isArray(obj)) list=obj;
+    else if (obj && obj.project && obj.project.tabs) list=[obj.project];
+    else if (obj && obj.tabs) list=[obj];
+    list = list.filter(x=>x && Array.isArray(x.tabs));
+    if (list.length===0) { alert("このファイルは見積ツールの共有用JSONではありません。"); return; }
+    const projects = loadProjects();
+    let added=0, lastId=null;
+    for (const p of list) {
+      const idx = projects.findIndex(x=>x.client===p.client&&x.project===p.project);
+      const item = Object.assign({}, p, { importedAt:new Date().toISOString() });
+      if (idx>=0) {
+        if (!confirm(`「${p.client} / ${p.project}」はすでに保存されています。読み込んだ内容で上書きしますか？`)) continue;
+        item.id = projects[idx].id; projects[idx]=item;
+      } else { item.id = item.id || Date.now()+added; if (projects.some(x=>x.id===item.id)) item.id=Date.now()+added; projects.unshift(item); }
+      added++; lastId=item.id;
+    }
+    if (added===0) return;
+    saveProjects(projects);
+    renderSavedQuotes();
+    if (added===1 && confirm("読み込みました。この見積を開きますか？")) loadProject(lastId);
+    else if (added>1) alert(`${added}件の見積を読み込みました`);
+  } catch(e) {
+    alert("読み込みに失敗しました：" + (e.message||e));
+  }
 }
 
 // 保存済みデータに formula がない場合、ラベル「£484/週 × 4週」等から数式を復元
@@ -2127,7 +2407,6 @@ function _lineFormula(ln) {
   if (m && Math.abs(num(m[1])*num(m[2])*num(m[3])-(ln.local||0))<0.01) return `${num(m[1])}*${num(m[2])}*${num(m[3])}`;
   m = lbl.match(/(\d+)\s*回\s*×\s*[^\d]*([\d,]+(?:\.\d+)?)/);
   if (m && Math.abs(num(m[1])*num(m[2])-(ln.local||0))<0.01) return `${num(m[2])}*${num(m[1])}`;
-  // 旧形式の宿泊ラベル「宿泊 × 8週」: 金額が週数で割り切れる場合のみ 単価×週数 に復元
   m = lbl.match(/^宿泊\s*×\s*(\d+)週$/);
   if (m) { const w=num(m[1]); const amt=ln.local||0; if (w>0 && amt>0 && amt%w===0) return `${amt/w}*${w}`; }
   return null;
@@ -2139,25 +2418,39 @@ function _collectLinks(sections) {
   (sections||[]).forEach((s, si) => {
     const nm = s.school==="bschool" ? "ビジネススクール（手入力）" : (SCHOOLS[s.school]?.name || `学校 ${si+1}`);
     (s.priceListUrls||[]).forEach(u => {
-      if (u && u.trim()) links.push({ label:`${nm}｜Price List`, url:u.trim() });
+      if (u && u.trim()) links.push({ label:`学校${si+1}｜${nm}｜Price List`, url:u.trim() });
     });
     (s.bsPrograms||[]).forEach(p => {
-      if (p.url && p.url.trim()) links.push({ label:`${p.name||"ビジネススクール プログラム"}｜出典${p.checked?`（価格確認日: ${p.checked}）`:""}`, url:p.url.trim() });
+      if (p.url && p.url.trim()) links.push({ label:`学校${si+1}｜${p.name||"ビジネススクール プログラム"}｜出典${p.checked?`（価格確認日: ${p.checked}）`:""}`, url:p.url.trim() });
     });
   });
   return links;
 }
 
 function _exportToExcel(targets, filename) {
-  // SheetJS で .xlsx を生成。列構成: A項目 / B外貨金額 / C通貨 / D計算レート / E円換算 / F円換算(万円・繰上げ)
-  // 外貨金額は 単価×週数 の数式、円換算は =ROUND(B行*D行,0)、万円は =ROUNDUP(E行/10000,0)。
-  // 案（タブ）ごとにExcelのシートを分ける
+  const wb = _buildWorkbook(targets);
+  XLSX.writeFile(wb, `${filename}.xlsx`);
+  if (window._xlsxNoStyle) alert("⚠️ 書式対応ライブラリ（cdn.jsdelivr.net）が読み込めなかったため、色なしで出力しました。");
+}
+
+// 学校番号（旧データは「（学校 N）」ラベルから推定・不明なら学校1）
+function _lineSchoolIdx(l) {
+  if (typeof l.schoolIdx === "number") return l.schoolIdx;
+  const m = String(l.label||"").match(/（学校\s*(\d+)）/);
+  return m ? parseInt(m[1])-1 : 0;
+}
+
+// Excelブック生成
+// 列: A項目 / B外貨金額 / C通貨 / D計算レート / E円換算 / F円換算(万円・繰上げ)
+// 案（タブ）ごとにシートを分け、各シート内は「学校ごと」に
+//   ▼海外プログラム費用 → ▼円建て費用（コーディネーション・ビザ・円建てAdd-ons） → 学校N 合計
+// の順で並べる。最後に★見積合計・粗利内訳・★粗利合計・粗利率。Price Listは別シートにも一覧化。
+function _buildWorkbook(targets) {
   const wb = XLSX.utils.book_new();
   const usedNames = new Set();
   const multiProject = new Set(targets.map(q=>`${q.client}||${q.project}`)).size > 1;
   const sheetName = (q, qi) => {
     let base = (multiProject ? `${q.client||""} ${q.tabName||"案"}` : (q.tabName||`案${qi+1}`));
-    // シート名は31文字まで・使用不可文字を除去。括弧内の補足（例: 正式名称）は省いて週数を残す
     base = String(base).replace(/\s*[\(（][^\)）]*[\)）]/g, "").replace(/[\[\]:*?\/\\]/g, " ").replace(/\s+/g, " ").trim() || `案${qi+1}`;
     base = `${qi+1}.${base}`.slice(0, 31);
     let nm = base, n = 2;
@@ -2165,38 +2458,35 @@ function _exportToExcel(targets, filename) {
     usedNames.add(nm.toLowerCase());
     return nm;
   };
-  const manCeil = n => Math.ceil(Math.round(n)/10000); // 万単位・繰り上げ
-  // 行の色（3系統）: 見積書タイトル / 海外プログラム費用の見出し / 円建て費用・見積合計・粗利合計
+  const manCeil = n => Math.ceil(Math.round(n)/10000);
+  const thin = { style:"thin", color:{ rgb:"999999" } };
+  // 行色3系統（タイトル / 海外プログラム費用見出し / 円建て費用・見積合計・粗利合計）＋小計は控えめな薄グレー帯
   const STYLE = {
-    title:   { fill:{ patternType:"solid", fgColor:{ rgb:"1F3864" } }, font:{ bold:true, color:{ rgb:"FFFFFF" } } },
-    program: { fill:{ patternType:"solid", fgColor:{ rgb:"DDEBF7" } }, font:{ bold:true, color:{ rgb:"1F3864" } } },
-    total:   { fill:{ patternType:"solid", fgColor:{ rgb:"FFF2CC" } }, font:{ bold:true, color:{ rgb:"000000" } } },
+    title:    { fill:{ patternType:"solid", fgColor:{ rgb:"1F3864" } }, font:{ bold:true, color:{ rgb:"FFFFFF" } } },
+    program:  { fill:{ patternType:"solid", fgColor:{ rgb:"DDEBF7" } }, font:{ bold:true, color:{ rgb:"1F3864" } } },
+    total:    { fill:{ patternType:"solid", fgColor:{ rgb:"FFF2CC" } }, font:{ bold:true, color:{ rgb:"000000" } } },
+    subtotal: { fill:{ patternType:"solid", fgColor:{ rgb:"F2F2F2" } }, font:{ bold:true, color:{ rgb:"000000" } }, border:{ top:thin, bottom:thin } },
+    colhead:  { font:{ bold:true, color:{ rgb:"595959" } }, border:{ bottom:thin } },
+    note:     { font:{ italic:true, color:{ rgb:"7F7F7F" } } },
+    yr:       { font:{ bold:true, color:{ rgb:"1565C0" } } },
+    yrWarn:   { font:{ bold:true, color:{ rgb:"C00000" } } },
+    link:     { font:{ color:{ rgb:"0563C1" }, underline:true } },
+    discount: { font:{ bold:true, color:{ rgb:"C00000" } } },
   };
-  const paintRows = (ws, rowStyles, ncol=6) => {
-    rowStyles.forEach(({ r, style }) => {
-      for (let c = 0; c < ncol; c++) {
-        const addr = XLSX.utils.encode_cell({ r, c });
-        if (!ws[addr]) ws[addr] = { t:"s", v:"" };
-        ws[addr].s = Object.assign({}, ws[addr].s||{}, style);
-      }
-    });
-  };
-  const allLinks = []; // Price Listシート用 {sheet, label, url}
+  const NUMFMT = { 1:"#,##0.00", 3:"#,##0.00", 4:"#,##0", 5:"#,##0\"万円\"" };
+  const allLinks = [];
 
   targets.forEach((q, qi) => {
-    const rows = [];
-    const rowStyles = [];         // {r(0始まり), style}
-    const formulas = [];          // {r, c, f}
-    const hyperlinks = [];        // {r, c, url}
-    const push = (arr) => { rows.push(arr); return rows.length; };
+    const rows = [], rowStyles = [], formulas = [], hyperlinks = [], pctCells = [], cellStyles = [];
+    const push = (arr, style) => { rows.push(arr); const r = rows.length; if (style) rowStyles.push({ r:r-1, style }); return r; };
     const addManF = (r, val) => { rows[r-1][5] = manCeil(val); formulas.push({ r:r-1, c:5, f:`ROUNDUP(E${r}/10000,0)` }); };
-
     const thisSheet = sheetName(q, qi);
-    const titleRow = push([`■ 見積書　${q.client}　${q.project}${q.tabName?`　[${q.tabName}]`:""}　${q.date}`]);
-    rowStyles.push({ r:titleRow-1, style:STYLE.title });
+
+    push([`■ 見積書　${q.client||""}　${q.project||""}${q.tabName?`　[${q.tabName}]`:""}　${q.date||""}`], STYLE.title);
+    const meta = [q.author?`作成者: ${q.author}`:"", q.reviewer?`確認者: ${q.reviewer}`:"", APP_VERSION?`出力ツール: ${APP_VERSION}`:""].filter(Boolean).join("　");
+    if (meta) push([meta], STYLE.note);
     push([]);
 
-    // 参照リンク（Price List / 出典URL）— 各見積シートにも残し、別シート「Price List」にも一覧で出力
     if (q.links && q.links.length > 0) {
       push(["▼ 参照リンク（Price List / 出典URL）※クリックで開けます"]);
       q.links.forEach(lk => {
@@ -2207,132 +2497,437 @@ function _exportToExcel(targets, filename) {
       push([]);
     }
 
-    const subtotalRefs = [];
-    const jpyRefs = [];
+    // 学校ごとにまとめる
+    const lines = q.freeeLines || [];
+    const schoolIdxs = [...new Set(lines.map(_lineSchoolIdx))].sort((a,b)=>a-b);
+    const multiSchool = schoolIdxs.length > 1;
+    const totalRefs = [];
 
-    q.freeeLines && q.freeeLines.forEach(l => {
-      if (l.isJPY) return;
+    schoolIdxs.forEach(si => {
+      const progs = lines.filter(l => !l.isJPY && _lineSchoolIdx(l)===si);
+      const jpys  = lines.filter(l =>  l.isJPY && _lineSchoolIdx(l)===si);
+      const schoolRefs = [];
 
-      const cur = l.currency || "GBP";
-      const tts = l.tts || 1;
-      const effRate = l.effectiveFX || tts;
-      const lTtsPct = l.ttsMarkupPct ?? 0;
-      const lProgPct = l.progMarkupPct ?? 0;
+      progs.forEach(l => {
+        const cur = l.currency || "GBP";
+        const tts = l.tts || 1;
+        const effRate = l.effectiveFX || tts;
+        const lTtsPct = l.ttsMarkupPct ?? 0;
+        const lProgPct = l.progMarkupPct ?? 0;
+        const pctTxt = v => `+${v}%${(parseFloat(v)||0)===0?"（なし）":""}`;
 
-      const ph = push([`▼ ${l.label}`]);
-      rowStyles.push({ r:ph-1, style:STYLE.program });
-      push([`　TTS ${tts}　TTS上乗せ: ${lTtsPct}%　プログラム/来年度上乗せ: ${lProgPct}%　→ 計算レート: ${Math.round(effRate*100)/100}`]);
-      push(["　項目", "外貨金額", "通貨", `計算レート(TTS+${lTtsPct}%)`, "円換算", "円換算(万円・繰上げ)"]);
+        push([`▼ ${multiSchool?`学校${si+1}｜`:""}${l.label}`], STYLE.program);
+        if (l.yrLabel) {
+          const r = push([`　📋 Price List: ${l.yrLabel}`]);
+          rowStyles.push({ r:r-1, style: String(l.yrLabel).includes("⚠️") ? STYLE.yrWarn : STYLE.yr });
+        }
+        push([`　TTS ${tts}　TTS上乗せ: ${pctTxt(lTtsPct)}　来年度上乗せ: ${pctTxt(lProgPct)}　→ 計算レート: ${Math.round(effRate*100)/100}`]);
+        push(["　項目", "外貨金額", "通貨", `計算レート(TTS${pctTxt(lTtsPct)})`, "円換算", "円換算(万円・繰上げ)"], STYLE.colhead);
 
-      const detailRows = [];
-      l.items && l.items.forEach(item => {
-        push([`　【${item.section}】`]);
-        item.lines && item.lines.forEach(ln => {
-          const localAmt = ln.local || 0;
-          const lf = _lineFormula(ln);
-          let lbl = ln.label;
-          if (!ln.formula && lf) {
-            const m = String(lbl).match(/^宿泊\s*×\s*(\d+)週$/);
-            if (m) lbl = `宿泊 ${lf.split("*")[0]}/週 × ${m[1]}週`;
-          }
-          const r = push([
-            `　　${lbl}`, localAmt, cur,
-            Math.round(effRate * 100) / 100,
-            Math.round(localAmt * effRate),
-          ]);
-          detailRows.push(r);
-          if (lf) formulas.push({ r: r-1, c: 1, f: lf });                 // 外貨金額 = 単価×週数
-          formulas.push({ r: r-1, c: 4, f: `ROUND(B${r}*D${r},0)` });      // 円換算 = 外貨×計算レート
-          addManF(r, localAmt * effRate);                                   // 万円（繰り上げ）
+        const detailRows = [];
+        (l.items||[]).forEach(item => {
+          push([`　【${item.section}】`]);
+          (item.lines||[]).forEach(ln => {
+            const localAmt = ln.local || 0;
+            const lf = _lineFormula(ln);
+            let lbl = ln.label;
+            if (!ln.formula && lf) { const m = String(lbl).match(/^宿泊\s*×\s*(\d+)週$/); if (m) lbl = `宿泊 ${lf.split("*")[0]}/週 × ${m[1]}週`; }
+            const r = push([`　　${lbl}`, localAmt, cur, Math.round(effRate*100)/100, Math.round(localAmt*effRate)]);
+            detailRows.push(r);
+            if (lf) formulas.push({ r:r-1, c:1, f:lf });
+            formulas.push({ r:r-1, c:4, f:`ROUND(B${r}*D${r},0)` });
+            addManF(r, localAmt*effRate);
+          });
         });
+
+        const tgr = push([`　TTS上乗せ差益 (${pctTxt(lTtsPct)})　※明細の計算レートに含まれるため小計には加算しない`, "", "", "", Math.round(l.ttsGainJPY||0)], STYLE.note);
+        addManF(tgr, l.ttsGainJPY||0);
+        const progRow = push([`　来年度上乗せ (${pctTxt(lProgPct)})`, "", "", "", Math.round(l.progGainJPY||0)]);
+        addManF(progRow, l.progGainJPY||0);
+
+        // 円建てAdd-on（内包）: プログラム費用の小計に算入
+        const inclRows = [];
+        (l.includedJpy||[]).forEach(x => {
+          const r = push([`　【円建て・内包】${x.label}`, "", "JPY", "", Math.round(x.jpy)]);
+          addManF(r, x.jpy); inclRows.push(r);
+        });
+        const sumArgs = [...detailRows.map(r=>`E${r}`), `E${progRow}`, ...inclRows.map(r=>`E${r}`)];
+        const localArgs = detailRows.map(r=>`B${r}`);
+        const sr = push([`　▶ ${l.label} 小計`, Math.round((l.local||0)*100)/100, cur, Math.round(effRate*100)/100, Math.round(l.jpy)], STYLE.subtotal);
+        if (localArgs.length) formulas.push({ r:sr-1, c:1, f:`SUM(${localArgs.join(",")})` });
+        formulas.push({ r:sr-1, c:4, f:`SUM(${sumArgs.join(",")})` });
+        addManF(sr, l.jpy);
+        schoolRefs.push(`E${sr}`);
+        push([]);
       });
 
-      let progRow = null;
-      if (l.ttsGainJPY > 0) {
-        const tgr = push([`　TTS上乗せ差益 (+${lTtsPct}%)　※明細の計算レートに含まれるため小計には加算しない`, "", "", "", Math.round(l.ttsGainJPY)]);
-        addManF(tgr, l.ttsGainJPY);
-      }
-      if (l.progGainJPY > 0) {
-        progRow = push([`　プログラム/来年度上乗せ (+${lProgPct}%)`, "", "", "", Math.round(l.progGainJPY)]);
-        addManF(progRow, l.progGainJPY);
+      if (jpys.length > 0) {
+        push([`▼ 円建て費用${multiSchool?`（学校${si+1}）`:""}`], STYLE.total);
+        push(["　項目", "", "通貨", "", "金額（円）", "金額（万円・繰上げ）"], STYLE.colhead);
+        jpys.forEach(l => {
+          const r = push([`　${l.label}`, "", "JPY", "", Math.round(l.jpy)]);
+          addManF(r, l.jpy);
+          schoolRefs.push(`E${r}`);
+        });
+        push([]);
       }
 
-      const sumArgs = detailRows.map(r => `E${r}`);
-      if (progRow) sumArgs.push(`E${progRow}`);
-      const localArgs = detailRows.map(r => `B${r}`);
-      const sr = push([`　▶ ${l.label} 小計`, Math.round(l.local*100)/100, cur, Math.round(effRate*100)/100, Math.round(l.jpy)]);
-      if (localArgs.length) formulas.push({ r: sr-1, c: 1, f: `SUM(${localArgs.join(",")})` });
-      if (sumArgs.length)   formulas.push({ r: sr-1, c: 4, f: `SUM(${sumArgs.join(",")})` });
-      addManF(sr, l.jpy);
-      subtotalRefs.push(`E${sr}`);
-      push([]);
+      if (multiSchool) {
+        const schoolSum = progs.reduce((t,l)=>t+Math.round(l.jpy),0) + jpys.reduce((t,l)=>t+Math.round(l.jpy),0);
+        const r = push([`学校${si+1} 合計（円建て費用含む）`, "", "", "", schoolSum], STYLE.subtotal);
+        if (schoolRefs.length) formulas.push({ r:r-1, c:4, f:`SUM(${schoolRefs.join(",")})` });
+        addManF(r, schoolSum);
+        totalRefs.push(`E${r}`);
+        push([]);
+      } else {
+        totalRefs.push(...schoolRefs);
+      }
     });
 
-    // 円建て費用
-    const jpyLines = [];
-    if ((q.coord||0) > 0) jpyLines.push([`コーディネーション費用（${q.coordSchools}校）`, "", "JPY", 1, q.coord]);
-    if ((q.visa||0) > 0)  jpyLines.push([`ビザ申請費用`, "", "JPY", 1, q.visa]);
-    q.jpyAddons && q.jpyAddons.forEach(a => { jpyLines.push([a.label, "", "JPY", 1, a.jpy]); });
-    if (jpyLines.length > 0) {
-      const jh = push(["▼ 円建て費用"]);
-      rowStyles.push({ r:jh-1, style:STYLE.total });
-      push(["　項目", "", "通貨", "", "金額（円）", "金額（万円・繰上げ）"]);
-      jpyLines.forEach(r => { const rn = push(r); jpyRefs.push(`E${rn}`); addManF(rn, r[4]); });
-      push([]);
-    }
+    // ▲ 割引（学校ごとの割引・全体割引）: 円単位そのまま・万円繰上げしない
+    const discRows = [];
+    (q.discounts||[]).forEach(d => {
+      const r = push([`▲ ${d.label}`, "", "", "", -Math.round(d.jpy), -Math.round(d.jpy)/10000], STYLE.discount);
+      formulas.push({ r:r-1, c:5, f:`E${r}/10000` });
+      discRows.push(r); totalRefs.push(`E${r}`);
+    });
+    if (discRows.length) push(["　※割引額は万円に丸めず円単位のまま計上しています"], STYLE.note);
 
-    // 合計・粗利
-    const totalArgs = [...subtotalRefs, ...jpyRefs];
-    const tr = push(["★ 見積合計", "", "", "", Math.round(q.total)]);
-    rowStyles.push({ r:tr-1, style:STYLE.total });
-    if (totalArgs.length) formulas.push({ r: tr-1, c: 4, f: `SUM(${totalArgs.join(",")})` });
+    // 見積合計・粗利
+    const tr = push([`★ 見積合計${discRows.length?"（割引後）":""}`, "", "", "", Math.round(q.total)], STYLE.total);
+    if (totalRefs.length) formulas.push({ r:tr-1, c:4, f:`SUM(${totalRefs.join(",")})` });
     addManF(tr, q.total);
-    const cr = push(["　うちコミッション（授業料×コミッション率）", "", "", "", Math.round(q.totalCommJPY||0)]);
-    addManF(cr, q.totalCommJPY||0);
-    const mr = push(["　うちTTS上乗せ差益", "", "", "", Math.round(q.totalTTSMarkupJPY||0)]);
-    addManF(mr, q.totalTTSMarkupJPY||0);
-    const pr = push(["　うちプログラム/来年度上乗せ益", "", "", "", Math.round(q.totalProgMarkupJPY||0)]);
-    addManF(pr, q.totalProgMarkupJPY||0);
-    let cdr = null;
-    if ((q.coord||0) > 0) { cdr = push(["　うちコーディネーション", "", "", "", q.coord]); addManF(cdr, q.coord); }
-    const gr = push(["★ 粗利合計", "", "", "", Math.round(q.grossProfit)]);
-    rowStyles.push({ r:gr-1, style:STYLE.total });
-    const gpArgs = [`E${cr}`,`E${mr}`,`E${pr}`]; if (cdr) gpArgs.push(`E${cdr}`);
-    const gpSum = Math.round(q.totalCommJPY||0)+Math.round(q.totalTTSMarkupJPY||0)+Math.round(q.totalProgMarkupJPY||0)+(cdr?(q.coord||0):0);
-    if (Math.abs(gpSum-Math.round(q.grossProfit))<=2) formulas.push({ r: gr-1, c: 4, f: `SUM(${gpArgs.join(",")})` });
+    push([]);
+    const cr = push(["　うちコミッション（授業料×コミッション率）", "", "", "", Math.round(q.totalCommJPY||0)]); addManF(cr, q.totalCommJPY||0);
+    const mr = push(["　うちTTS上乗せ差益", "", "", "", Math.round(q.totalTTSMarkupJPY||0)]); addManF(mr, q.totalTTSMarkupJPY||0);
+    const pr = push(["　うち来年度上乗せ益", "", "", "", Math.round(q.totalProgMarkupJPY||0)]); addManF(pr, q.totalProgMarkupJPY||0);
+    const gpArgs = [`E${cr}`,`E${mr}`,`E${pr}`];
+    let gpSum = Math.round(q.totalCommJPY||0)+Math.round(q.totalTTSMarkupJPY||0)+Math.round(q.totalProgMarkupJPY||0);
+    if ((q.coord||0) > 0) { const r = push(["　うちコーディネーション", "", "", "", q.coord]); addManF(r, q.coord); gpArgs.push(`E${r}`); gpSum += q.coord; }
+    // 粗利に入る円建てAdd-ons（その他費用・アクションラーニング・GrandLineオプション）
+    const gpAddonTypes = a => a.type==="jpy-other" || a.type==="action-learning" || (a.type||"").startsWith("gl-");
+    (q.jpyAddons||[]).filter(gpAddonTypes).forEach(a => { const r = push([`　うち${a.label}`, "", "", "", Math.round(a.jpy)]); addManF(r, a.jpy); gpArgs.push(`E${r}`); gpSum += Math.round(a.jpy); });
+    if ((q.totalAdj||0) > 0) { const r = push(["　うち追加上乗せ", "", "", "", Math.round(q.totalAdj)]); addManF(r, q.totalAdj); gpArgs.push(`E${r}`); gpSum += Math.round(q.totalAdj); }
+    discRows.forEach(dr => { const d = (q.discounts||[])[discRows.indexOf(dr)];
+      const r = push([`　▲ ${d.label}（粗利から控除）`, "", "", "", -Math.round(d.jpy)], STYLE.discount);
+      formulas.push({ r:r-1, c:4, f:`E${dr}` }); gpArgs.push(`E${r}`); gpSum -= Math.round(d.jpy); });
+    const gr = push(["★ 粗利合計", "", "", "", Math.round(q.grossProfit)], STYLE.total);
+    if (Math.abs(gpSum-Math.round(q.grossProfit))<=2) formulas.push({ r:gr-1, c:4, f:`SUM(${gpArgs.join(",")})` });
     addManF(gr, q.grossProfit);
+    const rr = push(["　粗利率（粗利合計 ÷ 見積合計）", "", "", "", q.total ? q.grossProfit/q.total : 0]);
+    formulas.push({ r:rr-1, c:4, f:`IF(E${tr}=0,0,E${gr}/E${tr})` });
+    pctCells.push({ r:rr-1, c:4 });
+    discRows.forEach(r => cellStyles.push({ r:r-1, c:5, style:{ numFmt:"0.0000\"万円\"" }, fmtOverride:"0.0000\"万円\"" }));
 
     const ws = XLSX.utils.aoa_to_sheet(rows);
-    formulas.forEach(({r,c,f}) => {
-      const addr = XLSX.utils.encode_cell({ r, c });
-      if (!ws[addr]) ws[addr] = { t:"n", v:0 };
-      ws[addr].f = f;
-    });
-    // ハイパーリンク（クリックでPrice List・出典ページへ）
-    hyperlinks.forEach(({r,c,url}) => {
-      const addr = XLSX.utils.encode_cell({ r, c });
-      if (!ws[addr]) ws[addr] = { t:"s", v:url };
-      ws[addr].l = { Target: url, Tooltip: url };
-    });
-    paintRows(ws, rowStyles);
-    ws["!cols"] = [{wch:64},{wch:12},{wch:6},{wch:16},{wch:16},{wch:18}];
+    formulas.forEach(({r,c,f}) => { const a = XLSX.utils.encode_cell({ r, c }); if (!ws[a]) ws[a] = { t:"n", v:0 }; ws[a].f = f; });
+    hyperlinks.forEach(({r,c,url}) => { const a = XLSX.utils.encode_cell({ r, c }); if (!ws[a]) ws[a] = { t:"s", v:url }; ws[a].l = { Target:url, Tooltip:url }; cellStyles.push({ r, c, style:STYLE.link }); });
+    _paintSheet(ws, rows.length, 6, rowStyles, cellStyles, NUMFMT, pctCells);
+    ws["!cols"] = [{wch:66},{wch:13},{wch:6},{wch:18},{wch:14},{wch:18}];
     XLSX.utils.book_append_sheet(wb, ws, thisSheet);
   });
 
   // Price List（参照リンク）を独立したシートに出力
-  if (allLinks.length > 0) {
-    const lrows = [["▼ 参照リンク（Price List / 出典URL）※クリックで開けます"], [], ["見積シート", "項目", "URL"]];
-    const lstyles = [{ r:0, style:STYLE.title }, { r:2, style:STYLE.program }];
-    const lhl = [];
-    allLinks.forEach(lk => { lrows.push([lk.sheet, lk.label, lk.url]); lhl.push({ r:lrows.length-1, c:2, url:lk.url }); });
-    const lws = XLSX.utils.aoa_to_sheet(lrows);
-    lhl.forEach(({r,c,url}) => { const addr = XLSX.utils.encode_cell({ r, c }); if (!lws[addr]) lws[addr] = { t:"s", v:url }; lws[addr].l = { Target:url, Tooltip:url }; lws[addr].s = { font:{ color:{ rgb:"0563C1" }, underline:true } }; });
-    paintRows(lws, lstyles, 3);
-    lws["!cols"] = [{wch:28},{wch:48},{wch:70}];
-    XLSX.utils.book_append_sheet(wb, lws, "Price List");
+  const lrows = [["▼ 参照リンク（Price List / 出典URL）※クリックで開けます"], [], ["見積シート", "項目", "URL"]];
+  const lcell = [];
+  if (allLinks.length === 0) lrows.push(["（Price List URLが登録されていません。各学校の「Price List URL」に入力して保存し直すとここに出ます）"]);
+  allLinks.forEach(lk => { lrows.push([lk.sheet, lk.label, lk.url]); lcell.push({ r:lrows.length-1, c:2, url:lk.url }); });
+  const lws = XLSX.utils.aoa_to_sheet(lrows);
+  lcell.forEach(({r,c,url}) => { const a = XLSX.utils.encode_cell({ r, c }); lws[a].l = { Target:url, Tooltip:url }; });
+  _paintSheet(lws, lrows.length, 3, [{ r:0, style:STYLE.title }, { r:2, style:STYLE.program }], lcell.map(x=>({ r:x.r, c:x.c, style:STYLE.link })), {}, []);
+  lws["!cols"] = [{wch:28},{wch:52},{wch:70}];
+  XLSX.utils.book_append_sheet(wb, lws, "Price List");
+  return wb;
+}
+
+// 行スタイル → セルスタイル → 数値書式 の順に適用
+function _paintSheet(ws, nrows, ncol, rowStyles, cellStyles, numFmts, pctCells) {
+  const merge = (a, b) => {
+    const o = Object.assign({}, a||{});
+    Object.keys(b||{}).forEach(k => { o[k] = (typeof b[k]==="object" && !Array.isArray(b[k])) ? Object.assign({}, o[k]||{}, b[k]) : b[k]; });
+    return o;
+  };
+  rowStyles.forEach(({ r, style }) => {
+    for (let c = 0; c < ncol; c++) {
+      const a = XLSX.utils.encode_cell({ r, c });
+      if (!ws[a]) ws[a] = { t:"s", v:"" };
+      ws[a].s = merge(ws[a].s, style);
+    }
+  });
+  cellStyles.forEach(({ r, c, style }) => { const a = XLSX.utils.encode_cell({ r, c }); if (ws[a]) ws[a].s = merge(ws[a].s, style); });
+  for (let r = 0; r < nrows; r++) {
+    Object.entries(numFmts).forEach(([c, fmt]) => {
+      const a = XLSX.utils.encode_cell({ r, c:+c });
+      if (ws[a] && ws[a].t === "n") { ws[a].z = fmt; ws[a].s = merge(ws[a].s, { numFmt:fmt }); }
+    });
   }
-  XLSX.writeFile(wb, `${filename}.xlsx`);
-  if (window._xlsxNoStyle) alert("⚠️ 書式対応ライブラリ（cdn.jsdelivr.net）が読み込めなかったため、色なしで出力しました。");
+  cellStyles.filter(x=>x.fmtOverride).forEach(({ r, c, fmtOverride }) => { const a = XLSX.utils.encode_cell({ r, c }); if (ws[a]) { ws[a].z = fmtOverride; ws[a].s = merge(ws[a].s, { numFmt:fmtOverride }); } });
+  pctCells.forEach(({ r, c }) => { const a = XLSX.utils.encode_cell({ r, c }); if (ws[a]) { ws[a].z = "0.0%"; ws[a].s = merge(ws[a].s, { numFmt:"0.0%" }); } });
+}
+
+
+// ===================== 過去の見積と比較（前年比較） =====================
+// 差額を ①為替（TTS）要因 ②現地価格・数量要因 ③上乗せ要因 ＋ 構成差（新規・削除・円建て項目・割引）に分解する。
+//   円換算 J = 現地金額P × TTS t × (1 + TTS上乗せm + 来年度上乗せp)  （ツールの計算式と同じ）
+//   現地価格・数量要因 = (P1−P0) × t0 × (1+m0+p0)
+//   為替要因           = P1 × (t1−t0) × (1+m0+p0)
+//   上乗せ要因         = P1 × t1 × ((m1+p1)−(m0+p0))   ※TTS上乗せ分・来年度上乗せ分に内訳
+let _prior = { mode:"json", project:null, tabIdx:0, manual:{}, fileName:"" };
+
+function _yen(n) { const v=Math.round(n||0); return (v<0?"−":"")+"¥"+Math.abs(v).toLocaleString("ja-JP"); }
+function _yenSigned(n) { const v=Math.round(n||0); return (v>0?"+":v<0?"−":"±")+"¥"+Math.abs(v).toLocaleString("ja-JP"); }
+function _progKey(label) { return String(label||"").replace(/^海外プログラム費用（/,"").replace(/）$/,"").trim(); }
+function _jpyKey(label) { return String(label||"").replace(/（学校\s*\d+）/g,"").replace(/\s*\*$/,"").trim(); }
+function _jpyKind(l) {
+  if (l.kind) return l.kind;
+  const t=String(l.label||"");
+  if (/コーディネーション/.test(t)) return "coord";
+  if (/ビザ/.test(t)) return "visa";
+  if (/追加上乗せ/.test(t)) return "adj";
+  return "addon";
+}
+
+// 見積結果（新旧どちらの保存形式でも）→ 比較用の正規化データ
+function _normQuote(r) {
+  const programs=[], jpyItems=[];
+  (r.freeeLines||[]).forEach(l => {
+    if (!l.isJPY) {
+      const incl=(l.includedJpy||[]).reduce((t,x)=>t+x.jpy,0);
+      const tts=l.tts||1;
+      const m = l.ttsMarkupPct!=null && l.ttsMarkupPct!=="" ? parseFloat(l.ttsMarkupPct)/100 : ((l.effectiveFX||tts)/tts-1);
+      const p = l.progMarkupPct!=null && l.progMarkupPct!=="" ? parseFloat(l.progMarkupPct)/100 : (l.costJPY?(l.progGainJPY||0)/l.costJPY:0);
+      programs.push({ key:_progKey(l.label), label:l.label, currency:l.currency, local:l.local||0, tts, m, p, jpy:(l.jpy||0)-incl, yrLabel:l.yrLabel||"" });
+      (l.includedJpy||[]).forEach(x=>jpyItems.push({ key:_jpyKey(x.label), label:x.label, kind:"addon", jpy:x.jpy }));
+    } else {
+      jpyItems.push({ key:_jpyKey(l.label), label:_jpyKey(l.label), kind:_jpyKind(l), jpy:l.jpy||0 });
+    }
+  });
+  return { programs, jpyItems, discounts:(r.discounts||[]).map(d=>({label:d.label,jpy:d.jpy})), total:r.total||0, gp:r.grossProfit||0 };
+}
+
+function _matchPrograms(prev, cur) {
+  const used=new Set(), pairs=[];
+  cur.forEach(c => {
+    let i = prev.findIndex((p,k)=>!used.has(k)&&p.key===c.key);
+    if (i<0) i = prev.findIndex((p,k)=>!used.has(k)&&p.key.split(" - ")[0]===c.key.split(" - ")[0]);
+    if (i>=0) { used.add(i); pairs.push({ prev:prev[i], cur:c }); } else pairs.push({ prev:null, cur:c });
+  });
+  prev.forEach((p,k)=>{ if(!used.has(k)) pairs.push({ prev:p, cur:null }); });
+  return pairs;
+}
+
+function _comparePrior(P, C) {
+  const rows=[], warnings=[], notes=[];
+  let fx=0, price=0, mkTts=0, mkProg=0, structural=0, jpyDiff=0, discDiff=0;
+  _matchPrograms(P.programs, C.programs).forEach(({prev,cur}) => {
+    if (prev && cur && prev.currency===cur.currency) {
+      const F0=1+prev.m+prev.p;
+      const dPrice=(cur.local-prev.local)*prev.tts*F0;
+      const dFx=cur.local*(cur.tts-prev.tts)*F0;
+      const dMt=cur.local*cur.tts*(cur.m-prev.m);
+      const dMp=cur.local*cur.tts*(cur.p-prev.p);
+      price+=dPrice; fx+=dFx; mkTts+=dMt; mkProg+=dMp;
+      rows.push({ label:cur.key, prev, cur, dPrice, dFx, dMt, dMp, diff:cur.jpy-prev.jpy });
+      const pct = v=>`+${Math.round(v*1000)/10}%`;
+      if (prev.m>0 && cur.m<prev.m) warnings.push(`「${cur.key}」TTS上乗せが前回 ${pct(prev.m)} → 今回 ${pct(cur.m)} に下がっています（付け忘れでないか確認）`);
+      if (prev.p>0 && cur.p<prev.p) warnings.push(`「${cur.key}」来年度上乗せが前回 ${pct(prev.p)} → 今回 ${pct(cur.p)} に下がっています（付け忘れでないか確認）`);
+      if (prev.yrLabel && cur.yrLabel && prev.yrLabel===cur.yrLabel && /年版/.test(cur.yrLabel)) notes.push(`「${cur.key}」は前回と同じ Price List（${cur.yrLabel.replace(/\s*⚠️.*$/,"")}）で計算されています`);
+    } else if (prev && cur) {
+      structural += cur.jpy-prev.jpy;
+      rows.push({ label:cur.key, prev, cur, struct:true, diff:cur.jpy-prev.jpy });
+      warnings.push(`「${cur.key}」は通貨が前回 ${prev.currency} → 今回 ${cur.currency} のため要因分解できません（構成差として計上）`);
+    } else if (cur) {
+      structural += cur.jpy; rows.push({ label:cur.key, prev:null, cur, struct:true, diff:cur.jpy });
+      notes.push(`「${cur.key}」は今回新規のプログラムです`);
+    } else {
+      structural -= prev.jpy; rows.push({ label:prev.key, prev, cur:null, struct:true, diff:-prev.jpy });
+      notes.push(`「${prev.key}」は前回ありましたが今回はありません`);
+    }
+  });
+  // 円建て項目（コーディネーション・ビザ・追加上乗せ・その他）
+  const sumBy = list => { const o={}; list.forEach(x=>{ const k=x.kind+"|"+x.key; o[k]=o[k]||{kind:x.kind,label:x.label,jpy:0}; o[k].jpy+=x.jpy; }); return o; };
+  const pj=sumBy(P.jpyItems), cj=sumBy(C.jpyItems);
+  const jrows=[];
+  new Set([...Object.keys(pj),...Object.keys(cj)]).forEach(k => {
+    const a=pj[k]?.jpy||0, b=cj[k]?.jpy||0, it=pj[k]||cj[k];
+    if (a===b) { if (a) jrows.push({ label:it.label, kind:it.kind, prev:a, cur:b, diff:0 }); return; }
+    jpyDiff += b-a; jrows.push({ label:it.label, kind:it.kind, prev:a, cur:b, diff:b-a });
+    if (a>0 && b<a && (it.kind==="adj" || it.kind==="coord" || /上乗せ|サポート/.test(it.label)))
+      warnings.push(`前回の「${it.label}」${_yen(a)} が今回は ${b?_yen(b):"ありません"}（上乗せの付け忘れでないか確認）`);
+  });
+  const pd=P.discounts.reduce((t,d)=>t+d.jpy,0), cd=C.discounts.reduce((t,d)=>t+d.jpy,0);
+  discDiff = -(cd-pd);
+  if (pd>0 && cd===0) notes.push(`前回は割引 ${_yen(pd)}（${P.discounts.map(d=>d.label).join("・")}）がありましたが今回はありません`);
+  if (cd>0 && pd===0) notes.push(`今回は割引 ${_yen(cd)}（${C.discounts.map(d=>d.label).join("・")}）を適用しています`);
+  const totalDiff = C.total-P.total;
+  const explained = fx+price+mkTts+mkProg+structural+jpyDiff+discDiff;
+  return { rows, jrows, warnings, notes, fx, price, mkTts, mkProg, structural, jpyDiff, discDiff, totalDiff, residual:totalDiff-explained, P, C };
+}
+
+// ---------- UI ----------
+function openPriorCompare() {
+  syncTabSections(); calcAll();
+  const t=tabs[activeTabIdx];
+  if (!t || !t.result) { alert("先に今回の見積を入力・計算してください（比較は表示中の案と行います）"); return; }
+  document.getElementById("prior-modal").style.display="block";
+  _renderPrior();
+}
+function closePriorCompare() { document.getElementById("prior-modal").style.display="none"; }
+function setPriorMode(m) { _prior.mode=m; _renderPrior(); }
+
+function _renderPrior() {
+  const cur = tabs[activeTabIdx].result;
+  const el = document.getElementById("prior-content");
+  const tabBtn = (m,lbl) => `<button class="btn btn-sm" onclick="setPriorMode('${m}')" style="${_prior.mode===m?"background:#1a1a18;color:#fff;border-color:#1a1a18":""}">${lbl}</button>`;
+  let html = `<div style="font-size:12px;color:#555;margin-bottom:10px">比較対象（今回）：<b>${getTabName(tabs[activeTabIdx])}</b>　見積合計 ${_yen(cur.total)}</div>
+    <div style="display:flex;gap:6px;margin-bottom:12px">${tabBtn("json","📂 JSON・ZIP・保存済みから読み込む（自動）")}${tabBtn("manual","✍️ 手入力（Excelの過去見積など）")}</div>`;
+  if (_prior.mode==="json") html += _renderPriorJson(); else html += _renderPriorManual(cur);
+  el.innerHTML = html;
+}
+
+function _renderPriorJson() {
+  const saved = loadProjects();
+  let html = `<div style="background:#f5f5f3;border-radius:8px;padding:12px;margin-bottom:12px;font-size:12px;line-height:1.7">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <button class="btn btn-sm" onclick="document.getElementById('prior-file').click()">📂 前回のZIP / 共有用JSONを選ぶ</button>
+      <span style="color:#888">または</span>
+      <select onchange="pickPriorSaved(this.value)" style="padding:5px 8px;border:0.5px solid #ddd;border-radius:6px;font-size:12px;max-width:340px">
+        <option value="">保存済みの見積から選ぶ…</option>
+        ${saved.map(p=>`<option value="${p.id}">${p.client} / ${p.project}（${p.date||""}）</option>`).join("")}
+      </select>
+    </div>
+    <div style="color:#888;margin-top:6px">※ Excelファイルは読み込めません。Excelしかない過去見積は「✍️ 手入力」タブを使ってください。</div>
+  </div>`;
+  if (!_prior.project) return html;
+  const ready = (_prior.project.tabs||[]).filter(t=>t.result);
+  if (ready.length===0) return html + `<div style="color:#c0392b;font-size:13px">このファイルには計算済みの見積がありません。</div>`;
+  if (_prior.tabIdx>=ready.length) _prior.tabIdx=0;
+  html += `<div style="font-size:12px;margin-bottom:10px">前回：<b>${_prior.project.client} / ${_prior.project.project}</b>（${_prior.project.date||""}）${_prior.fileName?`　<span style="color:#888">${_prior.fileName}</span>`:""}
+    ${ready.length>1?`　案：<select onchange="_prior.tabIdx=parseInt(this.value);_renderPrior()" style="font-size:12px">${ready.map((t,i)=>`<option value="${i}" ${i===_prior.tabIdx?"selected":""}>${t.name||"案"+(i+1)}</option>`).join("")}</select>`:`　案：${ready[0].name||""}`}</div>`;
+  const res = _comparePrior(_normQuote(ready[_prior.tabIdx].result), _normQuote(tabs[activeTabIdx].result));
+  return html + _renderPriorResult(res);
+}
+
+function pickPriorSaved(id) {
+  if (!id) return;
+  const p = loadProjects().find(x=>String(x.id)===String(id));
+  if (p) { _prior.project=p; _prior.tabIdx=0; _prior.fileName="（保存済み）"; _renderPrior(); }
+}
+async function onPriorFile(input) {
+  const file=input.files&&input.files[0]; input.value="";
+  if (!file) return;
+  try {
+    if (/\.xlsx?$/i.test(file.name)) { alert("Excelファイルは読み込めません。\n\n・このツールで出力したZIP、またはZIP内の「…_共有用.json」を選んでください。\n・Excelしかない過去見積は「✍️ 手入力」タブで前回の金額を入力してください。"); return; }
+    const buf=await file.arrayBuffer(); const b=new Uint8Array(buf.slice(0,2));
+    const text = (b[0]===0x50&&b[1]===0x4b) ? await _readJsonFromZip(buf) : new TextDecoder().decode(buf);
+    const obj=JSON.parse(text);
+    const proj = obj?.format===SHARE_FORMAT ? obj.project : (obj?.project?.tabs ? obj.project : (obj?.tabs ? obj : (Array.isArray(obj)?obj[0]:null)));
+    if (!proj || !Array.isArray(proj.tabs)) { alert("見積ツールの共有用JSONではありません。"); return; }
+    _prior.project=proj; _prior.tabIdx=0; _prior.fileName=file.name; _renderPrior();
+  } catch(e) { alert("読み込みに失敗しました："+(e.message||e)); }
+}
+
+// 手入力モード：今回のプログラムごとに前回値を入力（上乗せ欄は必須）
+function _renderPriorManual(cur) {
+  const C=_normQuote(cur), M=_prior.manual;
+  const v=k=>M[k]!==undefined?String(M[k]).replace(/"/g,"&quot;"):"";
+  const inp=(k,ph,extra="")=>`<input type="number" value="${v(k)}" placeholder="${ph}" ${extra} oninput="_prior.manual['${k}']=this.value" style="width:100%;padding:6px 8px;border:0.5px solid #ddd;border-radius:6px;font-size:12px">`;
+  let html = `<div style="font-size:12px;color:#555;margin-bottom:10px;line-height:1.6">前回見積（Excel等）の数字を学校ごとに入力してください。<b style="color:#c0392b">TTS上乗せ・来年度上乗せ・その他上乗せは必須</b>です（なかった場合も「0」を入力）。上乗せの有無を確認しないまま比較すると、差額の説明を誤るためです。</div>`;
+  C.programs.forEach((c,i)=>{
+    const k="p"+i;
+    html += `<div style="border:0.5px solid #c7d7f8;background:#f8faff;border-radius:8px;padding:10px 12px;margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:600;color:#1565c0;margin-bottom:6px"><span>${c.key}</span>
+        <label style="font-weight:400;color:#666"><input type="checkbox" ${M[k+"_new"]?"checked":""} onchange="_prior.manual['${k}_new']=this.checked;_renderPrior()"> 前回はなかった（今回新規）</label></div>
+      ${M[k+"_new"]?"":`<div class="field-grid g4" style="margin:0">
+        <div class="field"><label>前回 現地通貨合計（${c.currency}）</label>${inp(k+"_local","今回 "+Math.round(c.local).toLocaleString())}</div>
+        <div class="field"><label>前回 TTS（${c.currency}/円）</label>${inp(k+"_tts","例："+c.tts,'step="0.01"')}</div>
+        <div class="field"><label style="color:#c0392b">前回 TTS上乗せ（%）必須</label>${inp(k+"_m","なしなら0",'step="0.1"')}</div>
+        <div class="field"><label style="color:#c0392b">前回 来年度上乗せ（%）必須</label>${inp(k+"_p","なしなら0",'step="0.1"')}</div>
+      </div>`}
+    </div>`;
+  });
+  html += `<div style="border:0.5px solid #e0e0dc;background:#fafafa;border-radius:8px;padding:10px 12px;margin-bottom:10px">
+    <div style="font-size:12px;font-weight:600;color:#555;margin-bottom:6px">前回の円建て費用</div>
+    <div class="field-grid g4" style="margin:0">
+      <div class="field"><label>コーディネーション（円）</label>${inp("coord","0")}</div>
+      <div class="field"><label>ビザ申請（円）</label>${inp("visa","0")}</div>
+      <div class="field"><label style="color:#c0392b">その他上乗せ・サポート費（円）必須</label>${inp("addon","なしなら0")}</div>
+      <div class="field"><label>割引（円・プラスで入力）</label>${inp("disc","0")}</div>
+    </div>
+    <div class="field-grid g2" style="margin:8px 0 0">
+      <div class="field"><label>前回の見積合計（円）※分かれば。計算値とのズレを「端数・その他」に表示</label>${inp("total","任意")}</div>
+    </div>
+  </div>
+  <button class="btn btn-primary" onclick="runPriorManual()">比較する</button>
+  <div id="prior-manual-result" style="margin-top:12px">${_prior.manualResult?_renderPriorResult(_prior.manualResult):""}</div>`;
+  return html;
+}
+
+function runPriorManual() {
+  const C=_normQuote(tabs[activeTabIdx].result), M=_prior.manual, miss=[];
+  const num=k=>{ const x=M[k]; return (x===undefined||x==="")?null:parseFloat(x); };
+  const programs=[];
+  C.programs.forEach((c,i)=>{
+    const k="p"+i; if (M[k+"_new"]) return;
+    ["_local","_tts","_m","_p"].forEach(s=>{ if (num(k+s)===null) miss.push(`${c.key}：${{_local:"現地通貨合計",_tts:"TTS",_m:"TTS上乗せ",_p:"来年度上乗せ"}[s]}`); });
+    const local=num(k+"_local")||0, tts=num(k+"_tts")||0, m=(num(k+"_m")||0)/100, p=(num(k+"_p")||0)/100;
+    programs.push({ key:c.key, label:c.label, currency:c.currency, local, tts, m, p, jpy:Math.round(local*tts*(1+m+p)) });
+  });
+  if (num("addon")===null) miss.push("その他上乗せ・サポート費（なしなら0）");
+  if (miss.length) { alert("未入力の必須項目があります：\n\n・"+miss.join("\n・")+"\n\n上乗せがなかった場合も「0」を入力してください。"); return; }
+  const jpyItems=[];
+  if (num("coord")) jpyItems.push({ key:"コーディネーション費用", label:"コーディネーション費用", kind:"coord", jpy:num("coord") });
+  if (num("visa"))  jpyItems.push({ key:"ビザ申請費用", label:"ビザ申請費用", kind:"visa", jpy:num("visa") });
+  if (num("addon")) jpyItems.push({ key:"その他上乗せ・サポート費", label:"その他上乗せ・サポート費", kind:"adj", jpy:num("addon") });
+  const discounts = num("disc") ? [{ label:"割引", jpy:num("disc") }] : [];
+  const calc = programs.reduce((t,x)=>t+x.jpy,0)+jpyItems.reduce((t,x)=>t+x.jpy,0)-(num("disc")||0);
+  // 今回の円建て項目を手入力のくくりに寄せる（コーディネーション/ビザ/その他）
+  const Cn = Object.assign({}, C, { jpyItems: C.jpyItems.map(x=>{
+    if (x.kind==="coord") return Object.assign({},x,{key:"コーディネーション費用",label:"コーディネーション費用"});
+    if (x.kind==="visa")  return Object.assign({},x,{key:"ビザ申請費用",label:"ビザ申請費用"});
+    return Object.assign({},x,{kind:"adj",key:"その他上乗せ・サポート費",label:"その他上乗せ・サポート費"});
+  }) });
+  const P = { programs, jpyItems, discounts, total: num("total")!==null ? num("total") : calc, gp:0 };
+  _prior.manualResult = _comparePrior(P, Cn);
+  document.getElementById("prior-manual-result").innerHTML = _renderPriorResult(_prior.manualResult);
+}
+
+function _renderPriorResult(r) {
+  const row=(lbl,v,strong,color)=>`<tr${strong?' style="font-weight:600;border-top:1px solid #1a1a18"':""}><td style="padding:5px 8px${color?";color:"+color:""}">${lbl}</td><td style="padding:5px 8px;text-align:right${color?";color:"+color:""}">${_yenSigned(v)}</td></tr>`;
+  let html = `<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">
+    <div style="background:#f5f5f3;border-radius:8px;padding:10px"><div style="font-size:11px;color:#888">前回 見積合計</div><div style="font-size:16px;font-weight:600">${_yen(r.P.total)}</div></div>
+    <div style="background:#f5f5f3;border-radius:8px;padding:10px"><div style="font-size:11px;color:#888">今回 見積合計</div><div style="font-size:16px;font-weight:600">${_yen(r.C.total)}</div></div>
+    <div style="background:${r.totalDiff>=0?"#fff5f5":"#f0fdf4"};border-radius:8px;padding:10px"><div style="font-size:11px;color:#888">差額（今回−前回）</div><div style="font-size:16px;font-weight:600;color:${r.totalDiff>=0?"#c0392b":"#166534"}">${_yenSigned(r.totalDiff)}${r.P.total?`<span style="font-size:11px;font-weight:400">（${r.totalDiff>=0?"+":""}${Math.round(r.totalDiff/r.P.total*1000)/10}%）</span>`:""}</div></div>
+  </div>`;
+  if (r.warnings.length) html += `<div style="background:#fff5f5;border:1px solid #f5c6c3;border-radius:8px;padding:10px 12px;margin-bottom:10px;font-size:12px;line-height:1.7;color:#c0392b"><b>⚠️ 確認してください</b><br>${r.warnings.map(w=>"・"+w).join("<br>")}</div>`;
+  html += `<table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:12px">
+    <tr style="background:#1a1a18;color:#fff"><th style="padding:6px 8px;text-align:left">差額の要因</th><th style="padding:6px 8px;text-align:right">金額</th></tr>
+    ${row("① 為替（TTS）要因",r.fx)}
+    ${row("② 現地価格・数量要因（学校の値上げ・週数変更など）",r.price)}
+    ${row("③ 上乗せ要因 − TTS上乗せ率の変更",r.mkTts)}
+    ${row("③ 上乗せ要因 − 来年度上乗せ率の変更",r.mkProg)}
+    ${Math.round(r.structural)?row("④ 構成差（プログラムの追加・削除・通貨変更）",r.structural):""}
+    ${Math.round(r.jpyDiff)?row("⑤ 円建て費用の差（コーディネーション・ビザ・追加上乗せ等）",r.jpyDiff):""}
+    ${Math.round(r.discDiff)?row("⑥ 割引の差",r.discDiff,false,"#c0392b"):""}
+    ${Math.abs(Math.round(r.residual))>0?row("端数・その他（円未満の丸め等）",r.residual,false,"#888"):""}
+    ${row("合計（＝差額）",r.totalDiff,true)}
+  </table>`;
+  if (r.rows.length) {
+    html += `<div style="font-size:11px;font-weight:600;color:#666;margin-bottom:4px">プログラム別</div><table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:12px">
+      <tr style="background:#f5f5f3"><th style="padding:5px;text-align:left">プログラム</th><th style="padding:5px;text-align:right">前回 現地/TTS/上乗せ</th><th style="padding:5px;text-align:right">今回 現地/TTS/上乗せ</th><th style="padding:5px;text-align:right">為替</th><th style="padding:5px;text-align:right">現地価格</th><th style="padding:5px;text-align:right">上乗せ</th><th style="padding:5px;text-align:right">差額</th></tr>
+      ${r.rows.map(x=>{
+        const d=q=>q?`${fmtC(q.local,q.currency)}<br>${q.tts} / +${Math.round(q.m*1000)/10}%・+${Math.round(q.p*1000)/10}%`:"—";
+        return `<tr style="border-bottom:0.5px solid #eee"><td style="padding:5px">${x.label}${x.struct?' <span style="color:#e65100">(構成差)</span>':""}</td><td style="padding:5px;text-align:right">${d(x.prev)}</td><td style="padding:5px;text-align:right">${d(x.cur)}</td>
+          <td style="padding:5px;text-align:right">${x.struct?"—":_yenSigned(x.dFx)}</td><td style="padding:5px;text-align:right">${x.struct?"—":_yenSigned(x.dPrice)}</td><td style="padding:5px;text-align:right">${x.struct?"—":_yenSigned(x.dMt+x.dMp)}</td><td style="padding:5px;text-align:right;font-weight:600">${_yenSigned(x.diff)}</td></tr>`;
+      }).join("")}</table>`;
+  }
+  if (r.jrows.length) {
+    html += `<div style="font-size:11px;font-weight:600;color:#666;margin-bottom:4px">円建て費用</div><table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:12px">
+      <tr style="background:#f5f5f3"><th style="padding:5px;text-align:left">項目</th><th style="padding:5px;text-align:right">前回</th><th style="padding:5px;text-align:right">今回</th><th style="padding:5px;text-align:right">差額</th></tr>
+      ${r.jrows.map(x=>`<tr style="border-bottom:0.5px solid #eee"><td style="padding:5px">${x.label}</td><td style="padding:5px;text-align:right">${x.prev?_yen(x.prev):"—"}</td><td style="padding:5px;text-align:right">${x.cur?_yen(x.cur):"—"}</td><td style="padding:5px;text-align:right">${_yenSigned(x.diff)}</td></tr>`).join("")}</table>`;
+  }
+  if (r.notes.length) html += `<div style="font-size:12px;color:#555;line-height:1.7;background:#f5f5f3;border-radius:8px;padding:8px 12px">${r.notes.map(n=>"・"+n).join("<br>")}</div>`;
+  return html;
 }
 
 // 初期化
