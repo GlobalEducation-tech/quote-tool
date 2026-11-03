@@ -132,7 +132,7 @@ if(sessionStorage.getItem("getc_auth")==="1"){document.addEventListener("DOMCont
 else{document.addEventListener("DOMContentLoaded",()=>{const i=document.getElementById("pw-input");if(i)i.focus();});}
 </script>
 <div class="app">
-  <h1>海外プログラム見積計算ツール <span id="app-version" style="font-size:11px;color:#999;font-weight:400">ver 2026-11-02c</span></h1>
+  <h1>海外プログラム見積計算ツール <span id="app-version" style="font-size:11px;color:#999;font-weight:400">ver 2026-11-02d</span></h1>
 
   <!-- 保存済み見積もり -->
   <div class="card">
@@ -301,7 +301,7 @@ else{document.addEventListener("DOMContentLoaded",()=>{const i=document.getEleme
   <div id="print-area" style="display:none"></div>
 </div>
 
-<script src="school_data.js"></script>
+<script src="school_data.js?v=2026-11-02d"></script>
 <script>
 // ===================== DATA（学校データはschool_data.jsに移動） =====================
 // ビジネススクール（手入力）疑似スクール：価格リストがなく都度リサーチするプログラム用
@@ -2489,7 +2489,7 @@ function _buildWorkbook(targets) {
     push([`■ 見積書　${q.client||""}　${q.project||""}${q.tabName?`　[${q.tabName}]`:""}　${q.date||""}`], STYLE.title);
     const meta = [q.author?`作成者: ${q.author}`:"", q.reviewer?`確認者: ${q.reviewer}`:"", APP_VERSION?`出力ツール: ${APP_VERSION}`:""].filter(Boolean).join("　");
     if (meta) push([meta], STYLE.note);
-    const lg = push(["■ オレンジの行（大きい文字）＝見積書に記入する金額（▶ 海外プログラム費用・コーディネーション費用）"], STYLE.legend);
+    const lg = push(["■ オレンジの行（大きい文字）＝見積書に記入する金額（▶ 海外プログラム費用・コーディネーション費用・ビザ申請費用）"], STYLE.legend);
     cellStyles.push({ r:lg-1, c:0, style:{ fill:{ patternType:"solid", fgColor:{ rgb:"FCE4D6" } } } });
     push([]);
 
@@ -2572,7 +2572,7 @@ function _buildWorkbook(targets) {
         push([`▼ 円建て費用${multiSchool?`（学校${si+1}）`:""}`], STYLE.total);
         push(["　項目", "", "通貨", "", "金額（円）", "金額（万円・繰上げ）"], STYLE.colhead);
         jpys.forEach(l => {
-          const isCoord = l.kind==="coord" || (!l.kind && /コーディネーション/.test(l.label||""));
+          const isCoord = ["coord","visa"].includes(l.kind) || (!l.kind && /コーディネーション|ビザ申請/.test(l.label||""));
           const r = push([`　${isCoord?"▶ ":""}${l.label}`, "", "JPY", "", Math.round(l.jpy)], isCoord ? STYLE.quote : null);
           if (isCoord) tallRows.push(r-1);
           addManF(r, l.jpy);
