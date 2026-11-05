@@ -132,7 +132,7 @@ if(sessionStorage.getItem("getc_auth")==="1"){document.addEventListener("DOMCont
 else{document.addEventListener("DOMContentLoaded",()=>{const i=document.getElementById("pw-input");if(i)i.focus();});}
 </script>
 <div class="app">
-  <h1>海外プログラム見積計算ツール <span id="app-version" style="font-size:11px;color:#999;font-weight:400">ver 2026-11-02d</span></h1>
+  <h1>海外プログラム見積計算ツール <span id="app-version" style="font-size:11px;color:#999;font-weight:400">ver 2026-11-04b</span></h1>
 
   <!-- 保存済み見積もり -->
   <div class="card">
@@ -719,13 +719,13 @@ function renderSchoolSection(s, si) {
       </div>
       <div class="field-grid g2" style="margin-top:8px;margin-bottom:0">
         <div class="field">
-          <label>追加上乗せ または 割引（円）※割引はマイナス入力</label>
-          <input type="number" value="${s.adjJPY||""}" placeholder="0" step="1000" onchange="updateSection(${s.id},'adjJPY',this.value)">
+          <label>追加上乗せ（円）</label>
+          <input type="number" value="${s.adjJPY||""}" placeholder="0" min="0" step="1000" onchange="updateSection(${s.id},'adjJPY',this.value)">
         </div>
         <div class="field" style="justify-content:flex-end">
           <div style="font-size:11px;line-height:1.5;color:${(parseFloat(s.adjJPY)||0)<0?"#c0392b":"#666"}">${(parseFloat(s.adjJPY)||0)<0
-            ? `▲ 割引 ${Math.abs(parseFloat(s.adjJPY)).toLocaleString()}円：見積合計の直前に「▲ 割引」行として表示し、見積合計・粗利から差し引きます（円単位そのまま）`
-            : (parseFloat(s.adjJPY)||0)>0 ? `追加上乗せ ${parseFloat(s.adjJPY).toLocaleString()}円：この学校の円建て費用に計上し、粗利に含めます` : `プラス＝追加上乗せ（粗利に計上）／マイナス＝割引`}</div>
+            ? `⚠️ マイナス値（${parseFloat(s.adjJPY).toLocaleString()}円）は計算に含めません。割引は「▲ 全体割引（この案）」欄で入力してください`
+            : (parseFloat(s.adjJPY)||0)>0 ? `追加上乗せ ${parseFloat(s.adjJPY).toLocaleString()}円：この学校の円建て費用に計上し、粗利に含めます。Excelでは「海外プログラム費用＋追加上乗せ」行も出力します` : `追加上乗せ（粗利に計上）。割引は「▲ 全体割引（この案）」欄で入力してください`}</div>
         </div>
       </div>
     </div>
@@ -1386,7 +1386,11 @@ function renderAddonBlock(b, i, sid) {
   } else if (b.type==="action-learning") {
     extraHtml=`<div class="field-grid g2">
       <div class="field"><label>単価</label><input type="text" value="¥150,000（固定）" readonly style="background:#f5f5f3;color:#888"></div>
-      <div class="field"><label>小計</label><input type="text" value="¥${(150000*(parseFloat(b.qty)||1)).toLocaleString()}" readonly style="background:#f5f5f3;color:#888"></div></div>`;
+      <div class="field"><label>小計</label><input type="text" value="¥${(150000*(parseFloat(b.qty)||1)).toLocaleString()}" readonly style="background:#f5f5f3;color:#888"></div></div>
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#444;margin-top:2px;cursor:pointer">
+        <input type="checkbox" ${b.included?"checked":""} onchange="updateAddon(${b.id},'included',this.checked)">
+        海外プログラム費用の小計に含める（内包）<span style="color:#888">— 見積書では円建て費用ではなくプログラム費用の中に表示されます。粗利への計上は変わりません</span>
+      </label>`;
   } else if (["nyu-sps","ama-3day","ama-5day"].includes(b.type)) {
     const usdPrices = {"nyu-sps":1500,"ama-3day":3200,"ama-5day":4400};
     const baseUSD = usdPrices[b.type];
@@ -1706,7 +1710,7 @@ function calcAll() {
       const qty=parseFloat(b.qty||1);
       const glPrices={"gl-fieldwork":18000,"gl-dinner":15000,"gl-lunch":15000,"gl-speaking":15000,"gl-lesson":3000,"gl-night":7000,"gl-arrange":50000,"gl-meal-breaks":5000,"gl-meal-air":7000};
       const glLabels={"gl-fieldwork":"リアルミーティング","gl-dinner":"ディナーセッション","gl-lunch":"ランチセッション","gl-speaking":"パブリックスピーキング","gl-lesson":"追加レッスン","gl-night":"延泊","gl-arrange":"現地手配料","gl-meal-breaks":"食費 Breaks","gl-meal-air":"食費 Air"};
-      if(b.type==="action-learning"){const amtJPY=150000*qty;const el=document.getElementById("d"+b.id+"-sub");if(el)el.textContent=fmtJPY(amtJPY);b._jpyTotal=amtJPY;b._label=`アクションラーニングプロジェクト × ${qty}`;allJpyAddons.push({label:b._label,jpy:amtJPY,type:b.type});return;}
+      if(b.type==="action-learning"){const amtJPY=150000*qty;const el=document.getElementById("d"+b.id+"-sub");if(el)el.textContent=fmtJPY(amtJPY);b._jpyTotal=amtJPY;b._label=`アクションラーニングプロジェクト × ${qty}`;allJpyAddons.push({label:b._label,jpy:amtJPY,type:b.type,included:!!b.included});return;}
 
       // NYU SPS・AMA（USD建て・上乗せ可）
       const usdFixed = {"nyu-sps":1500,"ama-3day":3200,"ama-5day":4400};
@@ -1747,10 +1751,9 @@ function calcAll() {
     if(s.coord>0){totalCoord+=s.coord;freeeLines.push({label:`コーディネーション費用（学校 ${si+1}）`,jpy:s.coord,isJPY:true,kind:"coord"});}
     const sVisa=s.visaType==="300000b"?300000:(parseInt(s.visaType)||0);
     if(sVisa>0){totalVisa+=sVisa;if(s.visaType==="300000b")visaHasExtra=true;freeeLines.push({label:`ビザ申請費用（学校 ${si+1}）${s.visaType==="300000b"?" *":""}`,jpy:sVisa,isJPY:true,kind:"visa"});}
-    // 追加上乗せ（プラス）／学校ごとの割引（マイナス）
-    const adj=Math.round(parseFloat(s.adjJPY)||0);
+    // 追加上乗せ（プラスのみ。マイナス入力は無視＝割引は案ごとの「全体割引」で扱う）
+    const adj=Math.max(0,Math.round(parseFloat(s.adjJPY)||0));
     if(adj>0){totalAdj+=adj;freeeLines.push({label:`追加上乗せ（学校 ${si+1}）`,jpy:adj,isJPY:true,kind:"adj"});}
-    else if(adj<0){discounts.push({label:`割引（学校 ${si+1}）`,jpy:-adj,schoolIdx:si,kind:"school"});}
     // 学校番号タグ（Excelで学校ごとにブロック化するため）
     for (let k=_flStart;k<freeeLines.length;k++) freeeLines[k].schoolIdx = si;
     for (let k=_jaStart;k<allJpyAddons.length;k++) allJpyAddons[k].schoolIdx = si;
@@ -2489,7 +2492,7 @@ function _buildWorkbook(targets) {
     push([`■ 見積書　${q.client||""}　${q.project||""}${q.tabName?`　[${q.tabName}]`:""}　${q.date||""}`], STYLE.title);
     const meta = [q.author?`作成者: ${q.author}`:"", q.reviewer?`確認者: ${q.reviewer}`:"", APP_VERSION?`出力ツール: ${APP_VERSION}`:""].filter(Boolean).join("　");
     if (meta) push([meta], STYLE.note);
-    const lg = push(["■ オレンジの行（大きい文字）＝見積書に記入する金額（▶ 海外プログラム費用・コーディネーション費用・ビザ申請費用）"], STYLE.legend);
+    const lg = push(["■ オレンジの行（大きい文字）＝見積書に記入する金額（▶ 海外プログラム費用・海外プログラム費用＋追加上乗せ・コーディネーション費用・ビザ申請費用）"], STYLE.legend);
     cellStyles.push({ r:lg-1, c:0, style:{ fill:{ patternType:"solid", fgColor:{ rgb:"FCE4D6" } } } });
     push([]);
 
@@ -2513,8 +2516,12 @@ function _buildWorkbook(targets) {
       const progs = lines.filter(l => !l.isJPY && _lineSchoolIdx(l)===si);
       const jpys  = lines.filter(l =>  l.isJPY && _lineSchoolIdx(l)===si);
       const schoolRefs = [];
+      // 追加上乗せがある学校は、海外プログラム費用 小計の直下に「海外プログラム費用＋追加上乗せ」行を出す（参考合計・合計SUMには含めない）
+      const adjLines = jpys.filter(l => l.kind==="adj" || (!l.kind && /^追加上乗せ/.test(l.label||"")));
+      const progSubRows = [];
+      let comboRow = null;
 
-      progs.forEach(l => {
+      progs.forEach((l, pi) => {
         const cur = l.currency || "GBP";
         const tts = l.tts || 1;
         const effRate = l.effectiveFX || tts;
@@ -2565,6 +2572,14 @@ function _buildWorkbook(targets) {
         formulas.push({ r:sr-1, c:4, f:`SUM(${sumArgs.join(",")})` });
         addManF(sr, l.jpy);
         schoolRefs.push(`E${sr}`);
+        progSubRows.push(sr);
+        if (pi === progs.length-1 && adjLines.length > 0) {
+          const comboVal = progs.reduce((t,x)=>t+Math.round(x.jpy),0) + adjLines.reduce((t,x)=>t+Math.round(x.jpy),0);
+          const progName = progs.length===1 ? l.label : "海外プログラム費用";
+          comboRow = push([`　▶ ${progName}＋追加上乗せ`, "", "", "", comboVal], STYLE.quote);
+          tallRows.push(comboRow-1);
+          addManF(comboRow, comboVal);
+        }
         push([]);
       });
 
@@ -2577,8 +2592,14 @@ function _buildWorkbook(targets) {
           if (isCoord) tallRows.push(r-1);
           addManF(r, l.jpy);
           schoolRefs.push(`E${r}`);
+          if (adjLines.includes(l)) l._xlsRow = r;
         });
         push([]);
+      }
+      if (comboRow) {
+        const adjRefs = adjLines.filter(l=>l._xlsRow).map(l=>`E${l._xlsRow}`);
+        formulas.push({ r:comboRow-1, c:4, f:`SUM(${[...progSubRows.map(r=>`E${r}`), ...adjRefs].join(",")})` });
+        adjLines.forEach(l => { delete l._xlsRow; });
       }
 
       if (multiSchool) {
