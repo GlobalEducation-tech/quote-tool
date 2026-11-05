@@ -132,7 +132,7 @@ if(sessionStorage.getItem("getc_auth")==="1"){document.addEventListener("DOMCont
 else{document.addEventListener("DOMContentLoaded",()=>{const i=document.getElementById("pw-input");if(i)i.focus();});}
 </script>
 <div class="app">
-  <h1>海外プログラム見積計算ツール <span id="app-version" style="font-size:11px;color:#999;font-weight:400">ver 2026-11-04b</span></h1>
+  <h1>海外プログラム見積計算ツール <span id="app-version" style="font-size:11px;color:#999;font-weight:400">ver 2026-11-04c</span></h1>
 
   <!-- 保存済み見積もり -->
   <div class="card">
@@ -1762,7 +1762,7 @@ function calcAll() {
   // 円建てAdd-ons
   allJpyAddons.forEach(a=>{
     const host = a.included ? freeeLines.find(l=>!l.isJPY&&l.schoolIdx===a.schoolIdx) : null;
-    if (host) { host.jpy+=a.jpy; (host.includedJpy=host.includedJpy||[]).push({label:a.label,jpy:a.jpy}); }
+    if (host) { host.jpy+=a.jpy; (host.includedJpy=host.includedJpy||[]).push({label:a.label,jpy:a.jpy,type:a.type}); }
     else freeeLines.push({label:a.label,jpy:a.jpy,isJPY:true,schoolIdx:a.schoolIdx,addonType:a.type});
     grandTotalJPY+=a.jpy;
   });
@@ -2492,7 +2492,7 @@ function _buildWorkbook(targets) {
     push([`■ 見積書　${q.client||""}　${q.project||""}${q.tabName?`　[${q.tabName}]`:""}　${q.date||""}`], STYLE.title);
     const meta = [q.author?`作成者: ${q.author}`:"", q.reviewer?`確認者: ${q.reviewer}`:"", APP_VERSION?`出力ツール: ${APP_VERSION}`:""].filter(Boolean).join("　");
     if (meta) push([meta], STYLE.note);
-    const lg = push(["■ オレンジの行（大きい文字）＝見積書に記入する金額（▶ 海外プログラム費用・海外プログラム費用＋追加上乗せ・コーディネーション費用・ビザ申請費用）"], STYLE.legend);
+    const lg = push(["■ オレンジの行（大きい文字）＝見積書に記入する金額（▶ 海外プログラム費用 小計・海外プログラム費用 合計・コーディネーション費用・ビザ申請費用）"], STYLE.legend);
     cellStyles.push({ r:lg-1, c:0, style:{ fill:{ patternType:"solid", fgColor:{ rgb:"FCE4D6" } } } });
     push([]);
 
@@ -2516,10 +2516,17 @@ function _buildWorkbook(targets) {
       const progs = lines.filter(l => !l.isJPY && _lineSchoolIdx(l)===si);
       const jpys  = lines.filter(l =>  l.isJPY && _lineSchoolIdx(l)===si);
       const schoolRefs = [];
-      // 追加上乗せがある学校は、海外プログラム費用 小計の直下に「海外プログラム費用＋追加上乗せ」行を出す（参考合計・合計SUMには含めない）
-      const adjLines = jpys.filter(l => l.kind==="adj" || (!l.kind && /^追加上乗せ/.test(l.label||"")));
+      // 海外プログラム費用 小計の直下に「追加上乗せ」「アクションラーニング（内包時）」→「▶ 海外プログラム費用 合計」を出す
+      // （追加上乗せ・内包アクションラーニングは円建て費用ブロックには出さない。合計行は確認用で見積合計SUMには含めない）
+      const isAdj = l => l.kind==="adj" || (!l.kind && /^追加上乗せ/.test(l.label||""));
+      const adjLines = progs.length ? jpys.filter(isAdj) : [];
+      const jpysRest = jpys.filter(l => !adjLines.includes(l));
+      const isBelow = x => x.type==="action-learning";
+      const belowIncl = [];
+      progs.forEach(l => (l.includedJpy||[]).filter(isBelow).forEach(x => belowIncl.push(x)));
+      const belowSum = l => (l.includedJpy||[]).filter(isBelow).reduce((t,x)=>t+Math.round(x.jpy),0);
+      const progJpy = l => Math.round(l.jpy) - belowSum(l);
       const progSubRows = [];
-      let comboRow = null;
 
       progs.forEach((l, pi) => {
         const cur = l.currency || "GBP";
@@ -2558,48 +2565,48 @@ function _buildWorkbook(targets) {
         const progRow = push([`　来年度上乗せ (${pctTxt(lProgPct)})`, "", "", "", Math.round(l.progGainJPY||0)]);
         addManF(progRow, l.progGainJPY||0);
 
-        // 円建てAdd-on（内包）: プログラム費用の小計に算入
+        // 円建てAdd-on（内包）: プログラム費用の小計に算入（アクションラーニングは小計の下に別行で出す）
         const inclRows = [];
-        (l.includedJpy||[]).forEach(x => {
+        (l.includedJpy||[]).filter(x => !isBelow(x)).forEach(x => {
           const r = push([`　【円建て・内包】${x.label}`, "", "JPY", "", Math.round(x.jpy)]);
           addManF(r, x.jpy); inclRows.push(r);
         });
         const sumArgs = [...detailRows.map(r=>`E${r}`), `E${progRow}`, ...inclRows.map(r=>`E${r}`)];
         const localArgs = detailRows.map(r=>`B${r}`);
-        const sr = push([`　▶ ${l.label} 小計`, Math.round((l.local||0)*100)/100, cur, Math.round(effRate*100)/100, Math.round(l.jpy)], STYLE.quote);
+        const sr = push([`　▶ ${l.label} 小計`, Math.round((l.local||0)*100)/100, cur, Math.round(effRate*100)/100, progJpy(l)], STYLE.quote);
         tallRows.push(sr-1);
         if (localArgs.length) formulas.push({ r:sr-1, c:1, f:`SUM(${localArgs.join(",")})` });
         formulas.push({ r:sr-1, c:4, f:`SUM(${sumArgs.join(",")})` });
-        addManF(sr, l.jpy);
+        addManF(sr, progJpy(l));
         schoolRefs.push(`E${sr}`);
         progSubRows.push(sr);
-        if (pi === progs.length-1 && adjLines.length > 0) {
+        if (pi === progs.length-1 && (adjLines.length > 0 || belowIncl.length > 0)) {
+          const addRows = [];
+          adjLines.forEach(a => { const r = push([`　${a.label}`, "", "JPY", "", Math.round(a.jpy)]); addManF(r, a.jpy); addRows.push(r); });
+          belowIncl.forEach(x => { const r = push([`　${x.label}（プログラムに内包）`, "", "JPY", "", Math.round(x.jpy)]); addManF(r, x.jpy); addRows.push(r); });
+          addRows.forEach(r => schoolRefs.push(`E${r}`));
           const comboVal = progs.reduce((t,x)=>t+Math.round(x.jpy),0) + adjLines.reduce((t,x)=>t+Math.round(x.jpy),0);
           const progName = progs.length===1 ? l.label : "海外プログラム費用";
-          comboRow = push([`　▶ ${progName}＋追加上乗せ`, "", "", "", comboVal], STYLE.quote);
-          tallRows.push(comboRow-1);
-          addManF(comboRow, comboVal);
+          const what = [adjLines.length?"追加上乗せ":"", belowIncl.length?"アクションラーニング":""].filter(Boolean).join("・");
+          const cr2 = push([`　▶ ${progName} 合計（${what}含む）`, "", "", "", comboVal], STYLE.quote);
+          tallRows.push(cr2-1);
+          formulas.push({ r:cr2-1, c:4, f:`SUM(${[...progSubRows, ...addRows].map(r=>`E${r}`).join(",")})` });
+          addManF(cr2, comboVal);
         }
         push([]);
       });
 
-      if (jpys.length > 0) {
+      if (jpysRest.length > 0) {
         push([`▼ 円建て費用${multiSchool?`（学校${si+1}）`:""}`], STYLE.total);
         push(["　項目", "", "通貨", "", "金額（円）", "金額（万円・繰上げ）"], STYLE.colhead);
-        jpys.forEach(l => {
+        jpysRest.forEach(l => {
           const isCoord = ["coord","visa"].includes(l.kind) || (!l.kind && /コーディネーション|ビザ申請/.test(l.label||""));
           const r = push([`　${isCoord?"▶ ":""}${l.label}`, "", "JPY", "", Math.round(l.jpy)], isCoord ? STYLE.quote : null);
           if (isCoord) tallRows.push(r-1);
           addManF(r, l.jpy);
           schoolRefs.push(`E${r}`);
-          if (adjLines.includes(l)) l._xlsRow = r;
         });
         push([]);
-      }
-      if (comboRow) {
-        const adjRefs = adjLines.filter(l=>l._xlsRow).map(l=>`E${l._xlsRow}`);
-        formulas.push({ r:comboRow-1, c:4, f:`SUM(${[...progSubRows.map(r=>`E${r}`), ...adjRefs].join(",")})` });
-        adjLines.forEach(l => { delete l._xlsRow; });
       }
 
       if (multiSchool) {
