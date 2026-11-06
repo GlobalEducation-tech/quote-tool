@@ -132,7 +132,7 @@ if(sessionStorage.getItem("getc_auth")==="1"){document.addEventListener("DOMCont
 else{document.addEventListener("DOMContentLoaded",()=>{const i=document.getElementById("pw-input");if(i)i.focus();});}
 </script>
 <div class="app">
-  <h1>海外プログラム見積計算ツール <span id="app-version" style="font-size:11px;color:#999;font-weight:400">ver 2026-11-04c</span></h1>
+  <h1>海外プログラム見積計算ツール <span id="app-version" style="font-size:11px;color:#999;font-weight:400">ver 2026-11-05a</span></h1>
 
   <!-- 保存済み見積もり -->
   <div class="card">
@@ -229,6 +229,9 @@ else{document.addEventListener("DOMContentLoaded",()=>{const i=document.getEleme
         <div class="field"><label>CHF / JPY（TTS）</label><input type="number" id="fx-chf" value="185" min="80" max="350" step="0.1" oninput="calcAll()"></div>
         <div class="field"><label>CNY / JPY（TTS）</label><input type="number" id="fx-cny" value="22" min="5" max="60" step="0.01" oninput="calcAll()"></div>
         <div class="field"><label>MYR / JPY（TTS）</label><input type="number" id="fx-myr" value="36" min="10" max="80" step="0.01" oninput="calcAll()"></div>
+        <div class="field"><label>TWD / JPY（TTS）</label><input type="number" id="fx-twd" value="5.2" min="1" max="20" step="0.01" oninput="calcAll()"></div>
+        <div class="field"><label>KRW / JPY（TTS）</label><input type="number" id="fx-krw" value="0.12" min="0.01" max="1" step="0.0001" oninput="calcAll()"></div>
+        <div class="field"><label>INR / JPY（TTS）</label><input type="number" id="fx-inr" value="1.9" min="0.5" max="10" step="0.01" oninput="calcAll()"></div>
       </div>
     </div>
   </div>
@@ -771,7 +774,7 @@ function renderSchoolSection(s, si) {
 
 // ===================== ビジネススクール手入力 =====================
 function renderBsProgramBlock(b, i, sid) {
-  const curOpts = ["USD","GBP","EUR","CHF","CAD","AUD","SGD","NZD","CNY","MYR"]
+  const curOpts = ["USD","GBP","EUR","CHF","CAD","AUD","SGD","NZD","CNY","MYR","TWD","KRW","INR"]
     .map(c=>`<option value="${c}" ${(b.currency||"USD")===c?"selected":""}>${c}</option>`).join("");
   const w = (b.start&&b.end) ? calcWeeks(b.start,b.end) : null;
   const weeksLabel = w ? `${w.total}週` : "—";
@@ -1098,7 +1101,7 @@ function renderCourseBlock(b, i, sid) {
   if(_selCourse?.note){info+=`<span class="info-badge" style="background:#fff8e1;color:#795548">📝 ${_selCourse.note}</span>`;}
   const courseType=cd&&b.course?cd.courses[b.course]?.type:"";
   const is1to1=courseType==="1to1",isWse1to1=courseType==="wse-1to1";
-  const hoursField=is1to1?`<div class="field"><label>時間数/週</label><input type="number" value="${b.hours||20}" min="5" max="40" oninput="updateCourse(${b.id},'hours',this.value)"></div>`:isWse1to1?`<div class="field"><label>レッスン数/週</label><input type="number" value="${b.lessons||10}" min="1" max="21" oninput="updateCourse(${b.id},'lessons',this.value)"></div>`:"";
+  const hoursField=is1to1?`<div class="field"><label>${_selCourse?.hoursLabel||"時間数/週"}</label><input type="number" value="${b.hours||_selCourse?.defaultHours||20}" min="${_selCourse?.hoursLabel?1:5}" max="40" oninput="updateCourse(${b.id},'hours',this.value)"></div>`:isWse1to1?`<div class="field"><label>レッスン数/週</label><input type="number" value="${b.lessons||10}" min="1" max="21" oninput="updateCourse(${b.id},'lessons',this.value)"></div>`:"";
   const campusCount=b.school&&SCHOOLS[b.school]?Object.keys(SCHOOLS[b.school].campuses).length:0;
   return `<div class="course-block">
     <div class="block-header"><span class="block-label">コース ${i+1}</span><button class="btn btn-sm btn-danger" onclick="removeCourse(${b.id})">削除</button></div>
@@ -1172,7 +1175,7 @@ function addPrivLesson() {}      // ダミー
 function renderPrivLessonBlock(b, i, sid) {
   const s = schoolSections.find(x=>x.id===sid);
   const currency = getSchoolCurrency(b.school||s?.school||"");
-  const sym = {GBP:"£",USD:"$",CAD:"C$",EUR:"€",THB:"฿",NZD:"NZ$",SGD:"S$",AUD:"A$",CHF:"CHF ",CNY:"CN¥",MYR:"RM ",JPY:"¥"}[currency]||"";
+  const sym = {GBP:"£",USD:"$",CAD:"C$",EUR:"€",THB:"฿",NZD:"NZ$",SGD:"S$",AUD:"A$",CHF:"CHF ",CNY:"CN¥",MYR:"RM ",TWD:"NT$",KRW:"₩",INR:"₹",JPY:"¥"}[currency]||"";
   const defaultPrice = (PRIVATE_LESSON_PRICES[b.school]?.[b.campus]) || (PRIVATE_LESSON_PRICES[b.school]?.[s?.campus]) || null;
   if (defaultPrice && !b.pricePerLesson) b.pricePerLesson = defaultPrice;
   const priceVal = b.pricePerLesson || defaultPrice || "";
@@ -1207,6 +1210,9 @@ function getFxRate(currency) {
     CHF: parseFloat(document.getElementById("fx-chf")?.value)||185,
     CNY: parseFloat(document.getElementById("fx-cny")?.value)||22,
     MYR: parseFloat(document.getElementById("fx-myr")?.value)||36,
+    TWD: parseFloat(document.getElementById("fx-twd")?.value)||5.2,
+    KRW: parseFloat(document.getElementById("fx-krw")?.value)||0.12,
+    INR: parseFloat(document.getElementById("fx-inr")?.value)||1.9,
     JPY: 1,
   };
   if (rates[currency]===undefined) { console.warn("TTS未設定の通貨:", currency); }
@@ -1319,8 +1325,9 @@ function weeksOpts(selected) {
 function fmt(n) { return Math.ceil(Math.round(n)/10000)+"万円"; } // 万単位・繰り上げ（繰り下げなし）
 function fmtJPY(n) { return Math.round(n).toLocaleString("ja-JP")+"円"; }
 function fmtC(n, currency) {
-  const syms={GBP:"£",CAD:"C$",USD:"$",EUR:"€",THB:"฿",NZD:"NZ$",SGD:"S$",AUD:"A$",CHF:"CHF ",CNY:"CN¥",MYR:"RM ",JPY:"¥"};
+  const syms={GBP:"£",CAD:"C$",USD:"$",EUR:"€",THB:"฿",NZD:"NZ$",SGD:"S$",AUD:"A$",CHF:"CHF ",CNY:"CN¥",MYR:"RM ",TWD:"NT$",KRW:"₩",INR:"₹",JPY:"¥"};
   if (currency==="JPY") return "¥"+(Math.round(n)).toLocaleString("ja-JP");
+  if (currency==="KRW") return "₩"+(Math.round(n)).toLocaleString("ja-JP");
   return (syms[currency]||"")+(Math.round(n*100)/100).toLocaleString("en",{minimumFractionDigits:2,maximumFractionDigits:2});
 }
 function getCampData(school, campus) {
@@ -1374,7 +1381,7 @@ function renderAddonBlock(b, i, sid) {
     const schoolKey = s?.school||""; const campusKey = s?.campus||"";
     const cd=getCampData(schoolKey,campusKey);
     const cur=schoolKey?getSchoolCurrency(schoolKey):"GBP";
-    const sym={GBP:"£",USD:"$",CAD:"C$",EUR:"€",THB:"฿",NZD:"NZ$",SGD:"S$",AUD:"A$",CHF:"CHF ",CNY:"CN¥",MYR:"RM "}[cur]||"";
+    const sym={GBP:"£",USD:"$",CAD:"C$",EUR:"€",THB:"฿",NZD:"NZ$",SGD:"S$",AUD:"A$",CHF:"CHF ",CNY:"CN¥",MYR:"RM ",TWD:"NT$",KRW:"₩",INR:"₹",JPY:"¥"}[cur]||"";
     let airportOpts=`<option value="">選択</option>`;
     if(cd) airportOpts+=Object.entries(cd.airports).map(([k,v])=>`<option value="${k}" ${b.airport===k?"selected":""}>${k} (${sym}${v})</option>`).join("");
     extraHtml=`<div class="field-grid g2">
@@ -1414,7 +1421,7 @@ function renderAddonBlock(b, i, sid) {
       <div class="field"><label>単価</label><input type="text" value="¥${glPriceMap[b.type].toLocaleString()} / ${glUnitLabels[b.type]}" readonly style="background:#f5f5f3;color:#888"></div>
       <div class="field"><label>小計</label><input type="text" value="¥${(glPriceMap[b.type]*(parseFloat(b.qty)||1)).toLocaleString()}" readonly style="background:#f5f5f3;color:#888"></div></div>`;
   } else {
-    const currOpts=["GBP","CAD","USD","EUR","THB","NZD","SGD","AUD","CHF","CNY","MYR"].map(c=>`<option value="${c}" ${b.currency===c?"selected":""}>${c}</option>`).join("");
+    const currOpts=["GBP","CAD","USD","EUR","THB","NZD","SGD","AUD","CHF","CNY","MYR","TWD","KRW","INR"].map(c=>`<option value="${c}" ${b.currency===c?"selected":""}>${c}</option>`).join("");
     extraHtml=`<div class="field-grid g3">
       <div class="field"><label>説明</label><input type="text" id="addon-desc-${b.id}" value="${(b.desc||'').replace(/"/g,'&quot;')}" placeholder="内容" onchange="updateAddon(${b.id},'desc',this.value)"></div>
       <div class="field"><label>金額</label><input type="number" value="${b.amount||''}" min="0" placeholder="0" oninput="updateAddon(${b.id},'amount',this.value)"></div>
@@ -1558,8 +1565,8 @@ function calcAll() {
       } else if(course.type==="wse-fixed"){
         const t=course.fixedPrice*(course.fixedWeeks||1);subLocal+=t;commLocal+=t*course.commission;subItems.push({label:`授業料（固定）`,local:t});
       } else if(course.type==="1to1"){
-        const hrs=parseFloat(b.hours||20);const t=course.pricePerHour*hrs*weeks;
-        subLocal+=t;commLocal+=t*course.commission;subItems.push({label:`授業料 @ ${fmtC(course.pricePerHour,currency)}/h × ${hrs}h × ${weeks}週`,local:t,formula:`${course.pricePerHour}*${hrs}*${weeks}`});
+        const hrs=parseFloat(b.hours||course.defaultHours||20);const t=course.pricePerHour*hrs*weeks;const _u=course.unitName||"h";
+        subLocal+=t;commLocal+=t*course.commission;subItems.push({label:`授業料 @ ${fmtC(course.pricePerHour,currency)}/${_u} × ${hrs}${_u} × ${weeks}週`,local:t,formula:`${course.pricePerHour}*${hrs}*${weeks}`});
       } else if(course.type==="ih-fixed"){
         const rw=[4,8,12,16,20].reduce((p,c)=>Math.abs(c-weeks)<Math.abs(p-weeks)?c:p);
         const t=course.fixedPrices[rw]||course.fixedPrices[4];subLocal+=t;commLocal+=t*course.commission;subItems.push({label:`授業料（${rw}週パッケージ）`,local:t});
@@ -1589,6 +1596,11 @@ function calcAll() {
             ? {label:`${it.label} ${fmtC(it.fee,currency)} × ${n}セッション`,local:amt,formula:`${it.fee}*${n}`}
             : {label:it.label,local:amt});
         });
+      } else if(course.type==="weekTable"){
+        // 1〜N週は総額表、それ以降は週単価×全週数（例: LTL）
+        const tbl=course.weekTable||[0], maxW=tbl.length-1;
+        if(weeks<=maxW){const t=tbl[weeks]||0;subLocal+=t;commLocal+=t*course.commission;subItems.push({label:`授業料 ${weeks}週（総額表）`,local:t});}
+        else{const t=(course.afterRate||0)*weeks;subLocal+=t;commLocal+=t*course.commission;subItems.push({label:`授業料 ${fmtC(course.afterRate,currency)}/週 × ${weeks}週（${maxW+1}週以上の単価）`,local:t,formula:`${course.afterRate}*${weeks}`});}
       } else if(course.fixedWeeks){
         const t=course.prices[0];subLocal+=t;commLocal+=t*course.commission;subItems.push({label:`授業料（${course.fixedWeeks}週固定）`,local:t});
       } else {
@@ -2084,6 +2096,9 @@ function _currentProjectData(existingId) {
       chf:parseFloat(document.getElementById("fx-chf")?.value)||185,
       cny:parseFloat(document.getElementById("fx-cny")?.value)||22,
       myr:parseFloat(document.getElementById("fx-myr")?.value)||36,
+      twd:parseFloat(document.getElementById("fx-twd")?.value)||5.2,
+      krw:parseFloat(document.getElementById("fx-krw")?.value)||0.12,
+      inr:parseFloat(document.getElementById("fx-inr")?.value)||1.9,
     },
     tabs: tabs.map(t=>({
       id:t.id, name:getTabName(t), schoolSections:t.schoolSections,
@@ -2133,7 +2148,7 @@ function loadProject(id) {
   onNationalityChange();
   if (p.country && document.getElementById("person-country")) document.getElementById("person-country").value = p.country;
   if (p.fx) {
-    ["gbp","cad","usd","eur","nzd","thb","sgd","aud","chf","cny","myr"].forEach(c=>{
+    ["gbp","cad","usd","eur","nzd","thb","sgd","aud","chf","cny","myr","twd","krw","inr"].forEach(c=>{
       const el=document.getElementById("fx-"+c);
       if(el&&p.fx[c]!==undefined) el.value=p.fx[c];
     });

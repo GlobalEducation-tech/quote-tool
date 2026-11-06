@@ -3334,3 +3334,511 @@ PRICE_YEARS_OVERRIDE.anglocontinental = { "bournemouth": [2026], "bournemouth-20
   // 宿泊欄の「なし」表記を更新
   ["kuala-lumpur","upm","utm-johor"].forEach(k=>{ if (els[k].accom.none) els[k].accom.none.name = "なし"; });
 })();
+
+// =====================================================================
+// 2026-11-05 追加: TLI 上海センター / LTL（中国・台湾・シンガポール・日本・韓国・ベトナム）/ Zabaan（インド）
+// ・新通貨: TWD（LTL台湾）・KRW（LTL韓国）・INR（Zabaan）→ index.html ver 2026-11-05a 以降が必要
+// ・LTLは料金表が「1〜12週の総額表＋13週以上の週単価」→ コースは type:"weekTable"（index.html側で新設）
+// ・📝 3校ともコミッション率未確認のため0%で計算（粗利は過小側）
+// =====================================================================
+(function(){
+  const CM = 0; // コミッション（要確認）
+  const fmtN = n => Number(n).toLocaleString("en");
+
+  // ---- TLI 上海センター（既存の TLI 北京と同じ学校に上海キャンパスを追加）--------------
+  // 出典: TLI Shanghai Center – Tuition Fee Schedule（2026年）
+  // 料金はコマ単価（1名あたり）。type:"1to1" を流用し「コマ数/週」× 週数で計算。
+  SCHOOLS.tli.name = "TLI（Taipei Language Institute）";
+  const TLI_SH_NOTE = "2026年版（TLI Shanghai Center）。料金はコマ単価（1名あたり）→「コマ数/週」×週数で計算。授業時間7:00〜21:00。登録費CNY150/人。教科書は別（必要時は教材費Add-onで追加）。前払い制・キャンセル/変更は1営業日前まで。📝コミッション率未確認のため0%で計算。";
+  const TS = (name, perLesson) => ({ name, type:"1to1", pricePerHour:perLesson, hoursLabel:"コマ数/週", unitName:"コマ", defaultHours:10, commission:CM, note:TLI_SH_NOTE });
+  SCHOOLS.tli.campuses["shanghai"] = {
+    name: "上海センター（浦東・徐匯・中山の3校舎）", country: "China", regFee: 150, peakSupp: 0,
+    courses: {
+      "cn-1to1-on":     TS("中国語 マンツーマン（校内・50分/コマ）CNY 198/コマ", 198),
+      "cn-1to1-off":    TS("中国語 マンツーマン（出張・60分/コマ）CNY 258/コマ", 258),
+      "other-1to1-on":  TS("中国文化／上海語／その他言語 マンツーマン（校内・50分/コマ）CNY 258/コマ", 258),
+      "other-1to1-off": TS("中国文化／上海語／その他言語 マンツーマン（出張・60分/コマ）CNY 298/コマ", 298),
+      "grp2-on":        TS("グループ 2名（校内・50分）1人あたり CNY 128/コマ", 128),
+      "grp3-5-on":      TS("グループ 3〜5名（校内・50分）1人あたり CNY 98/コマ", 98),
+      "grp6-10-on":     TS("グループ 6〜10名（校内・50分）1人あたり CNY 78/コマ", 78),
+      "grp10plus-on":   TS("グループ 10名超（校内・50分）1人あたり CNY 58/コマ", 58),
+      "grp2-off":       TS("グループ 2名（出張・60分）1人あたり CNY 158/コマ", 158),
+      "grp3-5-off":     TS("グループ 3〜5名（出張・60分）1人あたり CNY 128/コマ", 128),
+      "grp6-10-off":    TS("グループ 6〜10名（出張・60分）1人あたり CNY 108/コマ", 108),
+      "grp10plus-off":  TS("グループ 10名超（出張・60分）1人あたり CNY 88/コマ", 88),
+    },
+    accom: { "none": { name:"なし（料金表に宿泊記載なし）", low:0, peak:0 } },
+    airports: {}
+  };
+  PRIVATE_LESSON_PRICES.tli["shanghai"] = 198;
+
+  // ---- LTL ----------------------------------------------------------------
+  // 出典: 2026 LTL General Price List（全39ページ）
+  // ・掲載額は各都市の割引（西安/成都/昆明 −20%・北海 −40%）適用後の金額
+  // ・教科書・教材・レベル診断込み、登録費なし（"No hidden fees"）→ regFee:0
+  // ・宿泊も総額表＋13週以上の週単価（weekTable）。延泊（Extra Night）は自動計算なし→名称に金額を表記
+  // ・朝食のみ（−15%）/食事なしホームステイ（−20%）は料金表に金額がないため算出値で登録（要確認）
+  // ・Upgrade（SAFARI）・Guardian（週単価）・Survival/Connection Kit（一回）はコース行として追加する方式
+  const LTL_DATES = "グループの完全初心者は指定開始日のみ（1/19, 2/2, 3/2, 3/23, 4/13, 5/11, 6/1, 6/15, 6/29, 7/13, 7/27, 8/10, 8/24, 9/14, 10/19, 11/9, 12/7）。それ以外は毎週月曜開始可";
+  const LTL_NOTE = `2026年版。1〜12週は料金表の総額、13週以上は「>12週」の週単価×全週数。教科書・教材・レベル診断込（登録費なし）。${LTL_DATES}。12月開始・4週以上はクリスマス割引（12月最終2週50%OFF）あり→自動計算なし。📝コミッション率未確認のため0%で計算。`;
+  const C = (name, table, after) => ({ name, type:"weekTable", weekTable:table, afterRate:after, commission:CM, note:LTL_NOTE });
+  const W = (name, rate) => ({ name, type:"group", prices:[rate], brackets:[1], commission:CM, regFee:0, note:"週単価×週数。メインのコースとは別のコース行として追加してください。SAFARIは1on1コースのみ追加可。" });
+  const F = (name, fee) => ({ name, type:"fixed", fixedPrice:fee, commission:CM, regFee:0 });
+  const A = (name, table, after, night, hb) => Object.assign({
+    name: `${name}（1週${fmtN(table[1])}〜12週${fmtN(table[12])}・13週以上${fmtN(after)}/週${night?`・延泊${fmtN(night)}/泊は手動`:""}）`,
+    weekTable: table, afterRate: after }, hb ? { halfBoard:true } : {});
+
+  SCHOOLS.ltl_china = {
+    name: "LTL Mandarin School（中国）",
+    currency: "CNY",
+    campuses: {
+    "beijing": {
+      name: "Beijing 北京", country: "China", regFee: 0, peakSupp: 0,
+      courses: {
+      "sg20": C("Small Group（グループ20h/週）", [0, 3321, 6478, 9480, 12331, 15038, 17607, 20037, 22347, 24519, 26584, 28529, 30369], 2531),
+      "sg20-1on1-10": C("Small Group & Individual（グループ20h＋1on1 10h/週）", [0, 6706, 13084, 19146, 24904, 30371, 35559, 40470, 45128, 49524, 53690, 57618, 61327], 5111),
+      "std-1on1-20": C("Standard Individual（1on1 20h/週）", [0, 6770, 13211, 19332, 25145, 30665, 35904, 40866, 45562, 50009, 54212, 58177, 61916], 5160),
+      "int-1on1-30": C("Intensive Individual（1on1 30h/週）", [0, 10156, 19818, 28998, 37716, 45998, 53856, 61299, 68340, 75020, 81315, 87269, 92880], 7740),
+      "up-safari-10": W("【Upgrade】SAFARI 10h/週（1on1コースに追加・街中での実践レッスン）CNY 640/週", 640),
+      "up-safari-20": W("【Upgrade】SAFARI 20h/週（1on1コースに追加・街中での実践レッスン）CNY 1,248/週", 1248),
+      "svc-guardian": W("【Service】Guardian Program（未成年者向け）CNY 900/週", 900),
+      "svc-survival-std":  F("【Service】Survival Kit Standard CNY 2,060（一回）", 2060),
+      "svc-survival-comf": F("【Service】Survival Kit Comfort CNY 3,296（一回）", 3296),
+      "svc-connection":    F("【Service】Connection Kit CNY 1,133（一回）", 1133),
+      "svc-cny-homestay":  F("【Supplement】Chinese New Year Homestay Supplement CNY 1,000（春節期間ホームステイ）", 1000),
+      },
+      accom: {
+      "none": { name:"なし", low:0, peak:0 },
+      "hs": A("Homestay 個室・朝夕食付", [0, 3727, 7237, 10537, 13641, 16552, 19288, 21846, 24242, 26475, 28562, 30500, 32309], 2692, 621, true),
+      "shared-sb": A("Shared Apartment 個室・共用バス・共用キッチン", [0, 2981, 5679, 8111, 10300, 12262, 14282, 16179, 17955, 19606, 21156, 22592, 23929], 1994, 497),
+      "shared-pb": A("Shared Apartment 個室・専用バス・共用キッチン（北京のみ）", [0, 3727, 7097, 10138, 12875, 15326, 17854, 20224, 22438, 24510, 26440, 28234, 29911], 2493, 621),
+      "studio": A("Studio Apartment 専用バス・簡易キッチン", [0, 6436, 12259, 17514, 22240, 26476, 30844, 34940, 38769, 42345, 45681, 48776, 51665], 4305, 1073),
+      "hs-bo": A("Homestay 個室・朝食のみ（料金表Homestay額×85%で算出・要確認）", [0, 3168, 6151, 8956, 11595, 14069, 16395, 18569, 20606, 22504, 24278, 25925, 27463], 2288, null),
+      "hs-nf": A("Homestay 個室・食事なし（料金表Homestay額×80%で算出・要確認）", [0, 2982, 5790, 8430, 10913, 13242, 15430, 17477, 19394, 21180, 22850, 24400, 25847], 2154, null),
+      },
+      airports: { "Airport Pickup": 412 }
+    },
+    "shanghai": {
+      name: "Shanghai 上海", country: "China", regFee: 0, peakSupp: 0,
+      courses: {
+      "sg20": C("Small Group（グループ20h/週）", [0, 3321, 6478, 9480, 12331, 15038, 17607, 20037, 22347, 24519, 26584, 28529, 30369], 2531),
+      "sg20-1on1-10": C("Small Group & Individual（グループ20h＋1on1 10h/週）", [0, 6706, 13084, 19146, 24904, 30371, 35559, 40470, 45128, 49524, 53690, 57618, 61327], 5111),
+      "std-1on1-20": C("Standard Individual（1on1 20h/週）", [0, 6770, 13211, 19332, 25145, 30665, 35904, 40866, 45562, 50009, 54212, 58177, 61916], 5160),
+      "int-1on1-30": C("Intensive Individual（1on1 30h/週）", [0, 10156, 19818, 28998, 37716, 45998, 53856, 61299, 68340, 75020, 81315, 87269, 92880], 7740),
+      "up-safari-10": W("【Upgrade】SAFARI 10h/週（1on1コースに追加・街中での実践レッスン）CNY 640/週", 640),
+      "up-safari-20": W("【Upgrade】SAFARI 20h/週（1on1コースに追加・街中での実践レッスン）CNY 1,248/週", 1248),
+      "svc-guardian": W("【Service】Guardian Program（未成年者向け）CNY 900/週", 900),
+      "svc-survival-std":  F("【Service】Survival Kit Standard CNY 2,060（一回）", 2060),
+      "svc-survival-comf": F("【Service】Survival Kit Comfort CNY 3,296（一回）", 3296),
+      "svc-connection":    F("【Service】Connection Kit CNY 1,133（一回）", 1133),
+      "svc-cny-homestay":  F("【Supplement】Chinese New Year Homestay Supplement CNY 1,000（春節期間ホームステイ）", 1000),
+      },
+      accom: {
+      "none": { name:"なし", low:0, peak:0 },
+      "hs": A("Homestay 個室・朝夕食付", [0, 3727, 7237, 10537, 13641, 16552, 19288, 21846, 24242, 26475, 28562, 30500, 32309], 2692, 621, true),
+      "shared-sb": A("Shared Apartment 個室・共用バス・共用キッチン", [0, 2981, 5679, 8111, 10300, 12262, 14282, 16179, 17955, 19606, 21156, 22592, 23929], 1994, 497),
+      "studio": A("Studio Apartment 専用バス・簡易キッチン", [0, 6436, 12259, 17514, 22240, 26476, 30844, 34940, 38769, 42345, 45681, 48776, 51665], 4305, 1073),
+      "hs-bo": A("Homestay 個室・朝食のみ（料金表Homestay額×85%で算出・要確認）", [0, 3168, 6151, 8956, 11595, 14069, 16395, 18569, 20606, 22504, 24278, 25925, 27463], 2288, null),
+      "hs-nf": A("Homestay 個室・食事なし（料金表Homestay額×80%で算出・要確認）", [0, 2982, 5790, 8430, 10913, 13242, 15430, 17477, 19394, 21180, 22850, 24400, 25847], 2154, null),
+      },
+      airports: { "Airport Pickup": 412 }
+    },
+    "chengde": {
+      name: "Chengde 承徳（完全イマージョン・1on1のみ）", country: "China", regFee: 0, peakSupp: 0,
+      courses: {
+      "std-1on1-20": C("Standard Individual（1on1 20h/週）", [0, 6770, 13211, 19332, 25145, 30665, 35904, 40866, 45562, 50009, 54212, 58177, 61916], 5160),
+      "int-1on1-30": C("Intensive Individual（1on1 30h/週）", [0, 10156, 19818, 28998, 37716, 45998, 53856, 61299, 68340, 75020, 81315, 87269, 92880], 7740),
+      "up-safari-10": W("【Upgrade】SAFARI 10h/週（1on1コースに追加・街中での実践レッスン）CNY 640/週", 640),
+      "up-safari-20": W("【Upgrade】SAFARI 20h/週（1on1コースに追加・街中での実践レッスン）CNY 1,248/週", 1248),
+      "svc-guardian": W("【Service】Guardian Program（未成年者向け）CNY 900/週", 900),
+      "svc-survival-std":  F("【Service】Survival Kit Standard CNY 2,060（一回）", 2060),
+      "svc-survival-comf": F("【Service】Survival Kit Comfort CNY 3,296（一回）", 3296),
+      "svc-connection":    F("【Service】Connection Kit CNY 1,133（一回）", 1133),
+      "svc-cny-homestay":  F("【Supplement】Chinese New Year Homestay Supplement CNY 1,000（春節期間ホームステイ）", 1000),
+      },
+      accom: {
+      "none": { name:"なし", low:0, peak:0 },
+      "hs": A("Homestay 個室・朝夕食付", [0, 3727, 7237, 10537, 13641, 16552, 19288, 21846, 24242, 26475, 28562, 30500, 32309], 2692, 621, true),
+      "shared-sb": A("Shared Apartment 個室・共用バス・共用キッチン", [0, 2981, 5679, 8111, 10300, 12262, 14282, 16179, 17955, 19606, 21156, 22592, 23929], 1994, 497),
+      "studio": A("Studio Apartment 専用バス・簡易キッチン", [0, 6436, 12259, 17514, 22240, 26476, 30844, 34940, 38769, 42345, 45681, 48776, 51665], 4305, 1073),
+      "hs-bo": A("Homestay 個室・朝食のみ（料金表Homestay額×85%で算出・要確認）", [0, 3168, 6151, 8956, 11595, 14069, 16395, 18569, 20606, 22504, 24278, 25925, 27463], 2288, null),
+      "hs-nf": A("Homestay 個室・食事なし（料金表Homestay額×80%で算出・要確認）", [0, 2982, 5790, 8430, 10913, 13242, 15430, 17477, 19394, 21180, 22850, 24400, 25847], 2154, null),
+      },
+      airports: { "Airport Pickup": 412 }
+    },
+    "xian": {
+      name: "Xi'an 西安（−20%価格）", country: "China", regFee: 0, peakSupp: 0,
+      courses: {
+      "sg20": C("Small Group（グループ20h/週）", [0, 2656, 5183, 7586, 9867, 12030, 14090, 16035, 17881, 19625, 21269, 22830, 24300], 2025),
+      "sg20-1on1-10": C("Small Group & Individual（グループ20h＋1on1 10h/週）", [0, 5364, 10467, 15319, 19926, 24298, 28451, 32382, 36104, 39625, 42952, 46097, 49065], 4089),
+      "std-1on1-20": C("Standard Individual（1on1 20h/週）", [0, 5416, 10569, 15467, 20118, 24533, 28722, 32693, 36448, 40002, 43365, 46535, 49531], 4128),
+      "int-1on1-30": C("Intensive Individual（1on1 30h/週）", [0, 8124, 15854, 23200, 30177, 36800, 43083, 49039, 54672, 60003, 65048, 69802, 74296], 6192),
+      "up-safari-10": W("【Upgrade】SAFARI 10h/週（1on1コースに追加・街中での実践レッスン）CNY 512/週", 512),
+      "up-safari-20": W("【Upgrade】SAFARI 20h/週（1on1コースに追加・街中での実践レッスン）CNY 998/週", 998),
+      "svc-guardian": W("【Service】Guardian Program（未成年者向け）CNY 720/週", 720),
+      "svc-survival-std":  F("【Service】Survival Kit Standard CNY 1,648（一回）", 1648),
+      "svc-survival-comf": F("【Service】Survival Kit Comfort CNY 2,637（一回）", 2637),
+      "svc-connection":    F("【Service】Connection Kit CNY 906（一回）", 906),
+      "svc-cny-homestay":  F("【Supplement】Chinese New Year Homestay Supplement CNY 1,000（春節期間ホームステイ）", 1000),
+      },
+      accom: {
+      "none": { name:"なし", low:0, peak:0 },
+      "hs": A("Homestay 個室・朝夕食付", [0, 2982, 5791, 8433, 10914, 13246, 15431, 17477, 19397, 21182, 22856, 24405, 25845], 2154, 497, true),
+      "shared-pb": A("Shared Apartment 個室・専用バス・共用キッチン", [0, 2981, 5677, 8111, 10300, 12262, 14282, 16179, 17955, 19606, 21146, 22592, 23929], 1994, 497),
+      "studio": A("Studio Apartment 専用バス・簡易キッチン", [0, 5149, 9808, 14010, 17790, 21182, 24677, 27953, 31015, 33873, 36544, 39021, 41332], 3444, 858),
+      "hs-bo": A("Homestay 個室・朝食のみ（料金表Homestay額×85%で算出・要確認）", [0, 2535, 4922, 7168, 9277, 11259, 13116, 14855, 16487, 18005, 19428, 20744, 21968], 1831, null),
+      "hs-nf": A("Homestay 個室・食事なし（料金表Homestay額×80%で算出・要確認）", [0, 2386, 4633, 6746, 8731, 10597, 12345, 13982, 15518, 16946, 18285, 19524, 20676], 1723, null),
+      },
+      airports: { "Airport Pickup": 412 }
+    },
+    "chengdu": {
+      name: "Chengdu 成都（−20%価格）", country: "China", regFee: 0, peakSupp: 0,
+      courses: {
+      "sg20": C("Small Group（グループ20h/週）", [0, 2656, 5183, 7586, 9867, 12030, 14090, 16035, 17881, 19625, 21269, 22830, 24300], 2025),
+      "sg20-1on1-10": C("Small Group & Individual（グループ20h＋1on1 10h/週）", [0, 5364, 10467, 15319, 19926, 24298, 28451, 32382, 36104, 39625, 42952, 46097, 49065], 4089),
+      "std-1on1-20": C("Standard Individual（1on1 20h/週）", [0, 5416, 10569, 15467, 20118, 24533, 28722, 32693, 36448, 40002, 43365, 46535, 49531], 4128),
+      "int-1on1-30": C("Intensive Individual（1on1 30h/週）", [0, 8124, 15854, 23200, 30177, 36800, 43083, 49039, 54672, 60003, 65048, 69802, 74296], 6192),
+      "up-safari-10": W("【Upgrade】SAFARI 10h/週（1on1コースに追加・街中での実践レッスン）CNY 512/週", 512),
+      "up-safari-20": W("【Upgrade】SAFARI 20h/週（1on1コースに追加・街中での実践レッスン）CNY 998/週", 998),
+      "svc-guardian": W("【Service】Guardian Program（未成年者向け）CNY 720/週", 720),
+      "svc-survival-std":  F("【Service】Survival Kit Standard CNY 1,648（一回）", 1648),
+      "svc-survival-comf": F("【Service】Survival Kit Comfort CNY 2,637（一回）", 2637),
+      "svc-connection":    F("【Service】Connection Kit CNY 906（一回）", 906),
+      "svc-cny-homestay":  F("【Supplement】Chinese New Year Homestay Supplement CNY 1,000（春節期間ホームステイ）", 1000),
+      },
+      accom: {
+      "none": { name:"なし", low:0, peak:0 },
+      "hs": A("Homestay 個室・朝夕食付", [0, 2982, 5791, 8433, 10914, 13246, 15431, 17477, 19397, 21182, 22856, 24405, 25845], 2154, 497, true),
+      "shared-pb": A("Shared Apartment 個室・専用バス・共用キッチン", [0, 2981, 5677, 8111, 10300, 12262, 14282, 16179, 17955, 19606, 21146, 22592, 23929], 1994, 497),
+      "studio": A("Studio Apartment 専用バス・簡易キッチン", [0, 5149, 9808, 14010, 17790, 21182, 24677, 27953, 31015, 33873, 36544, 39021, 41332], 3444, 858),
+      "hs-bo": A("Homestay 個室・朝食のみ（料金表Homestay額×85%で算出・要確認）", [0, 2535, 4922, 7168, 9277, 11259, 13116, 14855, 16487, 18005, 19428, 20744, 21968], 1831, null),
+      "hs-nf": A("Homestay 個室・食事なし（料金表Homestay額×80%で算出・要確認）", [0, 2386, 4633, 6746, 8731, 10597, 12345, 13982, 15518, 16946, 18285, 19524, 20676], 1723, null),
+      },
+      airports: { "Airport Pickup": 412 }
+    },
+    "kunming": {
+      name: "Kunming 昆明（−20%価格）", country: "China", regFee: 0, peakSupp: 0,
+      courses: {
+      "sg20": C("Small Group（グループ20h/週）", [0, 2656, 5183, 7586, 9867, 12030, 14090, 16035, 17881, 19625, 21269, 22830, 24300], 2025),
+      "sg20-1on1-10": C("Small Group & Individual（グループ20h＋1on1 10h/週）", [0, 5364, 10467, 15319, 19926, 24298, 28451, 32382, 36104, 39625, 42952, 46097, 49065], 4089),
+      "std-1on1-20": C("Standard Individual（1on1 20h/週）", [0, 5416, 10569, 15467, 20118, 24533, 28722, 32693, 36448, 40002, 43365, 46535, 49531], 4128),
+      "int-1on1-30": C("Intensive Individual（1on1 30h/週）", [0, 8124, 15854, 23200, 30177, 36800, 43083, 49039, 54672, 60003, 65048, 69802, 74296], 6192),
+      "up-safari-10": W("【Upgrade】SAFARI 10h/週（1on1コースに追加・街中での実践レッスン）CNY 512/週", 512),
+      "up-safari-20": W("【Upgrade】SAFARI 20h/週（1on1コースに追加・街中での実践レッスン）CNY 998/週", 998),
+      "svc-guardian": W("【Service】Guardian Program（未成年者向け）CNY 720/週", 720),
+      "svc-survival-std":  F("【Service】Survival Kit Standard CNY 1,648（一回）", 1648),
+      "svc-survival-comf": F("【Service】Survival Kit Comfort CNY 2,637（一回）", 2637),
+      "svc-connection":    F("【Service】Connection Kit CNY 906（一回）", 906),
+      "svc-cny-homestay":  F("【Supplement】Chinese New Year Homestay Supplement CNY 1,000（春節期間ホームステイ）", 1000),
+      },
+      accom: {
+      "none": { name:"なし", low:0, peak:0 },
+      "hs": A("Homestay 個室・朝夕食付", [0, 2982, 5791, 8433, 10914, 13246, 15431, 17477, 19397, 21182, 22856, 24405, 25845], 2154, 497, true),
+      "shared-pb": A("Shared Apartment 個室・専用バス・共用キッチン", [0, 2981, 5677, 8111, 10300, 12262, 14282, 16179, 17955, 19606, 21146, 22592, 23929], 1994, 497),
+      "studio": A("Studio Apartment 専用バス・簡易キッチン", [0, 5149, 9808, 14010, 17790, 21182, 24677, 27953, 31015, 33873, 36544, 39021, 41332], 3444, 858),
+      "hs-bo": A("Homestay 個室・朝食のみ（料金表Homestay額×85%で算出・要確認）", [0, 2535, 4922, 7168, 9277, 11259, 13116, 14855, 16487, 18005, 19428, 20744, 21968], 1831, null),
+      "hs-nf": A("Homestay 個室・食事なし（料金表Homestay額×80%で算出・要確認）", [0, 2386, 4633, 6746, 8731, 10597, 12345, 13982, 15518, 16946, 18285, 19524, 20676], 1723, null),
+      },
+      airports: { "Airport Pickup": 412 }
+    },
+    "beihai": {
+      name: "Beihai 北海（−40%価格）", country: "China", regFee: 0, peakSupp: 0,
+      courses: {
+      "sg20": C("Small Group（グループ20h/週）", [0, 1992, 3887, 5689, 7400, 9023, 10562, 12019, 13406, 14711, 15944, 17120, 18219], 1518),
+      "sg20-1on1-10": C("Small Group & Individual（グループ20h＋1on1 10h/週）", [0, 4023, 7850, 11487, 14943, 18221, 21331, 24275, 27073, 29713, 32204, 34572, 36791], 3066),
+      "std-1on1-20": C("Standard Individual（1on1 20h/週）", [0, 4062, 7925, 11598, 15086, 18396, 21540, 24512, 27334, 30004, 32519, 34904, 37145], 3095),
+      "int-1on1-30": C("Intensive Individual（1on1 30h/週）", [0, 6094, 11888, 17397, 22630, 27594, 32310, 36768, 41000, 45006, 48778, 52356, 55717], 4643),
+      "up-safari-10": W("【Upgrade】SAFARI 10h/週（1on1コースに追加・街中での実践レッスン）CNY 384/週", 384),
+      "up-safari-20": W("【Upgrade】SAFARI 20h/週（1on1コースに追加・街中での実践レッスン）CNY 749/週", 749),
+      "svc-guardian": W("【Service】Guardian Program（未成年者向け）CNY 540/週", 540),
+      "svc-survival-std":  F("【Service】Survival Kit Standard CNY 1,648（一回）", 1648),
+      "svc-survival-comf": F("【Service】Survival Kit Comfort CNY 2,637（一回）", 2637),
+      "svc-connection":    F("【Service】Connection Kit CNY 680（一回）", 680),
+      "svc-cny-homestay":  F("【Supplement】Chinese New Year Homestay Supplement CNY 1,000（春節期間ホームステイ）", 1000),
+      },
+      accom: {
+      "none": { name:"なし", low:0, peak:0 },
+      "hs": A("Homestay 個室・朝夕食付", [0, 2236, 4342, 6325, 8186, 9934, 11575, 13108, 14544, 15880, 17129, 18298, 19380], 1615, 373, true),
+      "shared-pb": A("Shared Apartment 個室・専用バス・共用キッチン", [0, 2236, 4258, 6081, 7725, 9193, 10710, 12134, 13464, 14702, 15862, 16938, 17947], 1496, 373),
+      "studio": A("Studio Apartment 専用バス・簡易キッチン", [0, 3861, 7354, 10506, 13341, 15883, 18503, 20959, 23253, 25400, 27398, 29265, 30996], 2583, 644),
+      "hs-bo": A("Homestay 個室・朝食のみ（料金表Homestay額×85%で算出・要確認）", [0, 1901, 3691, 5376, 6958, 8444, 9839, 11142, 12362, 13498, 14560, 15553, 16473], 1373, null),
+      "hs-nf": A("Homestay 個室・食事なし（料金表Homestay額×80%で算出・要確認）", [0, 1789, 3474, 5060, 6549, 7947, 9260, 10486, 11635, 12704, 13703, 14638, 15504], 1292, null),
+      },
+      airports: { "Airport Pickup": 247 }
+    },
+    }
+  };
+  CURRENCIES.ltl_china = "CNY";
+  PRIVATE_LESSON_PRICES.ltl_china = { "beijing": null, "shanghai": null, "chengde": null, "xian": null, "chengdu": null, "kunming": null, "beihai": null };
+  PRICE_YEARS_OVERRIDE.ltl_china = { "beijing": [2026], "shanghai": [2026], "chengde": [2026], "xian": [2026], "chengdu": [2026], "kunming": [2026], "beihai": [2026] };
+
+  SCHOOLS.ltl_taiwan = {
+    name: "LTL Mandarin School（台湾）",
+    currency: "TWD",
+    campuses: {
+    "taipei": {
+      name: "Taipei 台北", country: "Taiwan", regFee: 0, peakSupp: 0,
+      courses: {
+      "sg20": C("Small Group（グループ20h/週）", [0, 12800, 24900, 36300, 47200, 57500, 67300, 76600, 85400, 93700, 101500, 108900, 115800], 9700),
+      "sg20-1on1-10": C("Small Group & Individual（グループ20h＋1on1 10h/週）", [0, 25500, 49700, 72600, 94400, 115000, 134600, 153100, 170700, 187300, 203000, 217800, 231600], 19300),
+      "std-1on1-20": C("Standard Individual（1on1 20h/週）", [0, 25500, 49600, 72500, 94300, 115000, 134600, 153100, 170600, 187200, 202900, 217700, 231600], 19300),
+      "int-1on1-30": C("Intensive Individual（1on1 30h/週）", [0, 38300, 74400, 108800, 141500, 172500, 201900, 229700, 255900, 280800, 304400, 326600, 347400], 29000),
+      "up-safari-10": W("【Upgrade】SAFARI 10h/週（1on1コースに追加・街中での実践レッスン）TWD 2,800/週", 2800),
+      "up-safari-20": W("【Upgrade】SAFARI 20h/週（1on1コースに追加・街中での実践レッスン）TWD 5,460/週", 5460),
+      "svc-guardian": W("【Service】Guardian Program（未成年者向け）TWD 4,000/週", 4000),
+      "svc-survival-std":  F("【Service】Survival Kit Standard TWD 8,900（一回）", 8900),
+      "svc-survival-comf": F("【Service】Survival Kit Comfort TWD 14,200（一回）", 14200),
+      "svc-connection":    F("【Service】Connection Kit TWD 4,800（一回）", 4800),
+      },
+      accom: {
+      "none": { name:"なし", low:0, peak:0 },
+      "hs": A("Homestay 個室・朝夕食付", [0, 19800, 38200, 55500, 71800, 87000, 101400, 114700, 127300, 138900, 149900, 160000, 169300], 14100, 3300, true),
+      "shared-sb": A("Shared Apartment 個室・共用バス・共用キッチン", [0, 14800, 28900, 42500, 55400, 67900, 79900, 91300, 102200, 112700, 122700, 132300, 141400], 11800, 2500),
+      "shared-pb": A("Shared Apartment 個室・専用バス・共用キッチン", [0, 16400, 32100, 47200, 61600, 75500, 88800, 101400, 113500, 125200, 136300, 147000, 157100], 13100, 2700),
+      "studio": A("Studio Apartment 専用バス・簡易キッチン", [0, 26800, 52400, 77000, 100600, 123300, 145000, 165800, 185700, 204800, 223000, 240400, 257100], 21400, 4500),
+      "hs-bo": A("Homestay 個室・朝食のみ（料金表Homestay額×85%で算出・要確認）", [0, 16830, 32470, 47175, 61030, 73950, 86190, 97495, 108205, 118065, 127415, 136000, 143905], 11985, null),
+      "hs-nf": A("Homestay 個室・食事なし（料金表Homestay額×80%で算出・要確認）", [0, 15840, 30560, 44400, 57440, 69600, 81120, 91760, 101840, 111120, 119920, 128000, 135440], 11280, null),
+      },
+      airports: { "Airport Pickup": 2100 }
+    },
+    "kaohsiung": {
+      name: "Kaohsiung 高雄", country: "Taiwan", regFee: 0, peakSupp: 0,
+      courses: {
+      "sg20": C("Small Group（グループ20h/週）", [0, 12800, 24900, 36300, 47200, 57500, 67300, 76600, 85400, 93700, 101500, 108900, 115800], 9700),
+      "sg20-1on1-10": C("Small Group & Individual（グループ20h＋1on1 10h/週）", [0, 25500, 49700, 72600, 94400, 115000, 134600, 153100, 170700, 187300, 203000, 217800, 231600], 19300),
+      "std-1on1-20": C("Standard Individual（1on1 20h/週）", [0, 25500, 49600, 72500, 94300, 115000, 134600, 153100, 170600, 187200, 202900, 217700, 231600], 19300),
+      "int-1on1-30": C("Intensive Individual（1on1 30h/週）", [0, 38300, 74400, 108800, 141500, 172500, 201900, 229700, 255900, 280800, 304400, 326600, 347400], 29000),
+      "up-safari-10": W("【Upgrade】SAFARI 10h/週（1on1コースに追加・街中での実践レッスン）TWD 2,800/週", 2800),
+      "up-safari-20": W("【Upgrade】SAFARI 20h/週（1on1コースに追加・街中での実践レッスン）TWD 5,460/週", 5460),
+      "svc-guardian": W("【Service】Guardian Program（未成年者向け）TWD 4,000/週", 4000),
+      "svc-survival-std":  F("【Service】Survival Kit Standard TWD 8,900（一回）", 8900),
+      "svc-survival-comf": F("【Service】Survival Kit Comfort TWD 14,200（一回）", 14200),
+      "svc-connection":    F("【Service】Connection Kit TWD 4,800（一回）", 4800),
+      },
+      accom: {
+      "none": { name:"なし", low:0, peak:0 },
+      "hs": A("Homestay 個室・朝夕食付", [0, 19800, 38200, 55500, 71800, 87000, 101400, 114700, 127300, 138900, 149900, 160000, 169300], 14100, 3300, true),
+      "shared-sb": A("Shared Apartment 個室・共用バス・共用キッチン", [0, 14800, 28900, 42500, 55400, 67900, 79900, 91300, 102200, 112700, 122700, 132300, 141400], 11800, 2500),
+      "shared-pb": A("Shared Apartment 個室・専用バス・共用キッチン", [0, 16400, 32100, 47200, 61600, 75500, 88800, 101400, 113500, 125200, 136300, 147000, 157100], 13100, 2700),
+      "studio": A("Studio Apartment 専用バス・簡易キッチン", [0, 26800, 52400, 77000, 100600, 123300, 145000, 165800, 185700, 204800, 223000, 240400, 257100], 21400, 4500),
+      "hs-bo": A("Homestay 個室・朝食のみ（料金表Homestay額×85%で算出・要確認）", [0, 16830, 32470, 47175, 61030, 73950, 86190, 97495, 108205, 118065, 127415, 136000, 143905], 11985, null),
+      "hs-nf": A("Homestay 個室・食事なし（料金表Homestay額×80%で算出・要確認）", [0, 15840, 30560, 44400, 57440, 69600, 81120, 91760, 101840, 111120, 119920, 128000, 135440], 11280, null),
+      },
+      airports: { "Airport Pickup": 2100 }
+    },
+    }
+  };
+  CURRENCIES.ltl_taiwan = "TWD";
+  PRIVATE_LESSON_PRICES.ltl_taiwan = { "taipei": null, "kaohsiung": null };
+  PRICE_YEARS_OVERRIDE.ltl_taiwan = { "taipei": [2026], "kaohsiung": [2026] };
+
+  SCHOOLS.ltl_singapore = {
+    name: "LTL Mandarin School（シンガポール）",
+    currency: "SGD",
+    campuses: {
+    "singapore": {
+      name: "Singapore", country: "Singapore", regFee: 0, peakSupp: 0,
+      courses: {
+      "sg20": C("Small Group（グループ20h/週）", [0, 850, 1659, 2428, 3158, 3851, 4509, 5132, 5722, 6280, 6808, 7306, 7776], 648),
+      "sg20-1on1-10": C("Small Group & Individual（グループ20h＋1on1 10h/週）", [0, 2044, 3989, 5837, 7593, 9260, 10841, 12339, 13758, 15100, 16369, 17566, 18696], 1558),
+      "std-1on1-20": C("Standard Individual（1on1 20h/週）", [0, 2388, 4660, 6819, 8870, 10817, 12664, 14414, 16072, 17639, 19121, 20521, 21840], 1820),
+      "int-1on1-30": C("Intensive Individual（1on1 30h/週）", [0, 3582, 6989, 10228, 13305, 16226, 18996, 21621, 24107, 26459, 28682, 30781, 32760], 2730),
+      "up-safari-10": W("【Upgrade】SAFARI 10h/週（1on1コースに追加・街中での実践レッスン）SGD 140/週", 140),
+      "up-safari-20": W("【Upgrade】SAFARI 20h/週（1on1コースに追加・街中での実践レッスン）SGD 220/週", 220),
+      "svc-survival-std":  F("【Service】Survival Kit Standard SGD 519（一回）", 519),
+      "svc-survival-comf": F("【Service】Survival Kit Comfort SGD 830（一回）", 830),
+      "svc-connection":    F("【Service】Connection Kit SGD 285（一回）", 285),
+      },
+      accom: {
+      "none": { name:"なし", low:0, peak:0 },
+      "hs": A("Homestay 個室・朝夕食付", [0, 1770, 3436, 5004, 6476, 7860, 9156, 10374, 11512, 12573, 13570, 14476, 15336], 1278, 295, true),
+      "studio-single": A("Studio Apartment シングル・専用バス・簡易キッチン", [0, 1085, 2170, 3255, 4340, 5425, 6510, 7595, 8680, 9765, 10850, 11935, 13020], 1085, 155),
+      "studio-double": A("Studio Apartment ダブル・専用バス・簡易キッチン", [0, 1225, 2450, 3675, 4900, 6125, 7350, 8575, 9800, 11025, 12250, 13475, 14700], 1225, 175),
+      "hs-bo": A("Homestay 個室・朝食のみ（料金表Homestay額×85%で算出・要確認）", [0, 1504, 2921, 4253, 5505, 6681, 7783, 8818, 9785, 10687, 11534, 12305, 13036], 1086, null),
+      "hs-nf": A("Homestay 個室・食事なし（料金表Homestay額×80%で算出・要確認）", [0, 1416, 2749, 4003, 5181, 6288, 7325, 8299, 9210, 10058, 10856, 11581, 12269], 1022, null),
+      },
+      airports: { "Airport Pickup": 90 }
+    },
+    }
+  };
+  CURRENCIES.ltl_singapore = "SGD";
+  PRIVATE_LESSON_PRICES.ltl_singapore = { "singapore": null };
+  PRICE_YEARS_OVERRIDE.ltl_singapore = { "singapore": [2026] };
+
+  SCHOOLS.ltl_japan = {
+    name: "LTL Japanese School（日本）",
+    currency: "JPY",
+    campuses: {
+    "tokyo": {
+      name: "Tokyo 東京", country: "Japan", regFee: 0, peakSupp: 0,
+      courses: {
+      "sg20": C("Small Group（グループ20h/週）", [0, 44000, 85000, 123000, 160000, 195000, 227000, 258000, 286000, 314000, 340000, 365000, 388000], 32000),
+      "sg20-1on1-10": C("Small Group & Individual（グループ20h＋1on1 10h/週）", [0, 100000, 193000, 281000, 365000, 444000, 519000, 590000, 657000, 720000, 779000, 836000, 889000], 74000),
+      "std-1on1-20": C("Standard Individual（1on1 20h/週）", [0, 111000, 217000, 316000, 410000, 499000, 584000, 664000, 740000, 812000, 880000, 943000, 1003000], 84000),
+      "int-1on1-30": C("Intensive Individual（1on1 30h/週）", [0, 167000, 325000, 474000, 615000, 749000, 876000, 997000, 1110000, 1218000, 1318000, 1414000, 1505000], 125000),
+      "up-safari-10": W("【Upgrade】SAFARI 10h/週（1on1コースに追加・街中での実践レッスン）JPY 18,000/週", 18000),
+      "up-safari-20": W("【Upgrade】SAFARI 20h/週（1on1コースに追加・街中での実践レッスン）JPY 35,100/週", 35100),
+      "svc-guardian": W("【Service】Guardian Program（未成年者向け）JPY 17,000/週", 17000),
+      "svc-survival-std":  F("【Service】Survival Kit Standard JPY 66,000（一回）", 66000),
+      "svc-survival-comf": F("【Service】Survival Kit Comfort JPY 106,000（一回）", 106000),
+      "svc-connection":    F("【Service】Connection Kit JPY 32,000（一回）", 32000),
+      },
+      accom: {
+      "none": { name:"なし", low:0, peak:0 },
+      "hs": A("Homestay 個室・朝夕食付", [0, 64000, 123000, 178000, 230000, 279000, 325000, 367000, 407000, 444000, 478000, 510000, 540000], 45000, 11000, true),
+      "shared-sb": A("Shared Apartment 個室・共用バス・共用キッチン", [0, 65000, 126000, 183000, 237000, 289000, 335000, 382000, 421000, 462000, 501000, 529000, 562000], 47000, 11000),
+      "studio": A("Studio Apartment 専用バス・簡易キッチン", [0, 90000, 175000, 254000, 328000, 401000, 464000, 529000, 583000, 640000, 693000, 733000, 778000], 65000, 15000),
+      "hs-bo": A("Homestay 個室・朝食のみ（料金表Homestay額×85%で算出・要確認）", [0, 54400, 104550, 151300, 195500, 237150, 276250, 311950, 345950, 377400, 406300, 433500, 459000], 38250, null),
+      "hs-nf": A("Homestay 個室・食事なし（料金表Homestay額×80%で算出・要確認）", [0, 51200, 98400, 142400, 184000, 223200, 260000, 293600, 325600, 355200, 382400, 408000, 432000], 36000, null),
+      },
+      airports: { "Airport Pickup": 30000 }
+    },
+    "osaka": {
+      name: "Osaka 大阪", country: "Japan", regFee: 0, peakSupp: 0,
+      courses: {
+      "sg20": C("Small Group（グループ20h/週）", [0, 44000, 85000, 123000, 160000, 195000, 227000, 258000, 286000, 314000, 340000, 365000, 388000], 32000),
+      "sg20-1on1-10": C("Small Group & Individual（グループ20h＋1on1 10h/週）", [0, 100000, 193000, 281000, 365000, 444000, 519000, 590000, 657000, 720000, 779000, 836000, 889000], 74000),
+      "std-1on1-20": C("Standard Individual（1on1 20h/週）", [0, 111000, 217000, 316000, 410000, 499000, 584000, 664000, 740000, 812000, 880000, 943000, 1003000], 84000),
+      "int-1on1-30": C("Intensive Individual（1on1 30h/週）", [0, 167000, 325000, 474000, 615000, 749000, 876000, 997000, 1110000, 1218000, 1318000, 1414000, 1505000], 125000),
+      "up-safari-10": W("【Upgrade】SAFARI 10h/週（1on1コースに追加・街中での実践レッスン）JPY 18,000/週", 18000),
+      "up-safari-20": W("【Upgrade】SAFARI 20h/週（1on1コースに追加・街中での実践レッスン）JPY 35,100/週", 35100),
+      "svc-guardian": W("【Service】Guardian Program（未成年者向け）JPY 17,000/週", 17000),
+      "svc-survival-std":  F("【Service】Survival Kit Standard JPY 66,000（一回）", 66000),
+      "svc-survival-comf": F("【Service】Survival Kit Comfort JPY 106,000（一回）", 106000),
+      "svc-connection":    F("【Service】Connection Kit JPY 32,000（一回）", 32000),
+      },
+      accom: {
+      "none": { name:"なし", low:0, peak:0 },
+      "hs": A("Homestay 個室・朝夕食付", [0, 64000, 123000, 178000, 230000, 279000, 325000, 367000, 407000, 444000, 478000, 510000, 540000], 45000, 11000, true),
+      "shared-sb": A("Shared Apartment 個室・共用バス・共用キッチン", [0, 65000, 126000, 183000, 237000, 289000, 335000, 382000, 421000, 462000, 501000, 529000, 562000], 47000, 11000),
+      "studio": A("Studio Apartment 専用バス・簡易キッチン", [0, 90000, 175000, 254000, 328000, 401000, 464000, 529000, 583000, 640000, 693000, 733000, 778000], 65000, 15000),
+      "hs-bo": A("Homestay 個室・朝食のみ（料金表Homestay額×85%で算出・要確認）", [0, 54400, 104550, 151300, 195500, 237150, 276250, 311950, 345950, 377400, 406300, 433500, 459000], 38250, null),
+      "hs-nf": A("Homestay 個室・食事なし（料金表Homestay額×80%で算出・要確認）", [0, 51200, 98400, 142400, 184000, 223200, 260000, 293600, 325600, 355200, 382400, 408000, 432000], 36000, null),
+      },
+      airports: { "Airport Pickup": 30000 }
+    },
+    }
+  };
+  CURRENCIES.ltl_japan = "JPY";
+  PRIVATE_LESSON_PRICES.ltl_japan = { "tokyo": null, "osaka": null };
+  PRICE_YEARS_OVERRIDE.ltl_japan = { "tokyo": [2026], "osaka": [2026] };
+
+  SCHOOLS.ltl_korea = {
+    name: "LTL Korean School（韓国）",
+    currency: "KRW",
+    campuses: {
+    "seoul": {
+      name: "Seoul ソウル", country: "South Korea", regFee: 0, peakSupp: 0,
+      courses: {
+      "sg20": C("Small Group（グループ20h/週）", [0, 368000, 712000, 1041000, 1352000, 1650000, 1926000, 2191000, 2440000, 2673000, 2890000, 3091000, 3288000], 274000),
+      "sg20-1on1-10": C("Small Group & Individual（グループ20h＋1on1 10h/週）", [0, 924000, 1794000, 2617000, 3397000, 4138000, 4836000, 5502000, 6127000, 6716000, 7268000, 7788000, 8283000], 690000),
+      "std-1on1-20": C("Standard Individual（1on1 20h/週）", [0, 1112000, 2163000, 3152000, 4089000, 4975000, 5820000, 6623000, 7375000, 8085000, 8755000, 9394000, 9991000], 833000),
+      "int-1on1-30": C("Intensive Individual（1on1 30h/週）", [0, 1669000, 3245000, 4728000, 6134000, 7462000, 8729000, 9934000, 11062000, 12128000, 13133000, 14090000, 14986000], 1249000),
+      "up-safari-10": W("【Upgrade】SAFARI 10h/週（1on1コースに追加・街中での実践レッスン）KRW 150,000/週", 150000),
+      "up-safari-20": W("【Upgrade】SAFARI 20h/週（1on1コースに追加・街中での実践レッスン）KRW 293,000/週", 293000),
+      "svc-guardian": W("【Service】Guardian Program（未成年者向け）KRW 150,000/週", 150000),
+      "svc-survival-std":  F("【Service】Survival Kit Standard KRW 350,000（一回）", 350000),
+      "svc-survival-comf": F("【Service】Survival Kit Comfort KRW 560,000（一回）", 560000),
+      "svc-connection":    F("【Service】Connection Kit KRW 194,000（一回）", 194000),
+      },
+      accom: {
+      "none": { name:"なし", low:0, peak:0 },
+      "hs": A("Homestay 個室・朝夕食付", [0, 630000, 1230000, 1810000, 2370000, 2910000, 3430000, 3940000, 4430000, 4900000, 5360000, 5800000, 6230000], 519000, 105000, true),
+      "mini": A("Mini Apartment（Goshiwon）個室・専用バス・共用キッチン", [0, 260000, 510000, 740000, 960000, 1180000, 1390000, 1590000, 1780000, 1970000, 2150000, 2330000, 2500000], 208000, 43000),
+      "serviced": A("Serviced Apartment 専用バス・簡易キッチン", [0, 742000, 1483000, 2225000, 2966000, 3708000, 4450000, 5191000, 5933000, 6480000, 7200000, 7920000, 8640000], 720000, 124000),
+      "hs-bo": A("Homestay 個室・朝食のみ（料金表Homestay額×85%で算出・要確認）", [0, 535500, 1045500, 1538500, 2014500, 2473500, 2915500, 3349000, 3765500, 4165000, 4556000, 4930000, 5295500], 441150, null),
+      "hs-nf": A("Homestay 個室・食事なし（料金表Homestay額×80%で算出・要確認）", [0, 504000, 984000, 1448000, 1896000, 2328000, 2744000, 3152000, 3544000, 3920000, 4288000, 4640000, 4984000], 415200, null),
+      },
+      airports: { "Airport Pickup": 106000 }
+    },
+    }
+  };
+  CURRENCIES.ltl_korea = "KRW";
+  PRIVATE_LESSON_PRICES.ltl_korea = { "seoul": null };
+  PRICE_YEARS_OVERRIDE.ltl_korea = { "seoul": [2026] };
+
+  SCHOOLS.ltl_vietnam = {
+    name: "LTL Vietnamese School（ベトナム）",
+    currency: "USD",
+    campuses: {
+    "saigon": {
+      name: "Saigon（Ho Chi Minh City）", country: "Vietnam", regFee: 0, peakSupp: 0,
+      courses: {
+      "sg20": C("Small Group（グループ20h/週）", [0, 243, 476, 695, 902, 1102, 1292, 1471, 1640, 1798, 1947, 2096, 2255], 185),
+      "sg20-1on1-10": C("Small Group & Individual（グループ20h＋1on1 10h/週）", [0, 480, 937, 1370, 1780, 2172, 2546, 2895, 3228, 3544, 3837, 4126, 4385], 365),
+      "std-1on1-20": C("Standard Individual（1on1 20h/週）", [0, 472, 922, 1350, 1756, 2140, 2508, 2849, 3176, 3492, 3780, 4059, 4320], 360),
+      "int-1on1-30": C("Intensive Individual（1on1 30h/週）", [0, 708, 1383, 2025, 2634, 3210, 3762, 4274, 4764, 5238, 5670, 6089, 6480], 540),
+      "up-safari-10": W("【Upgrade】SAFARI 10h/週（1on1コースに追加・街中での実践レッスン）USD 54/週", 54),
+      "up-safari-20": W("【Upgrade】SAFARI 20h/週（1on1コースに追加・街中での実践レッスン）USD 105/週", 105),
+      "svc-guardian": W("【Service】Guardian Program（未成年者向け）USD 90/週", 90),
+      "svc-survival-std":  F("【Service】Survival Kit Standard USD 93（一回）", 93),
+      "svc-survival-comf": F("【Service】Survival Kit Comfort USD 148（一回）", 148),
+      "svc-connection":    F("【Service】Connection Kit USD 78（一回）", 78),
+      },
+      accom: {
+      "none": { name:"なし", low:0, peak:0 },
+      "hs": A("Homestay 個室・朝夕食付", [0, 271, 535, 789, 1038, 1276, 1511, 1733, 1954, 2168, 2365, 2565, 2759], 230, 45, true),
+      "shared-pb": A("Shared Apartment 個室・専用バス・共用キッチン", [0, 229, 451, 664, 873, 1076, 1273, 1464, 1648, 1826, 1998, 2164, 2324], 194, 38),
+      "studio": A("Studio Apartment 専用バス・簡易キッチン", [0, 279, 550, 813, 1067, 1313, 1551, 1788, 2011, 2225, 2441, 2640, 2843], 237, 47),
+      "hs-bo": A("Homestay 個室・朝食のみ（料金表Homestay額×85%で算出・要確認）", [0, 230, 455, 671, 882, 1085, 1284, 1473, 1661, 1843, 2010, 2180, 2345], 196, null),
+      "hs-nf": A("Homestay 個室・食事なし（料金表Homestay額×80%で算出・要確認）", [0, 217, 428, 631, 830, 1021, 1209, 1386, 1563, 1734, 1892, 2052, 2207], 184, null),
+      },
+      airports: { "Airport Pickup Only": 33 }
+    },
+    "hanoi": {
+      name: "Hanoi ハノイ", country: "Vietnam", regFee: 0, peakSupp: 0,
+      courses: {
+      "sg20": C("Small Group（グループ20h/週）", [0, 243, 476, 695, 902, 1102, 1292, 1471, 1640, 1798, 1947, 2096, 2255], 185),
+      "sg20-1on1-10": C("Small Group & Individual（グループ20h＋1on1 10h/週）", [0, 480, 937, 1370, 1780, 2172, 2546, 2895, 3228, 3544, 3837, 4126, 4385], 365),
+      "std-1on1-20": C("Standard Individual（1on1 20h/週）", [0, 472, 922, 1350, 1756, 2140, 2508, 2849, 3176, 3492, 3780, 4059, 4320], 360),
+      "int-1on1-30": C("Intensive Individual（1on1 30h/週）", [0, 708, 1383, 2025, 2634, 3210, 3762, 4274, 4764, 5238, 5670, 6089, 6480], 540),
+      "up-safari-10": W("【Upgrade】SAFARI 10h/週（1on1コースに追加・街中での実践レッスン）USD 54/週", 54),
+      "up-safari-20": W("【Upgrade】SAFARI 20h/週（1on1コースに追加・街中での実践レッスン）USD 105/週", 105),
+      "svc-guardian": W("【Service】Guardian Program（未成年者向け）USD 90/週", 90),
+      "svc-survival-std":  F("【Service】Survival Kit Standard USD 93（一回）", 93),
+      "svc-survival-comf": F("【Service】Survival Kit Comfort USD 148（一回）", 148),
+      "svc-connection":    F("【Service】Connection Kit USD 78（一回）", 78),
+      },
+      accom: {
+      "none": { name:"なし", low:0, peak:0 },
+      "hs": A("Homestay 個室・朝夕食付", [0, 271, 535, 789, 1038, 1276, 1511, 1733, 1954, 2168, 2365, 2565, 2759], 230, 45, true),
+      "shared-pb": A("Shared Apartment 個室・専用バス・共用キッチン", [0, 229, 451, 664, 873, 1076, 1273, 1464, 1648, 1826, 1998, 2164, 2324], 194, 38),
+      "studio": A("Studio Apartment 専用バス・簡易キッチン", [0, 279, 550, 813, 1067, 1313, 1551, 1788, 2011, 2225, 2441, 2640, 2843], 237, 47),
+      "hs-bo": A("Homestay 個室・朝食のみ（料金表Homestay額×85%で算出・要確認）", [0, 230, 455, 671, 882, 1085, 1284, 1473, 1661, 1843, 2010, 2180, 2345], 196, null),
+      "hs-nf": A("Homestay 個室・食事なし（料金表Homestay額×80%で算出・要確認）", [0, 217, 428, 631, 830, 1021, 1209, 1386, 1563, 1734, 1892, 2052, 2207], 184, null),
+      },
+      airports: { "Airport Pickup Only": 33 }
+    },
+    }
+  };
+  CURRENCIES.ltl_vietnam = "USD";
+  PRIVATE_LESSON_PRICES.ltl_vietnam = { "saigon": null, "hanoi": null };
+  PRICE_YEARS_OVERRIDE.ltl_vietnam = { "saigon": [2026], "hanoi": [2026] };
+
+
+  // ---- Zabaan School for Languages（インド・INR）--------------------------------
+  // 出典: Zabaan Institutional Pricing（法人負担のバルク時間パッケージ・年版記載なし／2026-11受領）
+  // ・全価格 GST 18% 込み。パッケージは購入日から3年間有効・全言語で利用可
+  const ZB_NOTE = "法人向け料金（GST18%込）。パッケージは購入日から3年間有効・Hindi/Urdu/Sanskrit/Dari/Punjabi/Persian/Pashto/Arabic/Tamilの全言語で利用可。📝コミッション率未確認のため0%で計算。";
+  const ZP = (h, pct, rate, total) => ({ name:`Bulk Hour Package ${h}時間（${pct}%OFF・Rs ${rate}/h）総額 Rs ${fmtN(total)}`, type:"fixed", fixedPrice:total, commission:CM, note:`期間（週数）に関係なく固定額。${ZB_NOTE}` });
+  SCHOOLS.zabaan = {
+    name: "Zabaan School for Languages",
+    currency: "INR",
+    campuses: {
+      "new-delhi": {
+        name: "New Delhi（法人向けバルク時間パッケージ）", country: "India", regFee: 0, peakSupp: 0,
+        courses: {
+          "1to1-hourly": { name:"Private 1:1 Lessons Rs 2,450/時間（割引なし・GST18%込）", type:"1to1", pricePerHour:2450, defaultHours:10, commission:CM, note:`時間数/週×週数で計算。まとまった時間数ならパッケージの方が割安。${ZB_NOTE}` },
+          "pkg-15":  ZP(15,  5,  "2,327.50", 34912.50),
+          "pkg-30":  ZP(30,  10, "2,205.00", 66150),
+          "pkg-60":  ZP(60,  15, "2,082.50", 124950),
+          "pkg-120": ZP(120, 20, "1,960.00", 235200),
+        },
+        accom: { "none": { name:"なし（料金表に宿泊記載なし）", low:0, peak:0 } },
+        airports: {}
+      }
+    }
+  };
+  CURRENCIES.zabaan = "INR";
+  PRIVATE_LESSON_PRICES.zabaan = { "new-delhi": 2450 };
+})();
