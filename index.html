@@ -132,7 +132,7 @@ if(sessionStorage.getItem("getc_auth")==="1"){document.addEventListener("DOMCont
 else{document.addEventListener("DOMContentLoaded",()=>{const i=document.getElementById("pw-input");if(i)i.focus();});}
 </script>
 <div class="app">
-  <h1>海外プログラム見積計算ツール <span id="app-version" style="font-size:11px;color:#999;font-weight:400">ver 2026-11-18b</span></h1>
+  <h1>海外プログラム見積計算ツール <span id="app-version" style="font-size:11px;color:#999;font-weight:400">ver 2026-11-18c</span></h1>
 
   <!-- 保存済み見積もり -->
   <div class="card">
@@ -2229,21 +2229,37 @@ function _fileBase(p) {
 }
 
 // 保存済み（またはその場で組み立てた）案件データ → Excel出力用ターゲット
+// 保存済み・他タブの結果（旧仕様＝合算後に繰上げ）も、出力時に「明細行ごとに万円繰上げ→合算」へそろえる
+function _manLines(r) {
+  const man = n => Math.ceil(Math.round(n||0)/10000)*10000;
+  const lines = (r.freeeLines||[]).map(l => {
+    if (l.jpyExact !== undefined) return l;              // 新仕様で計算済み
+    const o = Object.assign({}, l, { jpyExact:Math.round(l.jpy||0) });
+    if (!l.isJPY && Array.isArray(l.items)) {
+      const rate2 = Math.round((l.effectiveFX||l.tts||1)*100)/100;
+      o.jpy = l.items.reduce((t,it)=>t+(it.lines||[]).reduce((u,ln)=>u+man((ln.local||0)*rate2),0),0)
+            + man(l.progGainJPY||0) + (l.includedJpy||[]).reduce((t,x)=>t+man(x.jpy),0);
+    } else o.jpy = man(l.jpy);
+    return o;
+  });
+  const total = lines.reduce((t,l)=>t+l.jpy,0) - (r.discounts||[]).reduce((t,d)=>t+(d.jpy||0),0);
+  return { lines, total };
+}
 function _projectToTargets(p) {
-  return (p.tabs||[]).filter(t=>t.result).map(t => ({
+  return (p.tabs||[]).filter(t=>t.result).map(t => { const _m = _manLines(t.result); return {
     client:p.client, project:p.project, date:p.date,
     author:p.author||"", reviewer:p.reviewer||"",
     tabName:t.name||"案",
-    freeeLines:t.result.freeeLines||[],
+    freeeLines:_m.lines,
     coord:t.result.coord||0, visa:t.result.visa||0,
-    total:t.result.total||0, grossProfit:t.result.grossProfit||0,
+    total:_m.total, grossProfit:t.result.grossProfit||0,
     totalCommJPY:t.result.totalCommJPY||0,
     totalTTSMarkupJPY:t.result.totalTTSMarkupJPY||0,
     totalProgMarkupJPY:t.result.totalProgMarkupJPY||0,
     jpyAddons:t.result.jpyAddons||[],
     totalAdj:t.result.totalAdj||0, discounts:t.result.discounts||[],
     links:(t.links&&t.links.length) ? t.links : _collectLinks(t.schoolSections),
-  }));
+  }; });
 }
 
 // 共有用JSON（BOXで同僚に渡す・後で読み込む用）
