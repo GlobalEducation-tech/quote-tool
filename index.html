@@ -132,7 +132,7 @@ if(sessionStorage.getItem("getc_auth")==="1"){document.addEventListener("DOMCont
 else{document.addEventListener("DOMContentLoaded",()=>{const i=document.getElementById("pw-input");if(i)i.focus();});}
 </script>
 <div class="app">
-  <h1>海外プログラム見積計算ツール <span id="app-version" style="font-size:11px;color:#999;font-weight:400">ver 2026-11-05a</span></h1>
+  <h1>海外プログラム見積計算ツール <span id="app-version" style="font-size:11px;color:#999;font-weight:400">ver 2026-11-18a</span></h1>
 
   <!-- 保存済み見積もり -->
   <div class="card">
@@ -1779,7 +1779,11 @@ function calcAll() {
     grandTotalJPY+=a.jpy;
   });
 
-  const totalBeforeDiscount=grandTotalJPY+totalCoord+totalVisa+totalAdj;
+  // 明細ごとに1万円単位で繰り上げてから合算（旧仕様に復元）
+  //   jpyExact = 為替換算後の円単位の金額（繰上げ前） / jpy = 1万円単位に繰り上げた明細金額
+  //   海外プログラム費用は内包Add-onを加えた後の金額で繰り上げる。見積合計は繰上げ後の明細の合計
+  freeeLines.forEach(l=>{ l.jpyExact=Math.round(l.jpy); l.jpy=Math.ceil(l.jpyExact/10000)*10000; });
+  const totalBeforeDiscount=freeeLines.reduce((t,l)=>t+l.jpy,0);
   // 案（タブ）ごとの全体割引（円単位そのまま・万円繰上げしない）
   const _disc = tabs[activeTabIdx]?.discount;
   if (_disc && _disc.mode!=="none" && (parseFloat(_disc.value)||0)>0) {
@@ -1808,7 +1812,7 @@ function calcAll() {
     html+=`<div class="breakdown-line"><span>× TTS ${l.tts} → 実効レート ${l.effectiveFX.toFixed(2)}（TTS+${l.ttsMarkupPct||0}%）</span><span class="bv">${fmt(l.costJPY+l.ttsGainJPY)}</span></div>`;
     if((l.progMarkupPct||0)>0)html+=`<div class="breakdown-line"><span>来年度上乗せ +${l.progMarkupPct}%</span><span class="bv">${fmt(l.progGainJPY)}</span></div>`;
     (l.includedJpy||[]).forEach(x=>{html+=`<div class="breakdown-line"><span>＋ ${x.label}（円建て・内包）</span><span class="bv">${fmtJPY(x.jpy)}</span></div>`;});
-    html+=`<div class="breakdown-line" style="font-weight:500"><span>→ 海外プログラム費用</span><span class="bv">${fmt(l.jpy)}</span></div>`;
+    html+=`<div class="breakdown-line" style="font-weight:500"><span>→ 海外プログラム費用（${fmtJPY(l.jpyExact??l.jpy)} → 1万円単位で繰上げ）</span><span class="bv">${fmt(l.jpy)}</span></div>`;
     l.items.forEach(item=>{html+=`<div style="margin:6px 0 2px;font-size:11px;color:#999;text-transform:uppercase;">${item.section}</div>`;item.lines.forEach(ln=>{html+=`<div class="breakdown-line" style="padding-left:8px"><span>${ln.label}</span><span class="bv">${fmtC(ln.local,l.currency)}</span></div>`;});});
   });
   if(discounts.length){
@@ -2477,6 +2481,7 @@ function _buildWorkbook(targets) {
     return nm;
   };
   const manCeil = n => Math.ceil(Math.round(n)/10000);
+  const manSum = refs => `SUM(${refs.map(x=>String(x).replace(/^E/,"F")).join(",")})*10000`; // 明細ごとの繰上げ後(F列)を合算
   const thin = { style:"thin", color:{ rgb:"999999" } };
   // 行色3系統（タイトル / 海外プログラム費用見出し / 円建て費用・見積合計・粗利合計）＋小計は控えめな薄グレー帯
   const STYLE = {
@@ -2540,7 +2545,7 @@ function _buildWorkbook(targets) {
       const belowIncl = [];
       progs.forEach(l => (l.includedJpy||[]).filter(isBelow).forEach(x => belowIncl.push(x)));
       const belowSum = l => (l.includedJpy||[]).filter(isBelow).reduce((t,x)=>t+Math.round(x.jpy),0);
-      const progJpy = l => Math.round(l.jpy) - belowSum(l);
+      const progJpy = l => Math.round(l.jpyExact ?? l.jpy) - belowSum(l); // 繰上げ前の円単位（F列で明細ごとに万円繰上げ）
       const progSubRows = [];
 
       progs.forEach((l, pi) => {
@@ -2597,7 +2602,7 @@ function _buildWorkbook(targets) {
         progSubRows.push(sr);
         if (pi === progs.length-1 && (adjLines.length > 0 || belowIncl.length > 0)) {
           const addRows = [];
-          adjLines.forEach(a => { const r = push([`　${a.label}`, "", "JPY", "", Math.round(a.jpy)]); addManF(r, a.jpy); addRows.push(r); });
+          adjLines.forEach(a => { const ex = a.jpyExact ?? a.jpy; const r = push([`　${a.label}`, "", "JPY", "", Math.round(ex)]); addManF(r, ex); addRows.push(r); });
           belowIncl.forEach(x => { const r = push([`　${x.label}（プログラムに内包）`, "", "JPY", "", Math.round(x.jpy)]); addManF(r, x.jpy); addRows.push(r); });
           addRows.forEach(r => schoolRefs.push(`E${r}`));
           const comboVal = progs.reduce((t,x)=>t+Math.round(x.jpy),0) + adjLines.reduce((t,x)=>t+Math.round(x.jpy),0);
@@ -2605,7 +2610,7 @@ function _buildWorkbook(targets) {
           const what = [adjLines.length?"追加上乗せ":"", belowIncl.length?"アクションラーニング":""].filter(Boolean).join("・");
           const cr2 = push([`　▶ ${progName} 合計（${what}含む）`, "", "", "", comboVal], STYLE.quote);
           tallRows.push(cr2-1);
-          formulas.push({ r:cr2-1, c:4, f:`SUM(${[...progSubRows, ...addRows].map(r=>`E${r}`).join(",")})` });
+          formulas.push({ r:cr2-1, c:4, f:manSum([...progSubRows, ...addRows].map(r=>`E${r}`)) });
           addManF(cr2, comboVal);
         }
         push([]);
@@ -2616,9 +2621,10 @@ function _buildWorkbook(targets) {
         push(["　項目", "", "通貨", "", "金額（円）", "金額（万円・繰上げ）"], STYLE.colhead);
         jpysRest.forEach(l => {
           const isCoord = ["coord","visa"].includes(l.kind) || (!l.kind && /コーディネーション|ビザ申請/.test(l.label||""));
-          const r = push([`　${isCoord?"▶ ":""}${l.label}`, "", "JPY", "", Math.round(l.jpy)], isCoord ? STYLE.quote : null);
+          const ex = l.jpyExact ?? l.jpy;
+          const r = push([`　${isCoord?"▶ ":""}${l.label}`, "", "JPY", "", Math.round(ex)], isCoord ? STYLE.quote : null);
           if (isCoord) tallRows.push(r-1);
-          addManF(r, l.jpy);
+          addManF(r, ex);
           schoolRefs.push(`E${r}`);
         });
         push([]);
@@ -2627,7 +2633,7 @@ function _buildWorkbook(targets) {
       if (multiSchool) {
         const schoolSum = progs.reduce((t,l)=>t+Math.round(l.jpy),0) + jpys.reduce((t,l)=>t+Math.round(l.jpy),0);
         const r = push([`学校${si+1} 合計（円建て費用含む）`, "", "", "", schoolSum], STYLE.subtotal);
-        if (schoolRefs.length) formulas.push({ r:r-1, c:4, f:`SUM(${schoolRefs.join(",")})` });
+        if (schoolRefs.length) formulas.push({ r:r-1, c:4, f:manSum(schoolRefs) });
         addManF(r, schoolSum);
         totalRefs.push(`E${r}`);
         push([]);
@@ -2647,7 +2653,7 @@ function _buildWorkbook(targets) {
 
     // 見積合計・粗利
     const tr = push([`★ 見積合計${discRows.length?"（割引後）":""}`, "", "", "", Math.round(q.total)], STYLE.total);
-    if (totalRefs.length) formulas.push({ r:tr-1, c:4, f:`SUM(${totalRefs.join(",")})` });
+    if (totalRefs.length) formulas.push({ r:tr-1, c:4, f:manSum(totalRefs) }); // 明細ごとに万円繰上げ→合算（割引のF列は円単位÷10000のまま）
     addManF(tr, q.total);
     push([]);
     const cr = push(["　うちコミッション（授業料×コミッション率）", "", "", "", Math.round(q.totalCommJPY||0)]); addManF(cr, q.totalCommJPY||0);
@@ -2968,7 +2974,7 @@ function _renderPriorResult(r) {
     ${Math.round(r.structural)?row("④ 構成差（プログラムの追加・削除・通貨変更）",r.structural):""}
     ${Math.round(r.jpyDiff)?row("⑤ 円建て費用の差（コーディネーション・ビザ・追加上乗せ等）",r.jpyDiff):""}
     ${Math.round(r.discDiff)?row("⑥ 割引の差",r.discDiff,false,"#c0392b"):""}
-    ${Math.abs(Math.round(r.residual))>0?row("端数・その他（円未満の丸め等）",r.residual,false,"#888"):""}
+    ${Math.abs(Math.round(r.residual))>0?row("端数・その他（明細ごとの万円繰上げ・円未満の丸め等）",r.residual,false,"#888"):""}
     ${row("合計（＝差額）",r.totalDiff,true)}
   </table>`;
   if (r.rows.length) {
