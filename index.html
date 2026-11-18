@@ -132,7 +132,7 @@ if(sessionStorage.getItem("getc_auth")==="1"){document.addEventListener("DOMCont
 else{document.addEventListener("DOMContentLoaded",()=>{const i=document.getElementById("pw-input");if(i)i.focus();});}
 </script>
 <div class="app">
-  <h1>海外プログラム見積計算ツール <span id="app-version" style="font-size:11px;color:#999;font-weight:400">ver 2026-11-18a</span></h1>
+  <h1>海外プログラム見積計算ツール <span id="app-version" style="font-size:11px;color:#999;font-weight:400">ver 2026-11-18b</span></h1>
 
   <!-- 保存済み見積もり -->
   <div class="card">
@@ -1752,11 +1752,15 @@ function calcAll() {
       const costJPY=grp.totalLocal*tts;
       const ttsGainJPY=grp.totalLocal*(effectiveFX-tts);
       const progGainJPY=costJPY*(progMarkupPct/100);
-      const programFee=Math.round(costJPY+ttsGainJPY+progGainJPY);
+      const programFeeExact=Math.round(costJPY+ttsGainJPY+progGainJPY);
+      // 明細行（授業料・宿泊・登録費…）ごとに円換算→1万円単位で繰上げ→合算（Excelの「円換算(万円・繰上げ)」列と同じ計算）
+      //   円換算 = ROUND(外貨金額 × 計算レート(小数2桁))。来年度上乗せも1行として繰上げ
+      const _rate2=Math.round(effectiveFX*100)/100, _man=n=>Math.ceil(Math.round(n)/10000)*10000;
+      const programFee=grp.items.reduce((t,it)=>t+(it.lines||[]).reduce((u,ln)=>u+_man((ln.local||0)*_rate2),0),0)+_man(progGainJPY);
       const commJPY=Math.round(grp.commissionLocal*tts);
       grandTotalJPY+=programFee;totalCommJPY+=commJPY;
       totalProgMarkupJPY+=Math.round(progGainJPY);totalTTSMarkupJPY+=Math.round(ttsGainJPY);
-      freeeLines.push({label:`海外プログラム費用（${grp.label}）`,jpy:programFee,currency:grp.currency,local:grp.totalLocal,tts,effectiveFX,costJPY,ttsGainJPY,progGainJPY,items:grp.items,commJPY,progMarkupPct,ttsMarkupPct,yrLabel:grp.yrLabel,kind:"program"});
+      freeeLines.push({label:`海外プログラム費用（${grp.label}）`,jpy:programFee,currency:grp.currency,local:grp.totalLocal,tts,effectiveFX,costJPY,ttsGainJPY,progGainJPY,items:grp.items,jpyExact:programFeeExact,commJPY,progMarkupPct,ttsMarkupPct,yrLabel:grp.yrLabel,kind:"program"});
     });
 
     // コーディネーション・ビザ（セクションごと）
@@ -1774,15 +1778,16 @@ function calcAll() {
   // 円建てAdd-ons
   allJpyAddons.forEach(a=>{
     const host = a.included ? freeeLines.find(l=>!l.isJPY&&l.schoolIdx===a.schoolIdx) : null;
-    if (host) { host.jpy+=a.jpy; (host.includedJpy=host.includedJpy||[]).push({label:a.label,jpy:a.jpy,type:a.type}); }
+    if (host) { host.jpyExact=(host.jpyExact??host.jpy)+a.jpy; host.jpy+=Math.ceil(Math.round(a.jpy)/10000)*10000; (host.includedJpy=host.includedJpy||[]).push({label:a.label,jpy:a.jpy,type:a.type}); }
     else freeeLines.push({label:a.label,jpy:a.jpy,isJPY:true,schoolIdx:a.schoolIdx,addonType:a.type});
     grandTotalJPY+=a.jpy;
   });
 
   // 明細ごとに1万円単位で繰り上げてから合算（旧仕様に復元）
   //   jpyExact = 為替換算後の円単位の金額（繰上げ前） / jpy = 1万円単位に繰り上げた明細金額
+  //   海外プログラム費用は上で明細行ごとに繰上げ済み（内包Add-onも1行ずつ繰上げて加算）
   //   海外プログラム費用は内包Add-onを加えた後の金額で繰り上げる。見積合計は繰上げ後の明細の合計
-  freeeLines.forEach(l=>{ l.jpyExact=Math.round(l.jpy); l.jpy=Math.ceil(l.jpyExact/10000)*10000; });
+  freeeLines.forEach(l=>{ if(l.jpyExact===undefined) l.jpyExact=Math.round(l.jpy); l.jpy=Math.ceil(l.jpy/10000)*10000; });
   const totalBeforeDiscount=freeeLines.reduce((t,l)=>t+l.jpy,0);
   // 案（タブ）ごとの全体割引（円単位そのまま・万円繰上げしない）
   const _disc = tabs[activeTabIdx]?.discount;
@@ -1812,7 +1817,7 @@ function calcAll() {
     html+=`<div class="breakdown-line"><span>× TTS ${l.tts} → 実効レート ${l.effectiveFX.toFixed(2)}（TTS+${l.ttsMarkupPct||0}%）</span><span class="bv">${fmt(l.costJPY+l.ttsGainJPY)}</span></div>`;
     if((l.progMarkupPct||0)>0)html+=`<div class="breakdown-line"><span>来年度上乗せ +${l.progMarkupPct}%</span><span class="bv">${fmt(l.progGainJPY)}</span></div>`;
     (l.includedJpy||[]).forEach(x=>{html+=`<div class="breakdown-line"><span>＋ ${x.label}（円建て・内包）</span><span class="bv">${fmtJPY(x.jpy)}</span></div>`;});
-    html+=`<div class="breakdown-line" style="font-weight:500"><span>→ 海外プログラム費用（${fmtJPY(l.jpyExact??l.jpy)} → 1万円単位で繰上げ）</span><span class="bv">${fmt(l.jpy)}</span></div>`;
+    html+=`<div class="breakdown-line" style="font-weight:500"><span>→ 海外プログラム費用（${fmtJPY(l.jpyExact??l.jpy)} → 明細ごとに1万円単位で繰上げて合算）</span><span class="bv">${fmt(l.jpy)}</span></div>`;
     l.items.forEach(item=>{html+=`<div style="margin:6px 0 2px;font-size:11px;color:#999;text-transform:uppercase;">${item.section}</div>`;item.lines.forEach(ln=>{html+=`<div class="breakdown-line" style="padding-left:8px"><span>${ln.label}</span><span class="bv">${fmtC(ln.local,l.currency)}</span></div>`;});});
   });
   if(discounts.length){
@@ -2481,7 +2486,7 @@ function _buildWorkbook(targets) {
     return nm;
   };
   const manCeil = n => Math.ceil(Math.round(n)/10000);
-  const manSum = refs => `SUM(${refs.map(x=>String(x).replace(/^E/,"F")).join(",")})*10000`; // 明細ごとの繰上げ後(F列)を合算
+  const fSum = refs => `SUM(${refs.map(x=>String(x).replace(/^E/,"F")).join(",")})`; // 小計・合計の万円列 = 各行のF列（万円・繰上げ）の合計
   const thin = { style:"thin", color:{ rgb:"999999" } };
   // 行色3系統（タイトル / 海外プログラム費用見出し / 円建て費用・見積合計・粗利合計）＋小計は控えめな薄グレー帯
   const STYLE = {
@@ -2592,12 +2597,13 @@ function _buildWorkbook(targets) {
           addManF(r, x.jpy); inclRows.push(r);
         });
         const sumArgs = [...detailRows.map(r=>`E${r}`), `E${progRow}`, ...inclRows.map(r=>`E${r}`)];
+        const addManSumF = (r, refs, manVal) => { rows[r-1][5] = manVal; formulas.push({ r:r-1, c:5, f:fSum(refs) }); };
         const localArgs = detailRows.map(r=>`B${r}`);
         const sr = push([`　▶ ${l.label} 小計`, Math.round((l.local||0)*100)/100, cur, Math.round(effRate*100)/100, progJpy(l)], STYLE.quote);
         tallRows.push(sr-1);
         if (localArgs.length) formulas.push({ r:sr-1, c:1, f:`SUM(${localArgs.join(",")})` });
         formulas.push({ r:sr-1, c:4, f:`SUM(${sumArgs.join(",")})` });
-        addManF(sr, progJpy(l));
+        addManSumF(sr, sumArgs, (Math.round(l.jpy) - belowSum(l))/10000);
         schoolRefs.push(`E${sr}`);
         progSubRows.push(sr);
         if (pi === progs.length-1 && (adjLines.length > 0 || belowIncl.length > 0)) {
@@ -2605,13 +2611,15 @@ function _buildWorkbook(targets) {
           adjLines.forEach(a => { const ex = a.jpyExact ?? a.jpy; const r = push([`　${a.label}`, "", "JPY", "", Math.round(ex)]); addManF(r, ex); addRows.push(r); });
           belowIncl.forEach(x => { const r = push([`　${x.label}（プログラムに内包）`, "", "JPY", "", Math.round(x.jpy)]); addManF(r, x.jpy); addRows.push(r); });
           addRows.forEach(r => schoolRefs.push(`E${r}`));
-          const comboVal = progs.reduce((t,x)=>t+Math.round(x.jpy),0) + adjLines.reduce((t,x)=>t+Math.round(x.jpy),0);
+          const comboVal = progs.reduce((t,x)=>t+Math.round(x.jpyExact ?? x.jpy),0) + adjLines.reduce((t,x)=>t+Math.round(x.jpyExact ?? x.jpy),0);
+          const comboMan = (progs.reduce((t,x)=>t+Math.round(x.jpy),0) + adjLines.reduce((t,x)=>t+Math.round(x.jpy),0))/10000;
           const progName = progs.length===1 ? l.label : "海外プログラム費用";
           const what = [adjLines.length?"追加上乗せ":"", belowIncl.length?"アクションラーニング":""].filter(Boolean).join("・");
           const cr2 = push([`　▶ ${progName} 合計（${what}含む）`, "", "", "", comboVal], STYLE.quote);
           tallRows.push(cr2-1);
-          formulas.push({ r:cr2-1, c:4, f:manSum([...progSubRows, ...addRows].map(r=>`E${r}`)) });
-          addManF(cr2, comboVal);
+          const comboRefs = [...progSubRows, ...addRows].map(r=>`E${r}`);
+          formulas.push({ r:cr2-1, c:4, f:`SUM(${comboRefs.join(",")})` });
+          rows[cr2-1][5] = comboMan; formulas.push({ r:cr2-1, c:5, f:fSum(comboRefs) });
         }
         push([]);
       });
@@ -2631,10 +2639,11 @@ function _buildWorkbook(targets) {
       }
 
       if (multiSchool) {
-        const schoolSum = progs.reduce((t,l)=>t+Math.round(l.jpy),0) + jpys.reduce((t,l)=>t+Math.round(l.jpy),0);
+        const schoolSum = progs.reduce((t,l)=>t+Math.round(l.jpyExact ?? l.jpy),0) + jpys.reduce((t,l)=>t+Math.round(l.jpyExact ?? l.jpy),0);
+        const schoolMan = (progs.reduce((t,l)=>t+Math.round(l.jpy),0) + jpys.reduce((t,l)=>t+Math.round(l.jpy),0))/10000;
         const r = push([`学校${si+1} 合計（円建て費用含む）`, "", "", "", schoolSum], STYLE.subtotal);
-        if (schoolRefs.length) formulas.push({ r:r-1, c:4, f:manSum(schoolRefs) });
-        addManF(r, schoolSum);
+        if (schoolRefs.length) { formulas.push({ r:r-1, c:4, f:`SUM(${schoolRefs.join(",")})` }); formulas.push({ r:r-1, c:5, f:fSum(schoolRefs) }); }
+        rows[r-1][5] = schoolMan;
         totalRefs.push(`E${r}`);
         push([]);
       } else {
@@ -2652,9 +2661,11 @@ function _buildWorkbook(targets) {
     if (discRows.length) push(["　※割引額は万円に丸めず円単位のまま計上しています"], STYLE.note);
 
     // 見積合計・粗利
-    const tr = push([`★ 見積合計${discRows.length?"（割引後）":""}`, "", "", "", Math.round(q.total)], STYLE.total);
-    if (totalRefs.length) formulas.push({ r:tr-1, c:4, f:manSum(totalRefs) }); // 明細ごとに万円繰上げ→合算（割引のF列は円単位÷10000のまま）
-    addManF(tr, q.total);
+    const totalExact = lines.reduce((t,l)=>t+Math.round(l.jpyExact ?? l.jpy),0) - (q.discounts||[]).reduce((t,d)=>t+Math.round(d.jpy),0);
+    const tr = push([`★ 見積合計${discRows.length?"（割引後）":""}`, "", "", "", totalExact, Math.round(q.total)/10000], STYLE.total);
+    // E列＝円換算の合計（繰上げ前）、F列＝各明細の「円換算(万円・繰上げ)」の合計＝見積金額（割引のF列は円単位÷10000のまま）
+    if (totalRefs.length) { formulas.push({ r:tr-1, c:4, f:`SUM(${totalRefs.join(",")})` }); formulas.push({ r:tr-1, c:5, f:fSum(totalRefs) }); }
+    if (discRows.length) cellStyles.push({ r:tr-1, c:5, style:{ numFmt:"#,##0.####\"万円\"" }, fmtOverride:"#,##0.####\"万円\"" });
     push([]);
     const cr = push(["　うちコミッション（授業料×コミッション率）", "", "", "", Math.round(q.totalCommJPY||0)]); addManF(cr, q.totalCommJPY||0);
     const mr = push(["　うちTTS上乗せ差益", "", "", "", Math.round(q.totalTTSMarkupJPY||0)]); addManF(mr, q.totalTTSMarkupJPY||0);
@@ -2673,7 +2684,7 @@ function _buildWorkbook(targets) {
     if (Math.abs(gpSum-Math.round(q.grossProfit))<=2) formulas.push({ r:gr-1, c:4, f:`SUM(${gpArgs.join(",")})` });
     addManF(gr, q.grossProfit);
     const rr = push(["　粗利率（粗利合計 ÷ 見積合計）", "", "", "", q.total ? q.grossProfit/q.total : 0]);
-    formulas.push({ r:rr-1, c:4, f:`IF(E${tr}=0,0,E${gr}/E${tr})` });
+    formulas.push({ r:rr-1, c:4, f:`IF(F${tr}=0,0,E${gr}/(F${tr}*10000))` });
     pctCells.push({ r:rr-1, c:4 });
     discRows.forEach(r => cellStyles.push({ r:r-1, c:5, style:{ numFmt:"0.0000\"万円\"" }, fmtOverride:"0.0000\"万円\"" }));
 
